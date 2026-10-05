@@ -28,7 +28,7 @@ class CenterMapOverlayTest {
     @Before fun showCard() {
         context = RuntimeEnvironment.getApplication()
         ShadowSettings.setCanDrawOverlays(true)
-        context.getSharedPreferences("diplay_center_map", Context.MODE_PRIVATE).edit()
+        context.getSharedPreferences("osnplay_center_map", Context.MODE_PRIVATE).edit()
             .clear().putInt("width", 640).putInt("x", 500).putInt("y", 300).commit()
         assertTrue(CenterMapOverlay.show(context, 8.0 / 3.0, {}, { taps++ }))
         card = CenterMapOverlay.javaClass.getDeclaredField("root").apply { isAccessible = true }
@@ -52,7 +52,7 @@ class CenterMapOverlayTest {
         touch(MotionEvent.ACTION_POINTER_UP or (1 shl MotionEvent.ACTION_POINTER_INDEX_SHIFT), 0 to 285f, 1 to 345f)
         touch(MotionEvent.ACTION_UP, 0 to 285f)
         assertEquals(0, taps)
-        assertEquals(840, context.getSharedPreferences("diplay_center_map", Context.MODE_PRIVATE).getInt("width", 0))
+        assertEquals(840, context.getSharedPreferences("osnplay_center_map", Context.MODE_PRIVATE).getInt("width", 0))
     }
 
     @Test fun pinchRespectsSizeLimitsAndKeepsCardOnScreen() {
@@ -182,7 +182,7 @@ class CenterMapOverlayTest {
 
     @Test fun showWith16By9AspectProportionsHeightProperly() {
         CenterMapOverlay.hide()
-        context.getSharedPreferences("diplay_center_map", Context.MODE_PRIVATE).edit()
+        context.getSharedPreferences("osnplay_center_map", Context.MODE_PRIVATE).edit()
             .clear().putInt("width", 720).commit()
         assertTrue(CenterMapOverlay.show(context, 16.0 / 9.0, {}, {}))
         card = CenterMapOverlay.javaClass.getDeclaredField("root").apply { isAccessible = true }
@@ -193,7 +193,7 @@ class CenterMapOverlayTest {
 
     @Test fun changedAspectPersistsAdaptedWidthAcrossSubsequentShows() {
         CenterMapOverlay.hide()
-        val prefs = context.getSharedPreferences("diplay_center_map", Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences("osnplay_center_map", Context.MODE_PRIVATE)
         prefs.edit().putInt("width", 1000)
             .putLong("aspect", java.lang.Double.doubleToRawLongBits(8.0 / 3)).commit()
         assertTrue(CenterMapOverlay.show(context, 16.0 / 9, {}, {}))

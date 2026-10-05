@@ -17,7 +17,7 @@ class VideoInCarTest {
 
     @Test
     fun featuresExAddsTheWebAppBitsToTheLegacyFeatures() {
-        // What the iPhone accepted from DiPlay's legacy features 0x615653aee2 plus bits 0 and 64.
+        // What the iPhone accepted from OsnPlay's legacy features 0x615653aee2 plus bits 0 and 64.
         assertEquals("465TVmEAAAAB", VideoInCar.featuresEx(0x615653aee2L))
     }
 
@@ -179,7 +179,7 @@ class VideoInCarTest {
 
     @Test
     fun everyReplyEncodesAsABinaryPlist() {
-        // A null in a reply crashed DiPlay in the car: plists have no null.
+        // A null in a reply crashed OsnPlay in the car: plists have no null.
         val loading = VideoInCar.PlayerState(prepared = false, playing = false, positionSeconds = 0.0, durationSeconds = 0.0, bufferedSeconds = 0.0)
         listOf(
             VideoInCar.propertyResponse(null, "playbackAccessLog", null),

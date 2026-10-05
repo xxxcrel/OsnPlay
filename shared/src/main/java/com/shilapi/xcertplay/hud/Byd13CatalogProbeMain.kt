@@ -4,7 +4,7 @@ import java.lang.reflect.Modifier
 
 /**
  * One-shot entry point launched under the head unit's shell uid with `app_process`. It reflects
- * only the six read fields DiPlay needs and their device ids, then exits. It performs no Binder
+ * only the six read fields OsnPlay needs and their device ids, then exits. It performs no Binder
  * writes and does not register a persistent service.
  */
 object Byd13CatalogProbeMain {
@@ -43,7 +43,7 @@ object Byd13CatalogProbeMain {
         return lines + nested
     }
 
-    const val HEADER = "DIPLAY_BYD13_CATALOG_V1"
+    const val HEADER = "OSNPLAY_BYD13_CATALOG_V1"
     private val ROOTS = listOf(
         "android.hardware.bydauto.BYDAutoFeatureIds",
         "android.hardware.bydauto.BYDAutoConstants",

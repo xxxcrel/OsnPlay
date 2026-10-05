@@ -150,8 +150,8 @@ class BydVehicleFieldStoreTest {
     private val context get() = RuntimeEnvironment.getApplication()
 
     @Before fun setUp() {
-        context.getSharedPreferences("diplay_byd_vehicle_fields", Context.MODE_PRIVATE).edit().clear().commit()
-        context.getSharedPreferences("diplay_byd_outputs", Context.MODE_PRIVATE).edit().clear().commit()
+        context.getSharedPreferences("osnplay_byd_vehicle_fields", Context.MODE_PRIVATE).edit().clear().commit()
+        context.getSharedPreferences("osnplay_byd_outputs", Context.MODE_PRIVATE).edit().clear().commit()
         BydVehicleFieldStore.clearMemoryForTests()
     }
 
@@ -242,7 +242,7 @@ class BydVehicleFieldStoreTest {
 
     @Test fun aSavedProbeSurvivesFirmwareMetadataChanges() {
         BydVehicleFieldStore.save(context, supportedCapabilities())
-        context.getSharedPreferences("diplay_byd_vehicle_fields", Context.MODE_PRIVATE)
+        context.getSharedPreferences("osnplay_byd_vehicle_fields", Context.MODE_PRIVATE)
             .edit().putString("firmware", "previous-controller-13-build").commit()
         BydVehicleFieldStore.clearMemoryForTests()
 

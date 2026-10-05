@@ -3,7 +3,7 @@ package com.shilapi.xcertplay.hud
 import android.content.Context
 import android.os.Build
 
-/** The small read-only BYD data surface DiPlay can forward to CarPlay. */
+/** The small read-only BYD data surface OsnPlay can forward to CarPlay. */
 enum class BydVehicleField(
     internal val symbol: String,
     internal val symbolAliases: List<String>,
@@ -85,7 +85,7 @@ data class BydVehicleAutomaticReplaceResult(
  * not discard working addresses. A later complete probe atomically replaces this snapshot.
  */
 object BydVehicleFieldStore {
-    private const val PREFS = "diplay_byd_vehicle_fields"
+    private const val PREFS = "osnplay_byd_vehicle_fields"
     private const val KEY_SCHEMA = "schema"
     private const val KEY_FIRMWARE = "firmware"
     private const val KEY_CATALOG = "catalog"

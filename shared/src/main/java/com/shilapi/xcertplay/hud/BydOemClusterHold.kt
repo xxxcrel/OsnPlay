@@ -1,7 +1,7 @@
 package com.shilapi.xcertplay.hud
 
 /**
- * How DiPlay keeps the car's own map off the instrument-cluster surface while it mirrors there.
+ * How OsnPlay keeps the car's own map off the instrument-cluster surface while it mirrors there.
  *
  * On DiLink 4.0 the car draws its cluster map with a single activity
  * ([BydOemClusterNavi.STOCK_MAP_CLUSTER_ACTIVITY]), so disabling just that activity stops the
@@ -16,7 +16,7 @@ enum class BydOemClusterHold {
     /** Disable only the car map's cluster projection, leaving the rest of the app running. */
     COMPONENT,
 
-    /** Disable the whole car map package while DiPlay mirrors the cluster. */
+    /** Disable the whole car map package while OsnPlay mirrors the cluster. */
     PACKAGE;
 
     companion object {

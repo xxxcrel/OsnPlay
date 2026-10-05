@@ -23,13 +23,13 @@ import kotlin.math.abs
 import kotlin.math.hypot
 
 /**
- * The dashboard map (CarPlay stream 111) as a floating card on the centre screen while DiPlay is in
+ * The dashboard map (CarPlay stream 111) as a floating card on the centre screen while OsnPlay is in
  * the background; with Usage Access only over a home screen (see [HomeScreenMonitor]). A second decoder draws the
  * stream here, so the dashboard keeps its map. Needs "display over other apps"
  * (SYSTEM_ALERT_WINDOW). A tap opens CarPlay, dragging moves the card and pinching resizes it.
  */
 internal object CenterMapOverlay {
-    const val TAG = "DiPlay-CenterMap"
+    const val TAG = "OsnPlay-CenterMap"
     private const val SHOW_DELAY_MILLIS = 600L
     private const val RELEASE_DELAY_MILLIS = 1_000L
     private const val WIDTH_FRACTION = 0.36
@@ -39,20 +39,20 @@ internal object CenterMapOverlay {
     private val main = Handler(Looper.getMainLooper())
     private var root: View? = null
 
-    /** The CarPlay screen, asked to show the card once no DiPlay screen is in front. */
+    /** The CarPlay screen, asked to show the card once no OsnPlay screen is in front. */
     var requestShow: (() -> Unit)? = null
-    private val showIfBackground = Runnable { if (!diPlayInFront()) requestShow?.invoke() }
+    private val showIfBackground = Runnable { if (!osnPlayInFront()) requestShow?.invoke() }
 
     fun permitted(context: Context): Boolean = Settings.canDrawOverlays(context)
 
-    /** Shows the card shortly, unless a DiPlay screen is in front by then. */
+    /** Shows the card shortly, unless a OsnPlay screen is in front by then. */
     fun scheduleShow() {
         main.removeCallbacks(showIfBackground)
         main.postDelayed(showIfBackground, SHOW_DELAY_MILLIS)
     }
 
-    /** A DiPlay screen is in front: the card goes. */
-    fun onDiPlayScreenShown() {
+    /** A OsnPlay screen is in front: the card goes. */
+    fun onOsnPlayScreenShown() {
         main.removeCallbacks(showIfBackground)
         hide()
     }
@@ -106,7 +106,7 @@ internal object CenterMapOverlay {
                 .coerceIn(0, (screenWidth - width).coerceAtLeast(0))
             y = prefs.getInt(KEY_Y, (96 * metrics.density).toInt())
                 .coerceIn(0, (screenHeight - height).coerceAtLeast(0))
-            title = "DiPlay centre map"
+            title = "OsnPlay centre map"
         }
         var surface: Surface? = null
         val video = TextureView(context).apply {
@@ -257,14 +257,14 @@ internal object CenterMapOverlay {
         Log.i(TAG, "card hidden")
     }
 
-    // A DiPlay activity in front makes the process foreground; the session service alone does not.
-    fun diPlayInFront(): Boolean {
+    // A OsnPlay activity in front makes the process foreground; the session service alone does not.
+    fun osnPlayInFront(): Boolean {
         val state = ActivityManager.RunningAppProcessInfo()
         ActivityManager.getMyMemoryState(state)
         return state.importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
     }
 
-    private const val PREFS = "diplay_center_map"
+    private const val PREFS = "osnplay_center_map"
     private const val KEY_X = "x"
     private const val KEY_Y = "y"
     private const val KEY_WIDTH = "width"

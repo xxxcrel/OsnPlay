@@ -230,4 +230,18 @@ class AirPlayInfoPlistTest {
             .toSet()
         assertEquals(setOf(100, 101, 102), types)
     }
+
+    @Test fun pcmOnlyMicrophoneDoesNotNegotiateAnUnsupportedOpusVoiceEncoder() {
+        val base = AirPlayConfig("test", "02:00:00:00:00:02", "02:00:00:00:00:02", "1",
+            AirPlayDisplayConfig(800, 480), microphone = true, microphoneOpus = false)
+        val formats = AirPlayInfoPlist.build(base)["audioFormats"] as List<*>
+        for (type in listOf("telephony", "speechRecognition", "default")) {
+            val voice = formats.map { it as Map<*, *> }.single { it["type"] == 100 && it["audioType"] == type }
+            assertEquals(0, (voice["audioInputFormats"] as Int) and 0x70000000)
+            assertEquals(0, (voice["audioOutputFormats"] as Int) and 0x70000000)
+            assertTrue((voice["audioInputFormats"] as Int) and 0x4154 != 0)
+        }
+        val music = formats.map { it as Map<*, *> }.single { it["type"] == 102 }
+        assertEquals(0x800000, music["audioOutputFormats"])
+    }
 }

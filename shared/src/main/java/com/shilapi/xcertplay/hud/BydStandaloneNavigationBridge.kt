@@ -19,7 +19,7 @@ internal object BydStandaloneNavigationBridge {
         if (output != null && !started) {
             started = true
             Executors.newSingleThreadScheduledExecutor { task ->
-                Thread(task, "diplay-standalone-navi").apply { isDaemon = true }
+                Thread(task, "osnplay-standalone-navi").apply { isDaemon = true }
             }.scheduleWithFixedDelay(::tick, 0, 250, TimeUnit.MILLISECONDS)
         }
     }
@@ -49,7 +49,7 @@ internal object BydStandaloneNavigationBridge {
                 else -> output?.clear()
             }
         } catch (error: Exception) {
-            Log.w("DiPlay-Standalone", "HUD update/cleanup will retry", error)
+            Log.w("OsnPlay-Standalone", "HUD update/cleanup will retry", error)
         }
     }
 }

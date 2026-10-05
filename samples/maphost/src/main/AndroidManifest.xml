@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Lets the sample find DiPlay's map service on Android 11+. -->
+    <!-- Lets the sample find OsnPlay's map service on Android 11+. -->
     <queries>
         <intent>
-            <action android:name="com.shihab.diplay.action.EMBED_MAP" />
+            <action android:name="com.shihab.osnplay.action.EMBED_MAP" />
         </intent>
     </queries>
 
     <application
-        android:label="DiPlay map host"
+        android:label="OsnPlay map host"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
         <activity
             android:name=".MainActivity"

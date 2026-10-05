@@ -22,7 +22,7 @@ class CarHotspotSetupTest {
     private val context get() = RuntimeEnvironment.getApplication()
 
     @Before fun reset() {
-        context.getSharedPreferences("diplay_car_hotspot", 0).edit().clear().commit()
+        context.getSharedPreferences("osnplay_car_hotspot", 0).edit().clear().commit()
         context.getSharedPreferences("xcertplay_airplay", 0).edit().clear().commit()
     }
 

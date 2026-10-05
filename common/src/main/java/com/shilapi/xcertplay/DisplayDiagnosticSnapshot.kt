@@ -8,7 +8,7 @@ import java.util.UUID
 
 /** Small, redacted snapshot retained separately from the rotating session logs. */
 internal object DisplayDiagnosticSnapshot {
-    private const val PREFS = "diplay_display_diagnostics"
+    private const val PREFS = "osnplay_display_diagnostics"
     private val fields = listOf("selection", "request", "capability", "effective", "phone", "decoder", "output")
     private fun stamp() = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(Date())
 

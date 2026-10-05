@@ -19,7 +19,7 @@ import org.robolectric.annotation.Config
 class CarPlayConnectionDiagnosticLogTest {
     private lateinit var activity: CarPlayHostActivity
     private lateinit var listener: AirPlaySessionListener
-    private val log get() = File(activity.filesDir, "logs/diplay.log").readText()
+    private val log get() = File(activity.filesDir, "logs/osnplay.log").readText()
 
     @Before fun prepareOldControllerListener() {
         activity = Robolectric.buildActivity(CarPlayHostActivity::class.java).get()

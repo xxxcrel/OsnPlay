@@ -1,0 +1,8 @@
+<resources>
+    <string name="osn_media_sync">Sincronizar controles multimedia del sistema</string>
+    <string name="osn_media_sync_description">Desactívalo si el reproductor del coche pausa CarPlay automáticamente. No se reenvían órdenes del sistema ni se recupera el foco durante la reproducción; los controles táctiles de CarPlay siguen funcionando. Reconecta tras cambiar.</string>
+    <string name="osn_microphone_compatibility">Compatibilidad del micrófono</string>
+    <string name="osn_microphone_compatibility_description">Usa la entrada MIC estándar y conserva el enrutamiento de llamadas del coche. Reconecta tras cambiar.</string>
+    <string name="osn_microphone_required">Permite a OsnPlay acceder al micrófono antes de conectar para capturar tu voz en llamadas y mensajes de voz.</string>
+    <string name="osn_microphone_granted">Permiso del micrófono concedido</string>
+</resources>

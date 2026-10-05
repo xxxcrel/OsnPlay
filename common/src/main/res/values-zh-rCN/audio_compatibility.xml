@@ -1,0 +1,8 @@
+<resources>
+    <string name="osn_media_sync">车机系统媒体控制同步</string>
+    <string name="osn_media_sync_description">若原厂播放器让 CarPlay 自动暂停，请保持关闭。关闭后不转发系统媒体指令，也不在播放中反复抢占焦点；CarPlay 内部触控播放、暂停仍正常。修改后请断开重连。</string>
+    <string name="osn_microphone_compatibility">麦克风兼容模式</string>
+    <string name="osn_microphone_compatibility_description">使用标准 MIC 录音源，保留原车管理的通话路由。修改后请断开重连。</string>
+    <string name="osn_microphone_required">连接前请在应用权限中允许 OsnPlay 使用麦克风，确保通话和微信语音能录到你的声音。</string>
+    <string name="osn_microphone_granted">麦克风权限已授权</string>
+</resources>

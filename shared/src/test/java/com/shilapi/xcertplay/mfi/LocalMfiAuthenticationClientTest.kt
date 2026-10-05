@@ -32,7 +32,7 @@ class LocalMfiAuthenticationClientTest {
         generator.initialize(ECGenParameterSpec("secp256r1"))
         val pair = generator.generateKeyPair()
         val algorithm = AlgorithmIdentifier(X9ObjectIdentifiers.ecdsa_with_SHA256)
-        val name = X500Name("CN=DiPlay synthetic test only")
+        val name = X500Name("CN=OsnPlay synthetic test only")
         val tbs = V3TBSCertificateGenerator().apply {
             setSerialNumber(ASN1Integer(BigInteger.ONE))
             setSignature(algorithm)

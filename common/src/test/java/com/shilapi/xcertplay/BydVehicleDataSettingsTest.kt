@@ -44,7 +44,7 @@ import org.robolectric.annotation.LooperMode
 @LooperMode(LooperMode.Mode.PAUSED)
 class BydVehicleDataSettingsTest {
     private val context get() = RuntimeEnvironment.getApplication()
-    private var controller: ActivityController<DiPlayActivity>? = null
+    private var controller: ActivityController<OsnPlayActivity>? = null
     private val activity get() = requireNotNull(controller).get()
     private lateinit var backend: FakeVehicleSettingsBackend
     private var reconnects = 0
@@ -53,8 +53,8 @@ class BydVehicleDataSettingsTest {
         backend = FakeVehicleSettingsBackend()
         BydVehicleSettingsBackendProvider.current = backend
         shadowOf(context.packageManager).removePackage("com.byd.amapservice")
-        context.getSharedPreferences("diplay_byd_outputs", 0).edit().clear().commit()
-        context.getSharedPreferences("diplay_byd_vehicle_fields", 0).edit().clear().commit()
+        context.getSharedPreferences("osnplay_byd_outputs", 0).edit().clear().commit()
+        context.getSharedPreferences("osnplay_byd_vehicle_fields", 0).edit().clear().commit()
         BydVehicleFieldStore.clearMemoryForTests()
     }
 
@@ -115,7 +115,7 @@ class BydVehicleDataSettingsTest {
         backend.tasks.clear()
         openSettings()
         shadowOf(Looper.getMainLooper()).idle()
-        backend.runAll("diplay-byd13-auto-validate")
+        backend.runAll("osnplay-byd13-auto-validate")
         texts().single { it.text == activity.getString(R.string.advanced_vehicle_data) }.performClick()
 
         assertTrue(texts().any { it.text == activity.getString(R.string.hide_advanced_vehicle_data) })
@@ -153,14 +153,14 @@ class BydVehicleDataSettingsTest {
         BydOutputSettings.setLegacyVehicleProbe(context, true)
         backend.checkResult = readableStatus()
         controller = Robolectric.buildActivity(
-            DiPlayActivity::class.java,
-            Intent(context, DiPlayActivity::class.java).putExtra("page", "settings"),
+            OsnPlayActivity::class.java,
+            Intent(context, OsnPlayActivity::class.java).putExtra("page", "settings"),
         )
         // setup() can drain the validation posted by onCreate; establish authorization first.
         ReflectionHelpers.setField(activity, "adbSwitchChangePending", true)
         requireNotNull(controller).setup()
         shadowOf(Looper.getMainLooper()).idle()
-        assertTrue(backend.tasks.none { it.first == "diplay-byd13-auto-validate" })
+        assertTrue(backend.tasks.none { it.first == "osnplay-byd13-auto-validate" })
         assertEquals(0, backend.checkCalls)
         assertEquals(0, backend.probeCalls)
         assertTrue(ReflectionHelpers.getField<Boolean>(activity, "automaticVehicleValidationPending"))
@@ -168,8 +168,8 @@ class BydVehicleDataSettingsTest {
         ReflectionHelpers.setField(activity, "adbSwitchChangePending", false)
         ReflectionHelpers.callInstanceMethod<Unit>(activity, "runPendingAutomaticVehicleValidation")
         shadowOf(Looper.getMainLooper()).idle()
-        assertEquals(1, backend.tasks.count { it.first == "diplay-byd13-auto-validate" })
-        backend.runAll("diplay-byd13-auto-validate")
+        assertEquals(1, backend.tasks.count { it.first == "osnplay-byd13-auto-validate" })
+        backend.runAll("osnplay-byd13-auto-validate")
         assertEquals(1, backend.checkCalls)
         assertEquals(0, backend.probeCalls)
         assertEquals(saved, BydVehicleFieldStore.load(context))
@@ -181,7 +181,7 @@ class BydVehicleDataSettingsTest {
         backend.checkResult = BydAdbAccess.Status(BydAdbAccess.State.ADB_OFF)
         openSettings()
         shadowOf(Looper.getMainLooper()).idle()
-        backend.runAll("diplay-byd13-auto-validate")
+        backend.runAll("osnplay-byd13-auto-validate")
         texts().single { it.text == activity.getString(R.string.advanced_vehicle_data) }.performClick()
 
         assertTrue(vehicleSwitch(R.string.video_while_parked).isChecked)
@@ -222,8 +222,8 @@ class BydVehicleDataSettingsTest {
         invokeProbe()
         ReflectionHelpers.callInstanceMethod<Unit>(activity, "scheduleAutomaticVehicleValidation")
         shadowOf(Looper.getMainLooper()).idle()
-        backend.run("diplay-byd13-probe")
-        backend.runAll("diplay-byd13-auto-validate")
+        backend.run("osnplay-byd13-probe")
+        backend.runAll("osnplay-byd13-auto-validate")
 
         assertFalse(ReflectionHelpers.getField(activity, "vehicleProbeAuthorizationInProgress"))
         assertFalse(ReflectionHelpers.getField(activity, "vehicleProbeInProgress"))
@@ -239,8 +239,8 @@ class BydVehicleDataSettingsTest {
         ReflectionHelpers.callInstanceMethod<Unit>(activity, "checkAdbState",
             ReflectionHelpers.ClassParameter.from(Boolean::class.javaPrimitiveType!!, true))
         shadowOf(Looper.getMainLooper()).idle()
-        backend.run("diplay-adb-state")
-        backend.runAll("diplay-byd13-auto-validate")
+        backend.run("osnplay-adb-state")
+        backend.runAll("osnplay-byd13-auto-validate")
 
         assertFalse(ReflectionHelpers.getField(activity, "adbCheckInProgress"))
         assertFalse(ReflectionHelpers.getField(activity, "automaticVehicleValidationInProgress"))
@@ -260,11 +260,11 @@ class BydVehicleDataSettingsTest {
         ReflectionHelpers.callInstanceMethod<Unit>(activity, "onNewIntent",
             ReflectionHelpers.ClassParameter.from(
                 Intent::class.java,
-                Intent(context, DiPlayActivity::class.java).putExtra("page", "settings"),
+                Intent(context, OsnPlayActivity::class.java).putExtra("page", "settings"),
             ))
         shadowOf(Looper.getMainLooper()).idle()
-        backend.run("diplay-byd13-probe")
-        backend.runAll("diplay-byd13-auto-validate")
+        backend.run("osnplay-byd13-probe")
+        backend.runAll("osnplay-byd13-auto-validate")
 
         assertFalse(ReflectionHelpers.getField(activity, "vehicleProbeAuthorizationInProgress"))
         assertFalse(ReflectionHelpers.getField(activity, "vehicleProbeInProgress"))
@@ -282,7 +282,7 @@ class BydVehicleDataSettingsTest {
         texts().single { it.text == activity.getString(R.string.advanced_vehicle_data) }.performClick()
 
         invokeProbe()
-        backend.run("diplay-byd13-probe")
+        backend.run("osnplay-byd13-probe")
 
         assertTrue(BydVehicleFieldStore.load(context)!!.gearSupported)
         assertTrue(texts().any { it.text.toString().contains(activity.getString(R.string.vehicle_field_gear)) })
@@ -298,7 +298,7 @@ class BydVehicleDataSettingsTest {
         }
 
         invokeProbe()
-        backend.run("diplay-byd13-probe")
+        backend.run("osnplay-byd13-probe")
 
         assertEquals(1, backend.probeCalls)
         assertEquals(saved, BydVehicleFieldStore.load(context))
@@ -310,7 +310,7 @@ class BydVehicleDataSettingsTest {
         backend.onProbe = { BydOutputSettings.setLegacyVehicleProbe(context, false) }
 
         invokeProbe()
-        backend.run("diplay-byd13-probe")
+        backend.run("osnplay-byd13-probe")
 
         assertEquals(1, backend.probeCalls)
         assertFalse(BydOutputSettings.legacyVehicleProbe(context))
@@ -324,7 +324,7 @@ class BydVehicleDataSettingsTest {
         backend.onProbe = { requireNotNull(controller).pause().stop() }
 
         invokeProbe()
-        backend.run("diplay-byd13-probe")
+        backend.run("osnplay-byd13-probe")
 
         assertEquals(backend.probeResult.capabilities, BydVehicleFieldStore.load(context))
         assertEquals(90.0, publishedBatteryPercent(), 0.0)
@@ -342,7 +342,7 @@ class BydVehicleDataSettingsTest {
         backend.onProbe = { selectLegacyMode(false) }
 
         selectLegacyMode(true)
-        backend.run("diplay-byd13-probe")
+        backend.run("osnplay-byd13-probe")
 
         assertFalse(BydOutputSettings.legacyVehicleProbe(context))
         assertEquals(null, BydVehicleFieldStore.load(context))
@@ -384,11 +384,11 @@ class BydVehicleDataSettingsTest {
         openSettings()
         texts().single { it.text == activity.getString(R.string.advanced_vehicle_data) }.performClick()
         invokeProbe()
-        backend.run("diplay-byd13-probe")
+        backend.run("osnplay-byd13-probe")
 
         // With no switch on, the check after a return from CarPlay passes without reading the lost gear.
         returnFromCarPlay()
-        backend.runAll("diplay-byd13-auto-validate")
+        backend.runAll("osnplay-byd13-auto-validate")
 
         assertTrue(texts().any { it.text == activity.getString(R.string.replace_saved_vehicle_data_anyway) })
     }
@@ -404,12 +404,12 @@ class BydVehicleDataSettingsTest {
         openSettings()
         texts().single { it.text == activity.getString(R.string.advanced_vehicle_data) }.performClick()
         invokeProbe()
-        backend.run("diplay-byd13-probe")
+        backend.run("osnplay-byd13-probe")
 
         // Meanwhile ADB was turned off, and another probe saved its result.
         backend.checkResult = BydAdbAccess.Status(BydAdbAccess.State.ADB_OFF)
         returnFromCarPlay()
-        backend.runAll("diplay-byd13-auto-validate")
+        backend.runAll("osnplay-byd13-auto-validate")
         val savedSince = supportedCapabilities(currentKey).copy(detectedAtMillis = 42)
         BydVehicleFieldStore.save(context, savedSince)
         texts().single { it.text == activity.getString(R.string.replace_saved_vehicle_data_anyway) }.performClick()
@@ -434,7 +434,7 @@ class BydVehicleDataSettingsTest {
         openSettings()
         texts().single { it.text == activity.getString(R.string.advanced_vehicle_data) }.performClick()
         invokeProbe()
-        backend.run("diplay-byd13-probe")
+        backend.run("osnplay-byd13-probe")
 
         texts().single { it.text == activity.getString(R.string.replace_saved_vehicle_data_anyway) }.performClick()
 
@@ -450,15 +450,15 @@ class BydVehicleDataSettingsTest {
         backend.checkResult = readableStatus()
         openSettings()
         shadowOf(Looper.getMainLooper()).idle()
-        backend.runAll("diplay-byd13-auto-validate")
+        backend.runAll("osnplay-byd13-auto-validate")
 
         // As when Dashboard song or Dashboard map is turned on.
         ReflectionHelpers.callInstanceMethod<Unit>(activity, "checkAdbState",
             ReflectionHelpers.ClassParameter.from(Boolean::class.javaPrimitiveType!!, true))
-        backend.run("diplay-adb-state")
+        backend.run("osnplay-adb-state")
 
         assertEquals(1, backend.checkCalls)
-        assertFalse(backend.tasks.any { it.first == "diplay-byd13-auto-validate" })
+        assertFalse(backend.tasks.any { it.first == "osnplay-byd13-auto-validate" })
     }
 
     @Test fun aSwitchTurnedOnDuringAValidationIsValidatedAfterIt() {
@@ -471,7 +471,7 @@ class BydVehicleDataSettingsTest {
         // The first validation has not finished reading when wheel speed is turned on.
         vehicleSwitch(R.string.wheel_speed_for_tunnels).performClick()
         shadowOf(Looper.getMainLooper()).idle()
-        backend.runAll("diplay-byd13-auto-validate")
+        backend.runAll("osnplay-byd13-auto-validate")
 
         assertEquals(2, backend.checkCalls)
     }
@@ -488,7 +488,7 @@ class BydVehicleDataSettingsTest {
             ReflectionHelpers.callInstanceMethod<Any?>(activity, "cancelAutomaticVehicleValidationForUserOperation",
                 ReflectionHelpers.ClassParameter.from(Boolean::class.javaPrimitiveType!!, false))
         }
-        backend.run("diplay-byd13-auto-validate")
+        backend.run("osnplay-byd13-auto-validate")
 
         assertEquals(1, backend.checkCalls)
         assertEquals(0, backend.probeCalls)
@@ -503,7 +503,7 @@ class BydVehicleDataSettingsTest {
 
         invokeProbe()
         assertTrue(texts().any { it.text == activity.getString(R.string.adb_checking_may_ask) })
-        backend.run("diplay-byd13-probe")
+        backend.run("osnplay-byd13-probe")
 
         assertEquals(2, backend.probeCalls)
         assertTrue(texts().any { it.text.toString().contains(activity.getString(R.string.vehicle_probe_allowed_once)) })
@@ -522,7 +522,7 @@ class BydVehicleDataSettingsTest {
         texts().single { it.text == activity.getString(R.string.advanced_vehicle_data) }.performClick()
 
         invokeProbe()
-        backend.run("diplay-byd13-probe")
+        backend.run("osnplay-byd13-probe")
 
         assertEquals(2, backend.probeCalls)
         assertTrue(BydVehicleFieldStore.load(context)!!.motionSupported)
@@ -536,7 +536,7 @@ class BydVehicleDataSettingsTest {
         ReflectionHelpers.callInstanceMethod<Unit>(activity, "render")
 
         selectLegacyMode(true)
-        backend.run("diplay-byd13-probe")
+        backend.run("osnplay-byd13-probe")
 
         assertFalse(BydOutputSettings.legacyVehicleProbe(context))
         assertEquals(null, BydVehicleFieldStore.load(context))
@@ -554,7 +554,7 @@ class BydVehicleDataSettingsTest {
         ReflectionHelpers.callInstanceMethod<Unit>(activity, "render")
 
         selectLegacyMode(true)
-        backend.run("diplay-byd13-probe")
+        backend.run("osnplay-byd13-probe")
 
         assertTrue(BydOutputSettings.legacyVehicleProbe(context))
         assertTrue(BydVehicleFieldStore.load(context)!!.motionSupported)
@@ -572,7 +572,7 @@ class BydVehicleDataSettingsTest {
         texts().single { it.text == activity.getString(R.string.advanced_vehicle_data) }.performClick()
 
         vehicleSwitch(R.string.car_battery_for_the_iphone).performClick()
-        backend.run("diplay-adb-state")
+        backend.run("osnplay-adb-state")
 
         assertTrue(BydOutputSettings.batteryToIphone(context))
         assertTrue(texts().any { it.text == activity.getString(R.string.adb_battery_unreadable) })
@@ -581,13 +581,13 @@ class BydVehicleDataSettingsTest {
         // Approval or a fix on the car later: the next check applies the waiting switch once.
         backend.checkResult = readableStatus()
         texts().single { it.text == activity.getString(R.string.check_adb_access) }.performClick()
-        backend.run("diplay-adb-state")
+        backend.run("osnplay-adb-state")
 
         assertTrue(texts().any { it.text == activity.getString(R.string.adb_battery_reading, 75, 450) })
         assertEquals(1, reconnects)
 
         texts().single { it.text == activity.getString(R.string.check_adb_access) }.performClick()
-        backend.run("diplay-adb-state")
+        backend.run("osnplay-adb-state")
         assertEquals(1, reconnects)
     }
 
@@ -601,7 +601,7 @@ class BydVehicleDataSettingsTest {
         connectCarPlay()
 
         selectLegacyMode(true)
-        backend.run("diplay-byd13-probe")
+        backend.run("osnplay-byd13-probe")
         assertTrue(BydOutputSettings.legacyVehicleProbe(context))
         assertEquals(0, reconnects)
 
@@ -619,7 +619,7 @@ class BydVehicleDataSettingsTest {
         texts().single { it.text == activity.getString(R.string.check_adb_access) }.performClick()
         assertFalse(modeChoice().isEnabled)
 
-        backend.run("diplay-adb-state")
+        backend.run("osnplay-adb-state")
         assertTrue(modeChoice().isEnabled)
     }
 
@@ -637,7 +637,7 @@ class BydVehicleDataSettingsTest {
         texts().single { it.text == activity.getString(R.string.advanced_vehicle_data) }.performClick()
 
         shadowOf(Looper.getMainLooper()).idle()
-        backend.run("diplay-byd13-auto-validate")
+        backend.run("osnplay-byd13-auto-validate")
 
         assertEquals(null, ReflectionHelpers.getField<BydVehicleProbeOutcome?>(activity, "vehicleProbeOutcome"))
         assertFalse(texts().any { it.text.toString().contains("old error") })
@@ -716,8 +716,8 @@ class BydVehicleDataSettingsTest {
 
     private fun openSettings() {
         controller = Robolectric.buildActivity(
-            DiPlayActivity::class.java,
-            Intent(context, DiPlayActivity::class.java).putExtra("page", "settings"),
+            OsnPlayActivity::class.java,
+            Intent(context, OsnPlayActivity::class.java).putExtra("page", "settings"),
         ).setup()
     }
 
@@ -733,12 +733,12 @@ class BydVehicleDataSettingsTest {
             ReflectionHelpers.ClassParameter.from(Boolean::class.javaPrimitiveType!!, true))
     }
 
-    /** Three-finger gesture or Back to DiPlay: the settings page comes back through a new intent. */
+    /** Three-finger gesture or Back to OsnPlay: the settings page comes back through a new intent. */
     private fun returnFromCarPlay() {
         ReflectionHelpers.callInstanceMethod<Unit>(activity, "onNewIntent",
             ReflectionHelpers.ClassParameter.from(
                 Intent::class.java,
-                Intent(context, DiPlayActivity::class.java).putExtra("page", "settings"),
+                Intent(context, OsnPlayActivity::class.java).putExtra("page", "settings"),
             ))
         shadowOf(Looper.getMainLooper()).idle()
     }

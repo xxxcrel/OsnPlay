@@ -47,7 +47,7 @@ internal class HomeScreenMonitor(context: Context, private val onChange: (Boolea
             since = System.currentTimeMillis() - FIRST_LOOK_BACK_MILLIS
             newestTime = 0L
             newestPackage = null
-            executor = Executors.newSingleThreadScheduledExecutor { Thread(it, "diplay-home-monitor").apply { isDaemon = true } }
+            executor = Executors.newSingleThreadScheduledExecutor { Thread(it, "osnplay-home-monitor").apply { isDaemon = true } }
                 .also { it.scheduleWithFixedDelay(::poll, 0, POLL_MILLIS, TimeUnit.MILLISECONDS) }
         }
     }
@@ -145,7 +145,7 @@ internal class HomeScreenMonitor(context: Context, private val onChange: (Boolea
             return set
         }
 
-        /** The launcher Android uses as home now, unless that is the chooser or DiPlay itself. */
+        /** The launcher Android uses as home now, unless that is the chooser or OsnPlay itself. */
         fun defaultHome(context: Context): String? = runCatching {
             context.packageManager.resolveActivity(
                 Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME),

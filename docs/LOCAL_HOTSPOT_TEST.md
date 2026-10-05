@@ -6,7 +6,7 @@ This transport is optional; existing Wi-Fi Direct and car-hotspot choices keep t
 
 On the tested DiLink 5.1/Android 13 firmware, Nearby devices permission allows the configured 5 GHz reservation through a capability-checked framework SystemApi. This is firmware-dependent, not a guarantee for every Android 13 device. API 36+ uses the configured-hotspot entry point. The firmware can override the requested channel; a fixed request is not proof that the AP stayed on it.
 
-Select **Settings → Wireless link → Local hotspot · experimental**. On DiLink 5.1, use **Open car Wi-Fi settings** and turn **the car's Wi-Fi switch off**, then return to DiPlay and connect. Keep the car's Bluetooth and the iPhone's Bluetooth/Wi-Fi on. Merely disconnecting home Wi-Fi leaves background network searches running. The app's separate hotspot can run while the car's client switch is off. To use Wi-Fi Direct again, re-enable the car's Wi-Fi. The app never silently changes this system setting.
+Select **Settings → Wireless link → Local hotspot · experimental**. On DiLink 5.1, use **Open car Wi-Fi settings** and turn **the car's Wi-Fi switch off**, then return to OsnPlay and connect. Keep the car's Bluetooth and the iPhone's Bluetooth/Wi-Fi on. Merely disconnecting home Wi-Fi leaves background network searches running. The app's separate hotspot can run while the car's client switch is off. To use Wi-Fi Direct again, re-enable the car's Wi-Fi. The app never silently changes this system setting.
 
 ## In-car evidence, 27 September 2026
 

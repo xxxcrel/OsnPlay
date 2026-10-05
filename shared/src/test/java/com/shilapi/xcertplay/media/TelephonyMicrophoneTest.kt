@@ -49,7 +49,7 @@ class TelephonyMicrophoneTest {
         sink = AndroidMediaSink(context = context)
         for (type in listOf(AudioEffect.EFFECT_TYPE_AEC, AudioEffect.EFFECT_TYPE_NS)) {
             ShadowAudioEffect.addEffect(AudioEffect.Descriptor(type.toString(), type.toString(),
-                "Pre Processing", "Test effect", "DiPlay"))
+                "Pre Processing", "Test effect", "OsnPlay"))
         }
         ShadowAudioRecord.setSourceProvider { record ->
             recorder.compareAndSet(null, record)
@@ -88,6 +88,22 @@ class TelephonyMicrophoneTest {
         assertEquals(AudioManager.MODE_RINGTONE, manager.mode)
         assertTrue(ShadowAudioEffect.getAudioEffects().isEmpty())
         assertEquals(AudioRecord.STATE_UNINITIALIZED, record.state)
+    }
+
+    @Test fun standardMicCompatibilityPreservesFactoryCallModeAndUsesMicForCalls() {
+        sink.close()
+        sink = AndroidMediaSink(context = context, standardMicrophoneInput = true)
+        manager.mode = AudioManager.MODE_IN_CALL
+        sink.onMicrophoneStarted(telephony, config("telephony"))
+        val record = awaitCapture()
+        assertEquals(MediaRecorder.AudioSource.MIC, record.audioSource)
+        assertEquals(AudioManager.MODE_IN_CALL, manager.mode)
+        sink.onMicrophoneStopped(telephony)
+        assertEquals(AudioManager.MODE_IN_CALL, manager.mode)
+    }
+
+    @Test @Config(sdk = [28]) fun android9DoesNotAdvertiseAnUnavailableOpusMicrophoneEncoder() {
+        assertFalse(MicrophoneCodecSupport.opusAvailable())
     }
 
     @Test fun speechRecognitionDoesNotChangeModeOrEnableTelephonyEffects() {

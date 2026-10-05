@@ -5,8 +5,11 @@ import com.shilapi.xcertplay.iap2.wire.Iap2Frame
 
 /** Nonblocking boundary between phone control messages and vendor services. */
 object BydNavigationOutputs {
+    @Volatile private var productAvailable = true
     /** Recover a journaled interrupted output when the app opens, even before a phone reconnects. */
     fun onAppOpened(context: Context) {
+        productAvailable = BydOutputSettings.productAvailable(context)
+        if (!productAvailable) return
         BydOemClusterNavi.restoreIfNeeded(context)
         if (BydStandaloneHudOutput.available(context)) start(context)
         // Read the battery early, so a reading is ready when CarPlay identifies (see batteryStatus).
@@ -21,9 +24,9 @@ object BydNavigationOutputs {
         staleRouteNs = 120_000_000_000L,
         emptyListHideNs = 8_000_000_000L,
     )
-    private val standalone = NavigationOutputWorker("diplay-standalone-output", BydStandaloneNavigationBridge::clear)
-    private val hud = NavigationOutputWorker("diplay-hud-output", BydHudBridge::clear)
-    private val cluster = NavigationOutputWorker("diplay-cluster-output", BydClusterBridge::clear)
+    private val standalone = NavigationOutputWorker("osnplay-standalone-output", BydStandaloneNavigationBridge::clear)
+    private val hud = NavigationOutputWorker("osnplay-hud-output", BydHudBridge::clear)
+    private val cluster = NavigationOutputWorker("osnplay-cluster-output", BydClusterBridge::clear)
 
     /** The host reports whether its CarPlay map window is on the cluster (see [BydClusterMapPause]). */
     fun setClusterMapShown(shown: Boolean) { BydClusterMapPause.clusterMapShown = shown }
@@ -49,6 +52,8 @@ object BydNavigationOutputs {
     fun parked(context: Context): Boolean? = BydParkedState.parked(context.applicationContext)
 
     fun start(context: Context) {
+        productAvailable = BydOutputSettings.productAvailable(context)
+        if (!productAvailable) return
         val app = context.applicationContext
         useStandalone = BydStandaloneHudOutput.available(app)
         if (useStandalone) standalone.start { BydStandaloneNavigationBridge.initialize(app) }
@@ -61,6 +66,7 @@ object BydNavigationOutputs {
     }
 
     internal fun onFrame(frame: Iap2Frame) {
+        if (!productAvailable) return
         if (frame.messageId == ClusterSongState.NOW_PLAYING_UPDATE) {
             BydClusterSong.onFrame(frame)
             return

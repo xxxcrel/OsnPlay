@@ -27,12 +27,12 @@ import org.robolectric.util.ReflectionHelpers
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [29], qualifiers = "en", manifest = Config.NONE)
 class BydAdbSettingsUiTest {
-    private lateinit var activity: DiPlayActivity
+    private lateinit var activity: OsnPlayActivity
     private lateinit var controls: LinearLayout
 
     @Before fun setUp() {
         val app = RuntimeEnvironment.getApplication()
-        for (name in listOf("diplay_byd_outputs", "diplay_byd_vehicle_fields", "diplay_car_hotspot", "xcertplay_airplay")) {
+        for (name in listOf("osnplay_byd_outputs", "osnplay_byd_vehicle_fields", "osnplay_car_hotspot", "xcertplay_airplay")) {
             app.getSharedPreferences(name, 0).edit().clear().commit()
         }
         BydVehicleFieldStore.clearMemoryForTests()
@@ -44,7 +44,7 @@ class BydAdbSettingsUiTest {
                 flags = ApplicationInfo.FLAG_SYSTEM
             }
         })
-        activity = Robolectric.buildActivity(DiPlayActivity::class.java).get()
+        activity = Robolectric.buildActivity(OsnPlayActivity::class.java).get()
         activity.setTheme(android.R.style.Theme_Material_NoActionBar)
         AirPlayPersistence.saveWirelessHotspotMode(activity, WirelessHotspotMode.MANUAL)
         controls = LinearLayout(activity)

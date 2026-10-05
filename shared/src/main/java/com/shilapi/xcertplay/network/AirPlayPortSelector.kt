@@ -9,7 +9,7 @@ import java.net.ServerSocket
  * Binds the AirPlay control listener, falling back when the preferred port is already taken.
  *
  * Some head units ship a factory CarPlay daemon that permanently listens on the default AirPlay
- * port (7000) on every interface, so binding DiPlay's listener fails with EADDRINUSE. The bound
+ * port (7000) on every interface, so binding OsnPlay's listener fails with EADDRINUSE. The bound
  * port is advertised to the iPhone through Bonjour and iAP2, so any free port works.
  */
 object AirPlayPortSelector {

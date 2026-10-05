@@ -47,7 +47,7 @@ internal object BydWheelSpeed {
  * speed four times a second and the gear once a second, only while the iPhone asks for location.
  */
 internal object BydWheelSpeedSource : VehicleSpeedSource {
-    private const val TAG = "DiPlay-BYD-Speed"
+    private const val TAG = "OsnPlay-BYD-Speed"
     private const val READ_MILLIS = 250L
     private const val GEAR_EVERY_READS = 4
     private const val MAX_SAMPLES = 40
@@ -70,7 +70,7 @@ internal object BydWheelSpeedSource : VehicleSpeedSource {
         reads = 0
         firstSampleLogged = false
         executor = Executors.newSingleThreadScheduledExecutor { runnable ->
-            Thread(runnable, "diplay-wheel-speed").apply { isDaemon = true }
+            Thread(runnable, "osnplay-wheel-speed").apply { isDaemon = true }
         }.also { it.scheduleWithFixedDelay(::poll, 0, READ_MILLIS, TimeUnit.MILLISECONDS) }
         Log.i(TAG, "wheel speed started")
     }

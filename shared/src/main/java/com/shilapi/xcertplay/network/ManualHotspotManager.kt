@@ -2,7 +2,6 @@ package com.shilapi.xcertplay.network
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.net.ConnectivityManager
 import android.net.wifi.SoftApConfiguration
 import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiManager
@@ -10,6 +9,7 @@ import android.os.Build
 import android.os.Looper
 import android.util.Log
 import com.shilapi.xcertplay.orchestration.ManualHotspotBand
+import com.shilapi.xcertplay.orchestration.ManualHotspotAddressMode
 import com.shilapi.xcertplay.orchestration.ManualHotspotSecurity
 import com.shilapi.xcertplay.transport.Iap2WirelessSecurity
 import java.io.IOException
@@ -17,8 +17,6 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.NetworkInterface
-import java.net.SocketException
-import java.util.Collections
 import java.util.concurrent.TimeUnit
 
 /**
@@ -37,10 +35,10 @@ class ManualHotspotManager(
     channel: Int,
     security: ManualHotspotSecurity,
     private val onDiagnostic: (String) -> Unit = {},
+    private val preferredInterface: String? = null,
+    private val addressMode: ManualHotspotAddressMode = ManualHotspotAddressMode.AUTO,
 ) : WirelessHotspotManager {
     private val appContext = context.applicationContext
-    private val connectivityManager =
-        appContext.getSystemService(ConnectivityManager::class.java)
     private val wifiManager = appContext.getSystemService(WifiManager::class.java)
         ?: throw IllegalStateException("WifiManager is unavailable")
     private val expectedSsid = ssid
@@ -54,6 +52,9 @@ class ManualHotspotManager(
 
     init {
         require(expectedSsid.isNotBlank()) { "ssid must not be blank" }
+        require(preferredInterface == null || ManualHotspotInterfaces.isValidName(preferredInterface)) {
+            "Invalid manual hotspot interface name"
+        }
         require('\u0000' !in expectedSsid) { "ssid must not contain U+0000" }
         require('\u0000' !in passphrase) { "passphrase must not contain U+0000" }
         require(passphrase.isEmpty() || passphrase.length in 8..63) {
@@ -84,10 +85,29 @@ class ManualHotspotManager(
         }
         validateApConfiguration(apConfiguration)
 
-        var lastReason = "local hotspot interface was not found"
+        val lastReason = if (preferredInterface == null) {
+            "no confirmed hotspot or non-station Wi-Fi interface; select the hotspot interface in Connection setup"
+        } else {
+            "selected interface $preferredInterface has no usable $addressMode address"
+        }
+        var interfaceDiagnostic: String? = null
         while (true) {
             check(!closed) { "ManualHotspotManager is closed" }
-            val localInterface = findLocalHotspotInterface()
+            val candidates = ManualHotspotInterfaces.available()
+            val tethered = ManualHotspotInterfaces.tetheredInterfaces(appContext)
+            val stations = ManualHotspotInterfaces.stationInterfaces(appContext)
+            val preferIpv4 = Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
+            val selected = selectManualHotspotInterface(candidates, tethered, stations,
+                preferredInterface, addressMode, preferIpv4)
+            val candidateSummary = candidates.joinToString(",") {
+                "${it.name}(v4=${it.addresses.count { a -> a is Inet4Address }},v6=${it.addresses.count { a -> a is Inet6Address }})"
+            }
+            val summary = "Manual hotspot interfaces mode=$addressMode override=${preferredInterface ?: "auto"} " +
+                "tethered=${tethered?.sorted()?.joinToString(",") ?: "unavailable"} " +
+                "stations=${stations.sorted().joinToString(",")} selected=${selected?.name ?: "none"} " +
+                "candidates=$candidateSummary"
+            if (summary != interfaceDiagnostic) { onDiagnostic(summary); interfaceDiagnostic = summary }
+            val localInterface = selected?.let { localHotspotInterface(it, preferIpv4) }
             if (localInterface != null) {
                 val connectionFrequency = frequencyFromConnectionInfo()
                 val scanFrequency = frequencyFromScanResult(localInterface)
@@ -198,64 +218,16 @@ class ManualHotspotManager(
         }
     }
 
-    private fun findLocalHotspotInterface(): LocalHotspotInterface? {
-        val interfaces = try {
-            NetworkInterface.getNetworkInterfaces()
-        } catch (_: SocketException) {
-            null
-        } ?: return null
-        val primaryInterface = connectivityManager?.activeNetwork
-            ?.let { connectivityManager.getLinkProperties(it)?.interfaceName }
-        return Collections.list(interfaces)
-            .asSequence()
-            .filter { isUsableInterface(it, primaryInterface) }
-            .mapNotNull { networkInterface ->
-                networkInterface.hotspotAddress()?.let { address ->
-                    LocalHotspotInterface(
-                        name = networkInterface.name,
-                        hostAddress = address,
-                        hardwareAddress = runCatching { networkInterface.hardwareAddress?.toMacAddressString() }
-                            .getOrNull()?.takeUnless { it == "02:00:00:00:00:00" || it == "00:00:00:00:00:00" }
-                            ?: HotspotInterfaceBssid.read(networkInterface.name),
-                        score = interfaceScore(networkInterface.name, address),
-                    )
-                }
-            }
-            .maxByOrNull(LocalHotspotInterface::score)
+    private fun localHotspotInterface(candidate: ManualHotspotInterface, preferIpv4: Boolean): LocalHotspotInterface? {
+        val address = manualHotspotHostAddress(candidate, addressMode, preferIpv4) ?: return null
+        return LocalHotspotInterface(
+            name = candidate.name,
+            hostAddress = address,
+            hardwareAddress = runCatching { NetworkInterface.getByName(candidate.name)?.hardwareAddress?.toMacAddressString() }
+                .getOrNull()?.takeUnless { it == "02:00:00:00:00:00" || it == "00:00:00:00:00:00" }
+                ?: HotspotInterfaceBssid.read(candidate.name),
+        )
     }
-
-    private fun isUsableInterface(
-        networkInterface: NetworkInterface,
-        primaryInterface: String?,
-    ): Boolean = try {
-        networkInterface.name != primaryInterface &&
-            !networkInterface.isLoopback &&
-            networkInterface.isUp &&
-            EXCLUDED_INTERFACE_PREFIXES.none { networkInterface.name.startsWith(it) }
-    } catch (_: SocketException) {
-        false
-    }
-
-    private fun interfaceScore(name: String, address: InetAddress): Int {
-        var score = when {
-            name.startsWith("ap") || name.contains("softap", ignoreCase = true) -> 100
-            name.startsWith("p2p") -> 80
-            name.startsWith("wlan") -> 70
-            else -> 0
-        }
-        if (address is Inet4Address) {
-            val bytes = address.address
-            when {
-                bytes[0] == 192.toByte() && bytes[1] == 168.toByte() -> score += 30
-                address.isSiteLocalAddress -> score += 20
-            }
-        }
-        if (address is Inet6Address && address.isLinkLocalAddress) score += 15
-        return score
-    }
-
-    private fun NetworkInterface.hotspotAddress(): InetAddress? =
-        wirelessHostAddress(Collections.list(inetAddresses), index)
 
     private fun frequencyFromConnectionInfo(): Int? {
         val connectionInfo = try {
@@ -427,24 +399,12 @@ class ManualHotspotManager(
         val name: String,
         val hostAddress: InetAddress,
         val hardwareAddress: String?,
-        val score: Int,
     )
 
     private companion object {
         const val TAG = "xcertplay-usb"
         const val NANOS_PER_MILLISECOND = 1_000_000L
         val INTERFACE_POLL_NANOS: Long = TimeUnit.MILLISECONDS.toNanos(250)
-        val EXCLUDED_INTERFACE_PREFIXES = listOf(
-            "lo",
-            "dummy",
-            "rmnet",
-            "r_rmnet",
-            "tun",
-            "ppp",
-            "sit",
-            "ip6",
-            "bond",
-        )
     }
 }
 

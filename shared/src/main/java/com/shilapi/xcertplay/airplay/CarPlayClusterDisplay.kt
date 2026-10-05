@@ -14,7 +14,7 @@ object CarPlayClusterDisplay {
     /**
      * What the dashboard shows: one of the cluster contents the iPhone lists in `altScreenURLs`.
      * On the tested car the iPhone glass turn card needed 0–5 kbit/s against 0.3–4 Mbit/s for the map.
-     * MAP_WITH_CUSTOM_CARD asks for the map stream so DiPlay can draw a movable card on top.
+     * MAP_WITH_CUSTOM_CARD asks for the map stream so OsnPlay can draw a movable card on top.
      */
     enum class Content(val url: String) {
         MAP(MAP_URL),

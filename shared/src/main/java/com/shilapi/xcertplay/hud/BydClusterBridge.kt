@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
  * AMap adapter (com.byd.amapservice), independently of the SOME/IP windshield HUD path.
  */
 internal object BydClusterBridge {
-    private const val TAG = "DiPlay-BYD-Cluster"
+    private const val TAG = "OsnPlay-BYD-Cluster"
     private const val AMAP_PACKAGE = "com.byd.amapservice"
     private const val AMAP_ACTION = "AUTONAVI_STANDARD_BROADCAST_SEND"
     private const val KEY_GUIDANCE = 10001
@@ -49,7 +49,7 @@ internal object BydClusterBridge {
         if (available && !senderStarted) {
             senderStarted = true
             Executors.newSingleThreadScheduledExecutor { runnable ->
-                Thread(runnable, "diplay-byd-cluster").apply { isDaemon = true }
+                Thread(runnable, "osnplay-byd-cluster").apply { isDaemon = true }
             }.scheduleAtFixedRate(::tick, 1, 1, TimeUnit.SECONDS)
         }
     }

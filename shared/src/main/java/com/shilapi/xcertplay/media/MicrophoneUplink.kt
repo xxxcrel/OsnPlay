@@ -11,6 +11,8 @@ import com.shilapi.xcertplay.airplay.AudioCodecKind
 import com.shilapi.xcertplay.airplay.MicrophoneConfig
 import com.shilapi.xcertplay.airplay.MicrophoneCounters
 import com.shilapi.xcertplay.airplay.MicrophonePacketizer
+import com.shilapi.xcertplay.airplay.MicrophoneSource
+import com.shilapi.xcertplay.airplay.effectiveSource
 import java.io.Closeable
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -22,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * Captures one PCM microphone stream and sends it back to the phone as sealed CarPlay RTP.
  *
  * The recorder runs only while the matching audio stream is active, so callers start this after
- * the first downlink audio packet and close it on stream teardown.
+ * the voice-stream SETUP response and close it on stream teardown.
  */
 internal class MicrophoneUplink(
     private val config: MicrophoneConfig,
@@ -59,9 +61,9 @@ internal class MicrophoneUplink(
             return false
         }
 
-        val source = when (config.audioType) {
-            "telephony" -> MediaRecorder.AudioSource.VOICE_COMMUNICATION
-            "speechrecognition" -> MediaRecorder.AudioSource.VOICE_RECOGNITION
+        val source = when (config.effectiveSource()) {
+            MicrophoneSource.VOICE_COMMUNICATION -> MediaRecorder.AudioSource.VOICE_COMMUNICATION
+            MicrophoneSource.VOICE_RECOGNITION -> MediaRecorder.AudioSource.VOICE_RECOGNITION
             else -> MediaRecorder.AudioSource.MIC
         }
         val nextEncoder = if (config.codec == AudioCodecKind.OPUS) {
@@ -107,7 +109,9 @@ internal class MicrophoneUplink(
         val nextSocket = try {
             DatagramSocket(null).apply {
                 reuseAddress = true
-                bind(InetSocketAddress(InetAddress.getByName("::"), 0))
+                val address = config.bindAddress ?: InetAddress.getByName(
+                    if (config.host is java.net.Inet4Address) "0.0.0.0" else "::")
+                bind(InetSocketAddress(address, 0))
             }
         } catch (error: Exception) {
             Log.e(TAG, "microphone socket creation failed", error)
@@ -188,6 +192,7 @@ internal class MicrophoneUplink(
                 stats.reading()
                 val count = recorder.read(readBuffer, 0, readBuffer.size, AudioRecord.READ_BLOCKING)
                 stats.read(count)
+                if (count > 0) stats.pcm(readBuffer, count)
                 if (count < 0) {
                     if (running.get()) {
                         Log.e(TAG, "microphone read failed code=$count")

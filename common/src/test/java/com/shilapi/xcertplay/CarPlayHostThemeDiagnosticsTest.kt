@@ -33,7 +33,7 @@ class CarPlayHostThemeDiagnosticsTest {
         (getField("airPlayCommandExecutor") as ExecutorService).shutdownNow()
         commands = PausedExecutorService()
         setField("airPlayCommandExecutor", commands)
-        logFile = folder.newFile("diplay.log")
+        logFile = folder.newFile("osnplay.log")
         setField("sessionLog", SessionLogFile(logFile))
         setField("darkMode", true)
         setField("lastConfiguration", configuration(Configuration.UI_MODE_NIGHT_YES))

@@ -20,18 +20,18 @@ class AdbClusterRouterTest {
     }
     @Test fun directLaunchUsesIndependentTaskAndRejectsMainDisplay() {
         val token = "01234567-89ab-cdef-0123-456789abcdef"
-        val command = AdbClusterRouter.launchCommand("com.shihab.diplay.hudtest", 7, token)
+        val command = AdbClusterRouter.launchCommand("com.shihab.osnplay.hudtest", 7, token)
         assertTrue(command.startsWith("am start-activity --display 7 -f 0x18000000 "))
         assertTrue(command.endsWith("--es cluster_launch_token $token"))
-        assertTrue(runCatching { AdbClusterRouter.launchCommand("com.shihab.diplay", 0, token) }.isFailure)
+        assertTrue(runCatching { AdbClusterRouter.launchCommand("com.shihab.osnplay", 0, token) }.isFailure)
         assertTrue(runCatching { AdbClusterRouter.launchCommand("bad;command", 7, token) }.isFailure)
-        assertTrue(runCatching { AdbClusterRouter.launchCommand("com.shihab.diplay", 7, "bad") }.isFailure)
+        assertTrue(runCatching { AdbClusterRouter.launchCommand("com.shihab.osnplay", 7, "bad") }.isFailure)
         assertFalse(AdbClusterRouter.accepted("Starting: Intent {}\nError: Permission Denial"))
         assertFalse(AdbClusterRouter.accepted(""))
         assertTrue(AdbClusterRouter.accepted("Starting: Intent {}"))
     }
     @Test fun verifiesOnlyExactTaskInsidePerDisplayHistory() {
-        val pkg = "com.shihab.diplay.hudtest"
+        val pkg = "com.shihab.osnplay.hudtest"
         val record = "    * Hist #0: ActivityRecord{abc u0 $pkg/com.shilapi.xcertplay.AdbClusterActivity t12}"
         val dump = "Display #7 (activities from top to bottom):\n$record\nResumedActivity: $record"
         assertEquals(7, AdbClusterRouter.activityDisplay(dump, pkg, 12))

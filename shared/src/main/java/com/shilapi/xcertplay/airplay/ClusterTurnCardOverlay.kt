@@ -1,7 +1,7 @@
 package com.shilapi.xcertplay.airplay
 
 /**
- * Where DiPlay draws the instruction card on top of the dashboard map.
+ * Where OsnPlay draws the instruction card on top of the dashboard map.
  *
  * Placement is a percent of the full 1920×720 panel so Left/Right can reach the
  * cluster edges. Size still follows the measured centre navi window so Large

@@ -36,7 +36,7 @@ class CarPlayBonjourDualStackTest {
     private val lock = mock(WifiManager.MulticastLock::class.java)
     private val ipv4 = InetAddress.getByName("192.0.2.10")
     private val ipv6 = Inet6Address.getByAddress(null, InetAddress.getByName("fe80::1234").address, 7)
-    private val config = AirPlayConfig(deviceName = "DiPlay", deviceId = "02:00:00:00:00:02",
+    private val config = AirPlayConfig(deviceName = "OsnPlay", deviceId = "02:00:00:00:00:02",
         btMac = "02:00:00:00:00:02", sourceVersion = "366.0",
         main = AirPlayDisplayConfig(widthPixels = 1280, heightPixels = 720))
     private val identity = AirPlayIdentity(ByteArray(32), ByteArray(32), "test-pairing")

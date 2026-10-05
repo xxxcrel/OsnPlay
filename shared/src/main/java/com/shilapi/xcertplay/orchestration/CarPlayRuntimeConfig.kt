@@ -38,6 +38,12 @@ enum class ManualHotspotSecurity {
     WPA3,
 }
 
+enum class ManualHotspotAddressMode {
+    AUTO,
+    IPV4,
+    IPV6,
+}
+
 /**
  * Deployment-owned constants for one head unit. There are deliberately no built-in Apple or
  * CH341 product IDs: the physical devices attached to the target must be identified first.
@@ -68,6 +74,9 @@ class CarPlayRuntimeConfig(
     val wifiP2pPreferredChannel: Int = WifiP2pChannels.AUTO,
     val existingWifiSsid: String = "",
     val existingWifiPassphrase: String = "",
+    val manualHotspotInterface: String? = null,
+    val manualHotspotAddressMode: ManualHotspotAddressMode = ManualHotspotAddressMode.AUTO,
+    val manualHotspotInterfaceRequired: Boolean = false,
 ) {
     init {
         require(iphoneDevices.all { it.vendorId == APPLE_VENDOR_ID }) {
@@ -110,6 +119,13 @@ class CarPlayRuntimeConfig(
             }
         }
         if (transport == CarPlayTransport.WIRELESS && wirelessHotspotMode == WirelessHotspotMode.MANUAL) {
+            require(!manualHotspotInterfaceRequired || !manualHotspotInterface.isNullOrBlank()) {
+                "Select a hotspot interface before connecting"
+            }
+            require(manualHotspotInterface == null ||
+                com.shilapi.xcertplay.network.ManualHotspotInterfaces.isValidName(manualHotspotInterface)) {
+                "Invalid manual hotspot interface name"
+            }
             val ssid = manualHotspotSsid
             require(!ssid.isNullOrBlank()) {
                 "manualHotspotSsid is required in manual hotspot mode"

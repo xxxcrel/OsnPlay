@@ -1,0 +1,16 @@
+<resources>
+    <string name="hotspot_network_pick_interface">Виберіть інтерфейс</string>
+    <string name="hotspot_network_pick_required">Перед підключенням виберіть і збережіть інтерфейс точки доступу в налаштуваннях підключення.</string>
+    <string name="hotspot_network_pick_unavailable">Збережений інтерфейс недоступний. Увімкніть точку доступу автомобіля та виберіть інтерфейс знову.</string>
+    <string name="hotspot_network_no_interfaces">Доступних мережевих інтерфейсів не знайдено. Увімкніть точку доступу автомобіля та відкрийте список знову.</string>
+    <string name="hotspot_network_manual_description">Увімкніть точку доступу автомобіля, виберіть мережевий інтерфейс і збережіть. У списку лише доступні зараз інтерфейси. Вибір зберігається для наступного підключення.</string>
+    <string name="hotspot_network_address_title">Режим адреси точки доступу</string>
+    <string name="hotspot_network_address_summary">Адреса точки доступу: %1$s</string>
+    <string name="hotspot_network_auto">Авто (пріоритет IPv4 на Android 9)</string>
+    <string name="hotspot_network_ipv4">Сумісність IPv4</string>
+    <string name="hotspot_network_ipv6">Локальна адреса IPv6</string>
+    <string name="hotspot_network_interface_title">Мережевий інтерфейс точки доступу</string>
+    <string name="hotspot_network_interface_summary">Інтерфейс точки доступу: %1$s</string>
+    <string name="hotspot_network_unavailable">Зараз недоступний</string>
+    <string name="hotspot_network_description">Почніть із режиму Авто. Якщо телефон розпізнає автомобіль, але зображення немає, спробуйте сумісність IPv4 та виберіть інтерфейс, адреса IPv4 якого збігається з адресою маршрутизатора в налаштуваннях Wi-Fi iPhone. Увімкніть точку доступу автомобіля перед відкриттям списку. Зміни застосовуються під час наступного підключення.</string>
+</resources>

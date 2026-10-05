@@ -13,7 +13,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 
 /**
  * An accessibility service to automatically check "Always allow / Use by default"
- * and click "OK / Confirm" when the Android system USB permission dialog appears for DiPlay.
+ * and click "OK / Confirm" when the Android system USB permission dialog appears for OsnPlay.
  */
 class UsbAutoConfirmService : AccessibilityService() {
 
@@ -55,7 +55,7 @@ class UsbAutoConfirmService : AccessibilityService() {
             }
             if (confirmed) {
                 lastClickTime = now
-                Log.i(TAG, "Successfully auto-confirmed DiPlay USB permission dialog")
+                Log.i(TAG, "Successfully auto-confirmed OsnPlay USB permission dialog")
             }
         } finally {
             @Suppress("DEPRECATION")

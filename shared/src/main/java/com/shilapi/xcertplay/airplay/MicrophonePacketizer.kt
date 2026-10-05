@@ -2,6 +2,17 @@ package com.shilapi.xcertplay.airplay
 
 import java.net.InetAddress
 
+enum class MicrophoneSource { AUTOMATIC, MIC, VOICE_RECOGNITION, VOICE_COMMUNICATION }
+
+fun MicrophoneConfig.effectiveSource(): MicrophoneSource = when (captureSource) {
+    MicrophoneSource.AUTOMATIC -> when (audioType) {
+        "telephony" -> MicrophoneSource.VOICE_COMMUNICATION
+        "speechrecognition" -> MicrophoneSource.VOICE_RECOGNITION
+        else -> MicrophoneSource.MIC
+    }
+    else -> captureSource
+}
+
 /** Everything one captured microphone stream needs to send samples to the phone. */
 data class MicrophoneConfig(
     val audioType: String,
@@ -14,6 +25,9 @@ data class MicrophoneConfig(
     val key: ByteArray,
     val codec: AudioCodecKind = AudioCodecKind.LPCM,
     val bitrate: Int? = null,
+    val captureSource: MicrophoneSource = MicrophoneSource.AUTOMATIC,
+    /** Use the same local link as the authenticated AirPlay control session. */
+    val bindAddress: InetAddress? = null,
 ) {
     val samplesPerPacket: Int
         get() = if (codec == AudioCodecKind.OPUS) {

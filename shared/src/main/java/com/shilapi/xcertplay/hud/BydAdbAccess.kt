@@ -5,7 +5,7 @@ import com.shilapi.xcertplay.adb.AdbKeys
 import com.shilapi.xcertplay.adb.LocalAdb
 import com.shilapi.xcertplay.transport.VehicleGear
 
-/** What the settings page shows about the ADB link that DiPlay's optional BYD features need. */
+/** What the settings page shows about the ADB link that OsnPlay's optional BYD features need. */
 object BydAdbAccess {
     enum class State { READY, NOT_APPROVED, ADB_OFF, PAIRING_ONLY }
 
@@ -19,7 +19,7 @@ object BydAdbAccess {
         val gear: VehicleGear? = null,
     )
 
-    /** Blocking: run off the main thread. [mayAsk] lets the car show its approval dialog for DiPlay's key. */
+    /** Blocking: run off the main thread. [mayAsk] lets the car show its approval dialog for OsnPlay's key. */
     fun check(context: Context, mayAsk: Boolean): Status {
         LocalAdb(AdbKeys.load(context)).use { adb ->
             val state = state(adb.connect(mayAsk))

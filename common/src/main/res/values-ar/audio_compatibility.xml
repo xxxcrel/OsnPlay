@@ -1,0 +1,8 @@
+<resources>
+    <string name="osn_media_sync">مزامنة تحكم النظام بالوسائط</string>
+    <string name="osn_media_sync_description">اتركها متوقفة إذا كان مشغّل السيارة يوقف CarPlay تلقائيًا. لا تُرسل أوامر النظام ولا تُستعاد أولوية الصوت أثناء التشغيل، وتظل أزرار CarPlay اللمسية تعمل. أعد الاتصال بعد التغيير.</string>
+    <string name="osn_microphone_compatibility">وضع توافق الميكروفون</string>
+    <string name="osn_microphone_compatibility_description">استخدم مصدر MIC القياسي مع إبقاء توجيه المكالمات تحت إدارة السيارة. أعد الاتصال بعد التغيير.</string>
+    <string name="osn_microphone_required">اسمح لـ OsnPlay باستخدام الميكروفون في أذونات التطبيق قبل الاتصال لتسجيل صوتك في المكالمات والرسائل الصوتية.</string>
+    <string name="osn_microphone_granted">تم منح إذن الميكروفون</string>
+</resources>

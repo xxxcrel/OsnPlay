@@ -42,7 +42,7 @@ class CarHotspotFallbackTest {
     private val app get() = RuntimeEnvironment.getApplication()
 
     @Before fun setUp() {
-        app.getSharedPreferences("diplay_byd_outputs", 0).edit().clear().commit()
+        app.getSharedPreferences("osnplay_byd_outputs", 0).edit().clear().commit()
         CarHotspotSettings.setEnabled(app, true)
         CarHotspotAdbGrantTest.WritePermission.allowed = true
         ApState.enabled = null

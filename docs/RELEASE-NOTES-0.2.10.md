@@ -1,4 +1,4 @@
-# DiPlay 0.2.10 — 3 October 2026
+# OsnPlay 0.2.10 — 3 October 2026
 
 Public preview for compatible Android 9 and newer head units. This release adds targeted connection improvements, CarPlay song artwork, optional video while in P, and further BYD integration controls.
 
@@ -67,7 +67,7 @@ A boot snapshot records the latest actual `BOOT_COMPLETED` receipt, the saved bo
 
 The combined source checks passed **528 unit tests**, with zero failures/errors and one explicit macOS wildcard-binding skip. Mobile, Home and map-host lint and debug builds passed; mobile release lint and the signed release build passed. Tests cover the review fixes for video URLs/redirects, artwork queue bounds and stale sessions, USB frame preservation, port/socket ownership, call audio-mode restoration, and diagnostic privacy/queue bounds. Lint warnings remain.
 
-The APK is `com.shihab.diplay`, version code **29**, signed with the same certificate as 0.2.9. The release includes `DiPlay-0.2.10.apk`, corresponding `DiPlay-0.2.10-source.zip` and `SHA256SUMS.txt`. Runtime authentication assets are explicitly selected for the APK; Android signing keys and accessory identities are excluded from Git and the source archive.
+The APK is `com.shihab.osnplay`, version code **29**, signed with the same certificate as 0.2.9. The release includes `OsnPlay-0.2.10.apk`, corresponding `OsnPlay-0.2.10-source.zip` and `SHA256SUMS.txt`. Runtime authentication assets are explicitly selected for the APK; Android signing keys and accessory identities are excluded from Git and the source archive.
 
 No new on-car validation was performed for this release. Previous hardware tests and automated regression coverage do not establish compatibility on every head unit. See [validation details](VALIDATION.md).
 
@@ -83,7 +83,7 @@ Several reports remain under investigation, including:
 
 If your problem still occurs, we need a **fresh reproduction and diagnostic report from 0.2.10** to continue the investigation:
 
-1. Update to 0.2.10 and reproduce the problem, keeping the report from the first connection attempt through the failure. For an auto-start problem, reboot the head unit, then open DiPlay manually to export the report.
+1. Update to 0.2.10 and reproduce the problem, keeping the report from the first connection attempt through the failure. For an auto-start problem, reboot the head unit, then open OsnPlay manually to export the report.
 2. Open **Settings → Diagnostics → Save diagnostic report** after the failure.
 3. Attach the exported `.txt` report to your existing issue. Include the head-unit model, Android/firmware version, iPhone/iOS version, connection mode, the action that triggered the failure and its approximate time so we can match it to the logs.
 
@@ -93,6 +93,6 @@ The new diagnostics help identify the failing stage. Earlier reports do not cont
 
 Android 9 remains the minimum supported Android version. This release does not add Android 7/8 support or establish wireless support for HarmonyOS and other unverified Bluetooth firmware. Existing Wi-Fi Direct packet-loss, device-specific microphone and reconnect reports still require device logs and hardware investigation. Targeted fixes are not a claim that every connection issue is resolved.
 
-Update the existing signed DiPlay installation to retain settings and pairing records. Compatible-launcher media display, Android call effects, BYD battery reads and optional video still depend on the head unit, firmware and relevant permissions.
+Update the existing signed OsnPlay installation to retain settings and pairing records. Compatible-launcher media display, Android call effects, BYD battery reads and optional video still depend on the head unit, firmware and relevant permissions.
 
 Thanks to **aloaiza-dev**, **kuishou68**, **lpcheng1208**, **liuqianhe**, **romanchukg-cloud**, **serein-morii** and **sa3eedo12** for these contributions.

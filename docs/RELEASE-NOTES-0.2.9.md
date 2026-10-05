@@ -1,4 +1,4 @@
-# DiPlay 0.2.9 — 2 October 2026
+# OsnPlay 0.2.9 — 2 October 2026
 
 Public preview for compatible BYD Android head units. This release includes the contributions from @lpcheng1208 and @romanchukg-cloud, the review corrections, and the floating-map fixes from vehicle testing.
 
@@ -12,7 +12,7 @@ Public preview for compatible BYD Android head units. This release includes the 
 - A CarPlay navigation widget shows the next turn, road, distance, arrival information, and song in launchers that host standard Android widgets.
 - An optional floating map card brings the dashboard map to the centre screen. Drag to move it, pinch to resize it, or tap to open CarPlay. The dashboard keeps its map.
 - Compatible launchers can embed the live dashboard map on Android 11 and newer. Sharing is off by default, and disabling it closes existing shared map views.
-- Developers get a minimal map-host sample and the DiPlay Home sample launcher, which combines the live map, Android widgets, a clock, and an app list.
+- Developers get a minimal map-host sample and the OsnPlay Home sample launcher, which combines the live map, Android widgets, a clock, and an app list.
 - GPS reports leave the course empty when the direction is unknown, instead of claiming the car points north.
 
 Thanks to @lpcheng1208 and @romanchukg-cloud for these contributions.
@@ -47,11 +47,11 @@ The startup-window correction in [commit 7eb4a3f](https://github.com/shihabal3am
 
 ### CarPlay navigation widget
 
-[PR #106](https://github.com/shihabal3amri/DiPlay/pull/106) adds a resizable standard Android widget with turn arrows, distance, road, arrival time, remaining time and distance, and the song. A tap opens CarPlay, or DiPlay when disconnected. Visible guidance is refreshed at most once a second, including when no new metadata arrives, so stale routes and persistently empty maneuver lists expire. Session end and cleared song metadata also clear the widget state.
+[PR #106](https://github.com/shihabal3amri/DiPlay/pull/106) adds a resizable standard Android widget with turn arrows, distance, road, arrival time, remaining time and distance, and the song. A tap opens CarPlay, or OsnPlay when disconnected. Visible guidance is refreshed at most once a second, including when no new metadata arrives, so stale routes and persistently empty maneuver lists expire. Session end and cleared song metadata also clear the widget state.
 
 ### Floating dashboard map on the centre screen
 
-[PR #105](https://github.com/shihabal3amri/DiPlay/pull/105) adds an optional map card while DiPlay is in the background. The card mirrors the dashboard stream through a separate decoder, remembers its size and position, and supports dragging, pinch resizing, and tapping to open CarPlay. Permission to draw over other apps is required; Usage Access limits it to home screens. Without Usage Access, it can appear over other apps. Integrating the host startup callbacks preserves both day/night polling and overlay setup, and background-session adoption retains the display state from #89.
+[PR #105](https://github.com/shihabal3amri/DiPlay/pull/105) adds an optional map card while OsnPlay is in the background. The card mirrors the dashboard stream through a separate decoder, remembers its size and position, and supports dragging, pinch resizing, and tapping to open CarPlay. Permission to draw over other apps is required; Usage Access limits it to home screens. Without Usage Access, it can appear over other apps. Integrating the host startup callbacks preserves both day/night polling and overlay setup, and background-session adoption retains the display state from #89.
 
 Follow-up from car testing on 2 October: small pinches did not resize the card. The DiLink 5.1 head unit configures Android's scaling detector with a 32 mm minimum finger separation. The fix measures two-finger movement directly after normal touch slop. It waits for settled contact coordinates, limits sensitivity when fingers are close together, and updates its scale reference continuously so reversing at the minimum or maximum responds immediately. It preserves size limits, aspect ratio, position, and tap/drag behavior. Ten gesture tests cover these cases, including enlarging a reopened minimum-sized card; regression tests reproduced both the original ignored pinch and the subsequent contact jump and size-limit lock. The follow-up passed all 109 common tests, mobile lint with zero errors, and the standalone APK build. The updated APK was installed on the DiLink 5.1 head unit for vehicle testing, preserving app settings.
 
@@ -61,7 +61,7 @@ Follow-up from car testing on 2 October: small pinches did not resize the card. 
 
 See [launcher integration](LAUNCHER_INTEGRATION.md) for the protocol, permissions, and sample setup.
 
-### DiPlay Home sample launcher
+### OsnPlay Home sample launcher
 
 [PR #108](https://github.com/shihabal3amri/DiPlay/pull/108) adds the separate `samples/home` launcher with a clock, embedded map, app list, standard Android widget hosting, and a button to return to BYD home. It requires Android 11 or newer. Back handling uses AndroidX callbacks to dismiss the app list and widget edit mode, while keeping the root home screen open. CI now checks both sample builds and lint, plus Home back-navigation tests on Android 12 and Android 16.
 

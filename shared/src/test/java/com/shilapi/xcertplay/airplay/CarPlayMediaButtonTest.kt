@@ -8,6 +8,12 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CarPlayMediaButtonTest {
+    @Test fun osnStandardPlayAndPauseDoNotToggleTheOppositeState() {
+        assertEquals(CarPlayMediaButton.PLAY, CarPlayMediaButton.forKeyCode(KeyEvent.KEYCODE_MEDIA_PLAY, false))
+        assertEquals(CarPlayMediaButton.PAUSE, CarPlayMediaButton.forKeyCode(KeyEvent.KEYCODE_MEDIA_PAUSE, false))
+        assertEquals(CarPlayMediaButton.PLAY_PAUSE, CarPlayMediaButton.forKeyCode(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false))
+    }
+
     @Test
     fun steeringWheelKeysMapToCarPlayMediaPresses() {
         assertEquals(CarPlayMediaButton.NEXT, CarPlayMediaButton.forKeyCode(KeyEvent.KEYCODE_MEDIA_NEXT))

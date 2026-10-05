@@ -217,6 +217,7 @@ class CarPlayController(
 
     /** Told when an iAP2 Now Playing artwork transfer completes; may run on the link worker. */
     @Volatile var artworkListener: ((Int, ByteArray) -> Unit)? = null
+    fun audioDiagnosticReport(): String = activeSession?.audioDiagnosticReport() ?: "no_active_session"
 
     /** Video in car; set before [start] to offer it to the iPhone (with AirPlayConfig.videoInCar). */
     @Volatile var videoListener: CarPlayVideoListener? = null
@@ -311,7 +312,7 @@ class CarPlayController(
         }
 
         // The user tapped the car icon in CarPlay: show the head unit's own menu, like its Home button.
-        // The session keeps running in the background, so returning to DiPlay resumes CarPlay.
+        // The session keeps running in the background, so returning to OsnPlay resumes CarPlay.
         override fun onHostUiRequested(session: AirPlaySession) {
             debugLog("CarPlay requested the car UI; opening the head-unit home screen")
             runCatching {
@@ -454,6 +455,11 @@ class CarPlayController(
         } catch (_: Exception) {
             false
         }
+    }
+
+    /** State-only media diagnostics are retained in the same bounded, redacted session log. */
+    fun reportMediaDiagnostic(message: String) {
+        if (!closed) debugLog("Media control: ${message.take(300)}")
     }
 
     fun sendMediaButton(index: Int): Boolean {
@@ -1857,6 +1863,8 @@ class CarPlayController(
                 channel = config.manualHotspotChannel,
                 security = config.manualHotspotSecurity,
                 onDiagnostic = ::debugLog,
+                preferredInterface = config.manualHotspotInterface,
+                addressMode = config.manualHotspotAddressMode,
             )
         }
         hotspot = manager
@@ -1886,7 +1894,7 @@ class CarPlayController(
         val bonded = adapter.bondedDevices.orEmpty()
         config.wirelessBluetoothDeviceAddress?.let { selected ->
             return bonded.firstOrNull { it.address.equals(selected, ignoreCase = true) }
-                ?: throw IOException("The selected iPhone is no longer paired. Choose it again in DiPlay.")
+                ?: throw IOException("The selected iPhone is no longer paired. Choose it again in OsnPlay.")
         }
         val iPhones = bonded.filter { device ->
             device.name?.contains("iPhone", ignoreCase = true) == true

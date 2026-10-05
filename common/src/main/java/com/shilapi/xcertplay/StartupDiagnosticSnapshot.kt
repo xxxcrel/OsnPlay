@@ -4,7 +4,7 @@ import android.content.Context
 
 /** Only the latest received boot event and launch result; no Intent extras or device identifiers. */
 internal object StartupDiagnosticSnapshot {
-    private const val PREFS = "diplay_startup_diagnostics"
+    private const val PREFS = "osnplay_startup_diagnostics"
 
     fun received(context: Context, launchEnabled: Boolean) {
         runCatching {

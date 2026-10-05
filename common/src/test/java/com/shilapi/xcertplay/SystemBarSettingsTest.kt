@@ -19,7 +19,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [29])
 class SystemBarSettingsTest {
     private val context get() = RuntimeEnvironment.getApplication()
-    private var controller: ActivityController<DiPlayActivity>? = null
+    private var controller: ActivityController<OsnPlayActivity>? = null
     private val activity get() = requireNotNull(controller).get()
 
     @After fun tearDown() {
@@ -87,8 +87,8 @@ class SystemBarSettingsTest {
     }
 
     private fun openSettings() {
-        controller = Robolectric.buildActivity(DiPlayActivity::class.java,
-            Intent(context, DiPlayActivity::class.java).putExtra("page", "settings")).setup()
+        controller = Robolectric.buildActivity(OsnPlayActivity::class.java,
+            Intent(context, OsnPlayActivity::class.java).putExtra("page", "settings")).setup()
     }
 
     private fun assertBars(hideTop: Boolean, hideBottom: Boolean) {

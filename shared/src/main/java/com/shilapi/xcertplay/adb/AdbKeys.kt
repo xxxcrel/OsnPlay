@@ -16,13 +16,13 @@ import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 import java.util.Base64
 
-/** DiPlay's own ADB key: adbd remembers it after the driver approves it once. */
+/** OsnPlay's own ADB key: adbd remembers it after the driver approves it once. */
 object AdbKeys {
     private const val DIR = "adb"
     private const val PRIVATE = "adbkey.private"
     private const val PUBLIC = "adbkey.public"
     private const val KEY_BITS = 2048
-    private const val NAME = " diplay@headunit"
+    private const val NAME = " osnplay@headunit"
 
     // ADB signs the token as if it were a SHA-1 digest: the host prepends SHA-1's DigestInfo header.
     private val SHA1_DIGEST_INFO = byteArrayOf(

@@ -10,7 +10,7 @@ internal object BydParkedState {
     const val GEAR = "service call autoservice 5 i32 1011 i32 555745336"
     private const val PARK = 1
 
-    private val shell = BydAdbShell("DiPlay-BYD-Parked")
+    private val shell = BydAdbShell("OsnPlay-BYD-Parked")
 
     /** Null when the gear cannot be read (no ADB over network, or another car). Blocking. */
     fun parked(context: Context): Boolean? {

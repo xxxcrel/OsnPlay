@@ -16,7 +16,7 @@ import org.robolectric.annotation.Implements
 import org.robolectric.annotation.Implementation
 
 /**
- * The connection settings screen lives in [DiPlayActivity] and comes back to the projection screen
+ * The connection settings screen lives in [OsnPlayActivity] and comes back to the projection screen
  * with FLAG_ACTIVITY_REORDER_TO_FRONT, so the projection screen is resumed, not recreated.
  * Settings saved while it was in the background must reach the next handshake.
  */
@@ -56,9 +56,9 @@ class HostConnectionSettingsRefreshTest {
     }
 
     /** The projection screen must start without the private MFi identity used by real cars. */
-    @Implements(DiPlayBootstrap::class, isInAndroidSdk = false)
+    @Implements(OsnPlayBootstrap::class, isInAndroidSdk = false)
     internal class Bootstrap {
-        @Implementation fun ensure(context: Context) = Unit
+        @Implementation fun ensure(context: Context, target: com.shilapi.xcertplay.orchestration.MfiTarget) = Unit
 
         @Implementation fun deviceId(identity: AirPlayIdentity): String = "02:00:00:00:00:01"
     }

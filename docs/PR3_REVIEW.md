@@ -13,7 +13,7 @@
 
 ## Validation scope
 
-The user physically confirmed live standalone HUD guidance and street names in both apps. The latest DiPlay test also confirmed Car hotspot startup and substantially improved Wi-Fi Direct performance. Occasional audio cutouts remain; the user explicitly deferred them to another version and authorized pushing, merging and releasing these changes. The release packages now permit the verified standalone backend while retaining the exact firmware/stock-receiver guard. See [BYD navigation](BYD_NAVIGATION.md).
+The user physically confirmed live standalone HUD guidance and street names in both apps. The latest OsnPlay test also confirmed Car hotspot startup and substantially improved Wi-Fi Direct performance. Occasional audio cutouts remain; the user explicitly deferred them to another version and authorized pushing, merging and releasing these changes. The release packages now permit the verified standalone backend while retaining the exact firmware/stock-receiver guard. See [BYD navigation](BYD_NAVIGATION.md).
 
 Earlier local review blockers for the standalone HUD path are resolved by physical tests. No claim is made that every vehicle, map app, force-stop sequence or USB failure mode was physically tested. Release checks include unit tests, build/lint, package/signature inspection and public-source credential checks. Android signing secrets and accessory private assets remain outside the repository/source archives.
 

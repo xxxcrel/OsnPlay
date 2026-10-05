@@ -1,0 +1,16 @@
+<resources>
+    <string name="hotspot_network_pick_interface">请选择接口</string>
+    <string name="hotspot_network_pick_required">连接前请在“连接设置”中选择并保存热点接口。</string>
+    <string name="hotspot_network_pick_unavailable">已保存的接口当前不可用，请开启车机热点后重新选择接口。</string>
+    <string name="hotspot_network_no_interfaces">没有找到可用的网络接口，请开启车机热点后重新打开此列表。</string>
+    <string name="hotspot_network_manual_description">开启车机热点后，请自行选择热点网络接口并保存。列表只显示车机当前实际可用的接口，保存后会记住你的选择，下次连接继续使用。</string>
+    <string name="hotspot_network_address_title">热点地址模式</string>
+    <string name="hotspot_network_address_summary">热点地址：%1$s</string>
+    <string name="hotspot_network_auto">自动（Android 9 优先 IPv4）</string>
+    <string name="hotspot_network_ipv4">IPv4 兼容模式</string>
+    <string name="hotspot_network_ipv6">IPv6 链路本地地址</string>
+    <string name="hotspot_network_interface_title">热点网络接口</string>
+    <string name="hotspot_network_interface_summary">热点接口：%1$s</string>
+    <string name="hotspot_network_unavailable">当前不可用</string>
+    <string name="hotspot_network_description">先使用自动。如果手机已识别车辆但没有画面，可尝试 IPv4 兼容模式，并选择 IPv4 地址与 iPhone 的 Wi-Fi 详情中“路由器”地址一致的接口。打开接口列表前请开启车机热点。修改在下次连接时生效。</string>
+</resources>

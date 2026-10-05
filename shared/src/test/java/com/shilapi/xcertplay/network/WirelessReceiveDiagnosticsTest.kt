@@ -117,7 +117,7 @@ class WirelessReceiveDiagnosticsTest {
     }
 
     @Test fun diagnosticFileReadRejectsTruncationRatherThanPublishingAnIncorrectNumber() {
-        val file = File.createTempFile("diplay-counter-test", ".txt")
+        val file = File.createTempFile("osnplay-counter-test", ".txt")
         try {
             file.writeText("123\n")
             assertEquals("123\n", readBoundedDiagnosticFile(file.path, 4))

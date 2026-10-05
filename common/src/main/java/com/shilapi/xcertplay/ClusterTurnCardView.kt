@@ -18,7 +18,7 @@ import com.shilapi.xcertplay.airplay.ClusterTurnCardOverlay
 import com.shilapi.xcertplay.hud.ClusterTurnGuidance
 
 /**
- * Instruction card drawn by DiPlay on top of the dashboard map.
+ * Instruction card drawn by OsnPlay on top of the dashboard map.
  *
  * Visual language follows Apple's turn banners: a dark glass capsule with a hairline stroke,
  * the maneuver glyph in a soft chip on the left, distance and road stacked on the right.

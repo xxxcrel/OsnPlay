@@ -18,6 +18,27 @@ class CarPlayMediaCallbackTest {
     private val sent = mutableListOf<Int>()
     private val callback = CarPlayMediaCallback { index, _ -> sent += index }
 
+    @Test fun disablingSystemSyncStopsFactoryPauseAndPlayFromReachingTheIphone() {
+        var enabled = false
+        val suppressed = mutableListOf<String>()
+        val guarded = CarPlayMediaCallback(commandsEnabled = { enabled }, suppressed = suppressed::add) { index, _ -> sent += index }
+        guarded.onPause()
+        guarded.onMediaButtonEvent(button(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)))
+        assertEquals(emptyList<Int>(), sent)
+        assertEquals(listOf("pause", KeyEvent.keyCodeToString(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)), suppressed)
+        enabled = true
+        guarded.onPlay()
+        assertEquals(listOf(CarPlayMediaButton.PLAY), sent)
+    }
+
+    @Test fun osnHardwareCommandsAreExplicitAndRepeatedPlayNeverBecomesPause() {
+        val standard = CarPlayMediaCallback(hardwareToggleWorkaround = false) { index, _ -> sent += index }
+        for (key in listOf(KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_MEDIA_PAUSE)) {
+            standard.onMediaButtonEvent(button(KeyEvent(KeyEvent.ACTION_DOWN, key)))
+        }
+        assertEquals(listOf(CarPlayMediaButton.PLAY, CarPlayMediaButton.PLAY, CarPlayMediaButton.PAUSE), sent)
+    }
+
     @Test
     fun controllerPlayAndPauseAreExplicit() {
         callback.onPlay()

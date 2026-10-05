@@ -49,12 +49,12 @@ class UsbAutoConfirmServiceTest {
         assertFalse(UsbAutoConfirmService.isSystemUsbWindow("com.android.systemui", "com.android.systemui.media.MediaProjectionPermissionActivity"))
     }
 
-    @Test fun promptMustNameDiPlayAndUsbExplicitly() {
-        assertTrue(UsbAutoConfirmService.isTargetPrompt("Allow DiPlay to access this USB device?", "DiPlay"))
-        assertTrue(UsbAutoConfirmService.isTargetPrompt("允许 DiPlay 访问 USB 设备？", "DiPlay"))
-        assertFalse(UsbAutoConfirmService.isTargetPrompt("Allow CarPlay access to iPhone?", "DiPlay"))
-        assertFalse(UsbAutoConfirmService.isTargetPrompt("Allow DiPlay to access your contacts?", "DiPlay"))
-        assertFalse(UsbAutoConfirmService.isTargetPrompt("Allow FakeDiPlay USB access?", "DiPlay"))
+    @Test fun promptMustNameOsnPlayAndUsbExplicitly() {
+        assertTrue(UsbAutoConfirmService.isTargetPrompt("Allow OsnPlay to access this USB device?", "OsnPlay"))
+        assertTrue(UsbAutoConfirmService.isTargetPrompt("允许 OsnPlay 访问 USB 设备？", "OsnPlay"))
+        assertFalse(UsbAutoConfirmService.isTargetPrompt("Allow CarPlay access to iPhone?", "OsnPlay"))
+        assertFalse(UsbAutoConfirmService.isTargetPrompt("Allow OsnPlay to access your contacts?", "OsnPlay"))
+        assertFalse(UsbAutoConfirmService.isTargetPrompt("Allow FakeOsnPlay USB access?", "OsnPlay"))
         assertFalse(UsbAutoConfirmService.isTargetPrompt("Allow USB access?", ""))
     }
     @Test fun systemUsbPromptClicksOnlyWhenTheNamedAppMatches() {

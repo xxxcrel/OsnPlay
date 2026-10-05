@@ -7,6 +7,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MicrophoneCaptureStatsTest {
+    @Test fun detectsSilentCaptureWithoutRetainingOrExportingSamples() {
+        val reports = mutableListOf<String>()
+        val stats = MicrophoneCaptureStats(config, reports::add) { 0L }
+        stats.pcm(byteArrayOf(0, 0, 1, 0, 0, 0x80.toByte()), 6)
+        stats.flush(ended = true)
+        assertTrue(reports.single().contains("nonZeroSamples=2 samplePeak=32768"))
+        stats.pcm(ByteArray(10), 10)
+        stats.flush(ended = true)
+        assertTrue(reports.last().contains("nonZeroSamples=0 samplePeak=0"))
+    }
     private val config = MicrophoneConfig("telephony", 48_000, 1, 100, 20,
         InetAddress.getByName("198.51.100.20"), 54321, ByteArray(32) { 0x7f }, AudioCodecKind.OPUS)
 

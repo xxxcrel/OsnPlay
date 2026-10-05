@@ -1,3 +1,17 @@
 <resources>
+    <string name="config_default_settings_shortcut" translatable="false">MULTI_SWIPE</string>
+    <bool name="config_settings_button_default">false</bool>
+    <bool name="config_byd_features">true</bool>
+    <bool name="config_osn_ui">false</bool>
+    <bool name="config_cluster_map_available">true</bool>
     <bool name="config_advanced_audio_channel_mapping">false</bool>
+    <bool name="config_media_focus_before_connect">false</bool>
+    <bool name="config_standard_media_keys">false</bool>
+    <bool name="config_require_hotspot_interface">false</bool>
+    <bool name="config_system_media_sync">true</bool>
+    <bool name="config_standard_microphone_input">false</bool>
+    <bool name="config_require_microphone_permission">false</bool>
+    <string name="config_default_hotspot_interface" translatable="false"></string>
+    <string name="config_default_hotspot_address_mode" translatable="false">AUTO</string>
+    <string name="config_oem_label" translatable="false">BYD</string>
 </resources>

@@ -1,16 +1,16 @@
-// DiPlay Home: a small launcher with the live CarPlay map and any Android widgets.
+// OsnPlay Home: a small launcher with the live CarPlay map and any Android widgets.
 plugins {
     alias(libs.plugins.android.application)
 }
 
 android {
-    namespace = "com.diplay.home"
+    namespace = "com.osnplay.home"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.diplay.home"
+        applicationId = "com.osnplay.home"
         minSdk = 30 // SurfaceView.getHostToken and setChildSurfacePackage
         targetSdk = 37
         versionCode = 1

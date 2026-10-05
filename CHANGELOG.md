@@ -1,8 +1,8 @@
 # Unreleased
 
-- Save diagnostic reports privately in DiPlay when the head unit has no document picker or working Downloads provider, with explicit Share and selectable View report actions. This unblocks collecting logs for #135; its CarPlay startup failure still needs a device report.
+- Save diagnostic reports privately in OsnPlay when the head unit has no document picker or working Downloads provider, with explicit Share and selectable View report actions. This unblocks collecting logs for #135; its CarPlay startup failure still needs a device report.
 
-# DiPlay 0.2.11 — 2026-10-03
+# OsnPlay 0.2.11 — 2026-10-03
 
 - Add preferred Wi-Fi Direct channel selection for the next connection; Auto remains the default, and manual channel rejection/mismatch reports an error (#175).
 - Add a movable custom dashboard turn card with 2% position steps; leave unknown arrows blank and clear expired guidance (#155).
@@ -17,7 +17,7 @@
 
 See [0.2.11 release notes](docs/RELEASE-NOTES-0.2.11.md) for requirements, device-test limits and fresh-report guidance. Preferred channel selection does not establish stutter as fixed; Qin Plus, Siri, iOS 15 and day/night reports remain under investigation. Android 9 is still the minimum; Wi-Fi Direct needs Android 10+.
 
-# DiPlay 0.2.10 — 2026-10-03
+# OsnPlay 0.2.10 — 2026-10-03
 
 - Publish CarPlay song metadata, position and artwork to Android media sessions; bound artwork queues and reject stale work across sessions (#82).
 - Preserve normal USBMUX frames while handling narrowly validated handshake padding (#114); let USB connect without saved wireless-hotspot credentials (#130).
@@ -32,7 +32,7 @@ See [0.2.11 release notes](docs/RELEASE-NOTES-0.2.11.md) for requirements, devic
 
 See [0.2.10 release notes](docs/RELEASE-NOTES-0.2.10.md) for contributor credits, requirements and validation limits. Android 9 remains the minimum supported version.
 
-# DiPlay 0.2.9 — 2026-10-02
+# OsnPlay 0.2.9 — 2026-10-02
 
 - Follow BYD head-unit day/night changes while CarPlay is visible, including firmware that does not reliably deliver Android configuration callbacks.
 - Restore media and navigation audio stream selection to 0–20 and inherit older saved navigation settings when no new selection exists. Vendor-specific outputs depend on head-unit support.
@@ -43,14 +43,14 @@ See [0.2.10 release notes](docs/RELEASE-NOTES-0.2.10.md) for contributor credits
 - Add an optional floating copy of the dashboard map on the centre screen, with drag, pinch-to-resize, and tap-to-open controls. Requires permission to draw over other apps; Usage Access restricts it to home screens.
 - Fix floating-map resizing on head units that ignore small pinch gestures.
 - Let compatible launchers embed the live dashboard map on Android 11 and newer. Sharing is off by default; turning it off closes existing shared map views.
-- Add map-host and DiPlay Home sample apps for developers. DiPlay Home combines the live map, standard Android widgets, a clock, and an app list; sample builds, lint, and Home back-navigation tests are checked in CI.
+- Add map-host and OsnPlay Home sample apps for developers. OsnPlay Home combines the live map, standard Android widgets, a clock, and an app list; sample builds, lint, and Home back-navigation tests are checked in CI.
 - Leave the GPS course empty when its direction is unknown, instead of reporting north. Valid GPS directions are preserved.
 - Thanks to @lpcheng1208 for PRs [#71](https://github.com/shihabal3amri/DiPlay/pull/71), [#88](https://github.com/shihabal3amri/DiPlay/pull/88), and [#89](https://github.com/shihabal3amri/DiPlay/pull/89).
 - Thanks to @romanchukg-cloud for PRs [#93](https://github.com/shihabal3amri/DiPlay/pull/93), [#101](https://github.com/shihabal3amri/DiPlay/pull/101), [#105](https://github.com/shihabal3amri/DiPlay/pull/105), [#106](https://github.com/shihabal3amri/DiPlay/pull/106), [#107](https://github.com/shihabal3amri/DiPlay/pull/107), [#108](https://github.com/shihabal3amri/DiPlay/pull/108), and [#109](https://github.com/shihabal3amri/DiPlay/pull/109).
 
 See [0.2.9 release notes](docs/RELEASE-NOTES-0.2.9.md) for the merged changes and validation limits.
 
-# DiPlay 0.2.8 — 2026-09-30
+# OsnPlay 0.2.8 — 2026-09-30
 
 - Keep iPhone location reporting active across the wireless Bluetooth-to-Wi-Fi CarPlay handoff; limit location updates to one per second on wireless and USB.
 - Add optional ADB wheel-speed and gear reporting for iPhone dead reckoning when GPS is unavailable. Tunnel use has not yet been verified.
@@ -58,7 +58,7 @@ See [0.2.9 release notes](docs/RELEASE-NOTES-0.2.9.md) for the merged changes an
 - Explain unsupported DRM-protected video such as Apple TV+, which requires a licensed FairPlay receiver.
 - Improve playback error reporting and preserve CarPlay when the head unit cannot play a video.
 
-# DiPlay 0.2.7 — 2026-09-29
+# OsnPlay 0.2.7 — 2026-09-29
 
 - App interface in English, Simplified Chinese, Arabic, Russian and Spanish; synchronized Android app-language settings.
 - Steering-wheel media controls and long-press Siri on supported BYD firmware while CarPlay is on screen.

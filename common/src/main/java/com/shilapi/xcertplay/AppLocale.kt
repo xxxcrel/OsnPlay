@@ -23,7 +23,7 @@ object AppLocale {
 
     val ALL = listOf(SYSTEM, ENGLISH, SIMPLIFIED_CHINESE, ARABIC, RUSSIAN, SPANISH, UKRAINIAN)
 
-    private const val PREFS = "diplay"
+    private const val PREFS = "osnplay"
     private const val KEY_LANGUAGE = "app_language"
 
     private const val KEY_MIGRATED = "app_language_platform_migrated"
@@ -73,9 +73,9 @@ object AppLocale {
         return context.createConfigurationContext(configuration)
     }
 
-    fun showPicker(activity: Activity) {
+    fun showPicker(activity: Activity, builder: AlertDialog.Builder = AlertDialog.Builder(activity)) {
         var selected = ALL.indexOf(preference(activity)).coerceAtLeast(0)
-        AlertDialog.Builder(activity)
+        builder
             .setTitle(R.string.language_app_language)
             .setSingleChoiceItems(ALL.map { displayName(activity, it) }.toTypedArray(), selected) { _, index ->
                 selected = index

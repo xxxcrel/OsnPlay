@@ -37,7 +37,7 @@ class LocalAdbTest {
     @Test
     fun publicKeyUsesTheAdbdLayout() {
         val message = String(AdbKeys.publicKeyMessage(key.public), Charsets.UTF_8)
-        assertTrue(message.endsWith(" diplay@headunit\u0000"))
+        assertTrue(message.endsWith(" osnplay@headunit\u0000"))
         val blob = ByteBuffer.wrap(Base64.getDecoder().decode(message.substringBefore(' '))).order(ByteOrder.LITTLE_ENDIAN)
         val n = (key.public as RSAPublicKey).modulus
 

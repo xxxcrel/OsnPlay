@@ -1,6 +1,7 @@
 package com.shilapi.xcertplay.media
 
 import com.shilapi.xcertplay.airplay.MicrophoneConfig
+import com.shilapi.xcertplay.airplay.effectiveSource
 
 internal enum class MicrophoneFailureStage {
     MIN_BUFFER, ENCODER, RECORDER_CREATION, RECORDER_INITIALIZATION, SOCKET_CREATION,
@@ -28,6 +29,8 @@ internal class MicrophoneCaptureStats(
     private var lastSentNs: Long? = null
     private var sendGapMaxNs = 0L
     private var routedDeviceType: Int? = null
+    private var nonZeroSamples = 0L
+    private var samplePeak = 0
 
     fun started(routeType: Int?) {
         routedDeviceType = routeType
@@ -51,6 +54,18 @@ internal class MicrophoneCaptureStats(
         emptyEncodedFrames += emptyCount.coerceAtLeast(0)
     }
 
+    /** Aggregate signal levels only; no samples or payloads are retained. */
+    fun pcm(bytes: ByteArray, count: Int) {
+        var index = 0
+        val limit = count.coerceIn(0, bytes.size)
+        while (index + 1 < limit) {
+            val value = ((bytes[index].toInt() and 0xff) or (bytes[index + 1].toInt() shl 8)).toShort().toInt()
+            if (value != 0) nonZeroSamples++
+            samplePeak = maxOf(samplePeak, kotlin.math.abs(value))
+            index += 2
+        }
+    }
+
     fun sent() {
         val now = nowNs()
         lastSentNs?.let { sendGapMaxNs = maxOf(sendGapMaxNs, (now - it).coerceAtLeast(0)) }
@@ -72,7 +87,7 @@ internal class MicrophoneCaptureStats(
             "captureBytes=$capturedBytes reads=$reads zeroReads=$zeroReads readErrors=$readErrors " +
             "readMaxMs=${readMaxNs / 1_000_000} encodedFrames=$encodedFrames " +
             "emptyEncodedFrames=$emptyEncodedFrames udpSent=$udpSent sendErrors=$sendErrors " +
-            "sendGapMaxMs=${sendGapMaxNs / 1_000_000} ended=$ended")
+            "sendGapMaxMs=${sendGapMaxNs / 1_000_000} nonZeroSamples=$nonZeroSamples samplePeak=$samplePeak ended=$ended")
         windowStart = now
         capturedBytes = 0
         reads = 0
@@ -84,6 +99,8 @@ internal class MicrophoneCaptureStats(
         udpSent = 0
         sendErrors = 0
         sendGapMaxNs = 0
+        nonZeroSamples = 0
+        samplePeak = 0
     }
 
     private fun emit(message: String) { runCatching { report(message) } }
@@ -92,11 +109,8 @@ internal class MicrophoneCaptureStats(
         private const val REPORT_INTERVAL_NS = 5_000_000_000L
 
         private fun metadata(config: MicrophoneConfig): String {
-            val (type, source) = when (config.audioType) {
-                "telephony" -> "telephony" to "VOICE_COMMUNICATION"
-                "speechrecognition" -> "speechrecognition" to "VOICE_RECOGNITION"
-                else -> "other" to "MIC"
-            }
+            val type = config.audioType.takeIf { it in setOf("telephony", "speechrecognition", "default", "compatibility") } ?: "other"
+            val source = config.effectiveSource().name
             return "type=$type source=$source codec=${config.codec.name} " +
                 "rate=${config.sampleRate} channels=${config.channels} frameMs=${config.frameMillis}"
         }

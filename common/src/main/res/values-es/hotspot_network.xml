@@ -1,0 +1,16 @@
+<resources>
+    <string name="hotspot_network_pick_interface">Selecciona una interfaz</string>
+    <string name="hotspot_network_pick_required">Selecciona y guarda la interfaz del punto de acceso en la configuración antes de conectar.</string>
+    <string name="hotspot_network_pick_unavailable">La interfaz guardada no está disponible. Activa el punto de acceso del coche y selecciona otra vez.</string>
+    <string name="hotspot_network_no_interfaces">No se encontró ninguna interfaz de red disponible. Activa el punto de acceso del coche y vuelve a abrir la lista.</string>
+    <string name="hotspot_network_manual_description">Activa el punto de acceso del coche, selecciona su interfaz de red y guarda. Solo se muestran las interfaces disponibles actualmente. Tu selección se recuerda para la próxima conexión.</string>
+    <string name="hotspot_network_address_title">Modo de dirección del punto de acceso</string>
+    <string name="hotspot_network_address_summary">Dirección del punto de acceso: %1$s</string>
+    <string name="hotspot_network_auto">Automático (prioriza IPv4 en Android 9)</string>
+    <string name="hotspot_network_ipv4">Compatibilidad IPv4</string>
+    <string name="hotspot_network_ipv6">IPv6 local de enlace</string>
+    <string name="hotspot_network_interface_title">Interfaz de red del punto de acceso</string>
+    <string name="hotspot_network_interface_summary">Interfaz del punto de acceso: %1$s</string>
+    <string name="hotspot_network_unavailable">No disponible actualmente</string>
+    <string name="hotspot_network_description">Empieza con Automático. Si el teléfono reconoce el coche pero no aparece imagen, prueba la compatibilidad IPv4 y selecciona la interfaz cuya dirección IPv4 coincida con el router en los detalles de Wi-Fi del iPhone. Activa el punto de acceso del coche antes de abrir la lista. Los cambios se aplican a la próxima conexión.</string>
+</resources>

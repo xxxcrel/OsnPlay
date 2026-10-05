@@ -11,7 +11,7 @@ enum class BydClusterNaviMode(val code: Int, val label: String) {
     SMALL(3, "Small screen navi"),
     FULL(4, "Full screen navi");
 
-    /** Small and Full screen navi show the projection (DiPlay's map); Off and Turn on by navi do not. */
+    /** Small and Full screen navi show the projection (OsnPlay's map); Off and Turn on by navi do not. */
     val showsMap: Boolean get() = this == SMALL || this == FULL
 
     companion object {

@@ -44,10 +44,25 @@ class ManualHotspotConfigTest {
         assertEquals("Car Wi-Fi", config.manualHotspotSsid)
     }
 
+    @Test fun explicitInterfaceProfileCannotStartWithAnUnselectedInterface() {
+        assertThrows(IllegalArgumentException::class.java) {
+            config(CarPlayTransport.WIRELESS, "Car Wi-Fi", "12345678", interfaceRequired = true)
+        }
+        assertEquals("wlan1", config(CarPlayTransport.WIRELESS, "Car Wi-Fi", "12345678",
+            interfaceRequired = true, interfaceName = "wlan1").manualHotspotInterface)
+    }
+
+    @Test fun usbDoesNotRequireSelectingAHotspotInterface() {
+        assertEquals(CarPlayTransport.WIRED,
+            config(CarPlayTransport.WIRED, "", interfaceRequired = true).transport)
+    }
+
     private fun config(
         transport: CarPlayTransport,
         ssid: String?,
         passphrase: String? = null,
+        interfaceRequired: Boolean = false,
+        interfaceName: String? = null,
     ): CarPlayRuntimeConfig = CarPlayRuntimeConfig(
         mfiTarget = MfiTarget.LOCAL,
         identification = Iap2IdentificationConfig(
@@ -63,5 +78,7 @@ class ManualHotspotConfigTest {
         wirelessHotspotMode = WirelessHotspotMode.MANUAL,
         manualHotspotSsid = ssid,
         manualHotspotPassphrase = passphrase,
+        manualHotspotInterfaceRequired = interfaceRequired,
+        manualHotspotInterface = interfaceName,
     )
 }

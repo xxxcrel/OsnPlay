@@ -21,9 +21,9 @@ class ResolutionDialogTest {
     @Test @Config(qualifiers = "ru") fun russianDialogs() = numericDialogsKeepNaturalHeightWhenResetting()
     @Test @Config(qualifiers = "uk") fun ukrainianDialogs() = numericDialogsKeepNaturalHeightWhenResetting()
     @Test fun numericDialogsKeepNaturalHeightWhenResetting() {
-        val a = Robolectric.buildActivity(DiPlayActivity::class.java).get()
+        val a = Robolectric.buildActivity(OsnPlayActivity::class.java).get()
         val parent = LinearLayout(a)
-        val integer = DiPlayActivity::class.java.declaredMethods.first { it.name == "resolutionSettingControl" }
+        val integer = OsnPlayActivity::class.java.declaredMethods.first { it.name == "resolutionSettingControl" }
         integer.isAccessible = true
         integer.invoke(a, parent, R.string.resolution, R.string.custom_resolution_hint,
             30..100, 100, R.string.custom_resolution_summary, { 56 }, false, { _: Int -> })

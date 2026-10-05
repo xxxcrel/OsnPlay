@@ -33,7 +33,7 @@ class BydBatteryTest {
 
     @Test
     fun noAdbAccessGivesNoReading() {
-        // BydAdbShell answers null while adbd is off, refuses DiPlay's key or waits for approval.
+        // BydAdbShell answers null while adbd is off, refuses OsnPlay's key or waits for approval.
         assertNull(BydBattery.read { null })
     }
 

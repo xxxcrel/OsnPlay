@@ -33,7 +33,7 @@ import com.shilapi.xcertplay.hud.ClusterTurnGuidance
  *
  * BYD exposes the cluster's projection area as public presentation displays owned by
  * com.byd.containerservice (DiLink 5) or com.xdja.containerservice (DiLink 4). The
- * cluster only shows this display while its projection mode is on, which DiPlay cannot switch.
+ * cluster only shows this display while its projection mode is on, which OsnPlay cannot switch.
  */
 internal class ClusterMapPresentation(
     context: Context,
@@ -153,7 +153,7 @@ internal class ClusterMapPresentation(
     }
 
     companion object {
-        const val TAG = "DiPlay-Cluster"
+        const val TAG = "OsnPlay-Cluster"
 
         /** Keep the 5/5.1 selection order, then try the measured DiLink 4 projection display. */
         fun findDisplay(context: Context, theme: DiLink51ClusterLayout.Theme = DiLink51ClusterLayout.theme(context)): Display? {
@@ -203,7 +203,7 @@ internal class ClusterMapPresentation(
     }
 }
 
-/** Shading belongs to DiPlay's map only; no stock cluster window is changed or covered outside the side card. */
+/** Shading belongs to OsnPlay's map only; no stock cluster window is changed or covered outside the side card. */
 private class InstrumentContrastView(
     context: Context,
     private val plan: DiLink51ClusterLayout.Plan,

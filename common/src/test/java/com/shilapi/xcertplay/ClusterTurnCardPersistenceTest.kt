@@ -1,13 +1,19 @@
 package com.shilapi.xcertplay
 
+import android.content.ContextWrapper
+import android.content.res.Resources
 import com.shilapi.xcertplay.airplay.ClusterTurnCardOverlay
+import com.shilapi.xcertplay.host.R
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
+import org.mockito.Mockito.*
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33], manifest = Config.NONE)
@@ -23,6 +29,17 @@ class ClusterTurnCardPersistenceTest {
         assertEquals(ClusterTurnCardOverlay.DEFAULT_X_PERCENT, AirPlayPersistence.loadClusterTurnCardOverlayXPercent(context))
         assertEquals(ClusterTurnCardOverlay.DEFAULT_Y_PERCENT, AirPlayPersistence.loadClusterTurnCardOverlayYPercent(context))
         assertEquals(55, AirPlayPersistence.loadClusterTurnCardOverlaySizePercent(context))
+    }
+
+    @Test fun withdrawnInstrumentFeatureIgnoresAPreviouslyEnabledMapAfterUpgrade() {
+        AirPlayPersistence.saveClusterMapEnabled(context, true)
+        assertTrue(AirPlayPersistence.loadClusterMapEnabled(context))
+        val resources = mock(Resources::class.java)
+        `when`(resources.getBoolean(R.bool.config_cluster_map_available)).thenReturn(false)
+        val upgradedProduct = object : ContextWrapper(context) {
+            override fun getResources(): Resources = resources
+        }
+        assertFalse(AirPlayPersistence.loadClusterMapEnabled(upgradedProduct))
     }
 
     @Test fun overlayOffsetsRoundTrip() {

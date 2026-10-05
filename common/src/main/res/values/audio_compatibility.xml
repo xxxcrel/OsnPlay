@@ -1,0 +1,8 @@
+<resources>
+    <string name="osn_media_sync">System media-control sync</string>
+    <string name="osn_media_sync_description">Leave off if the factory player pauses CarPlay automatically. Off prevents forwarding system media commands and reclaiming focus during playback; CarPlay touch controls still work. Reconnect after changing.</string>
+    <string name="osn_microphone_compatibility">Microphone compatibility mode</string>
+    <string name="osn_microphone_compatibility_description">Use standard MIC input and keep the car-managed call routing. Reconnect after changing.</string>
+    <string name="osn_microphone_required">Allow microphone access for OsnPlay in app permissions before connecting, so calls and voice messages can capture your voice.</string>
+    <string name="osn_microphone_granted">Microphone permission granted</string>
+</resources>

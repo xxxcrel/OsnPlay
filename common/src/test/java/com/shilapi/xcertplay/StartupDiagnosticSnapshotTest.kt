@@ -16,7 +16,7 @@ import org.robolectric.annotation.Config
 class StartupDiagnosticSnapshotTest {
     private val app get() = RuntimeEnvironment.getApplication()
     @Before fun reset() {
-        app.getSharedPreferences("diplay_startup_diagnostics", Context.MODE_PRIVATE).edit().clear().commit()
+        app.getSharedPreferences("osnplay_startup_diagnostics", Context.MODE_PRIVATE).edit().clear().commit()
         AirPlayPersistence.saveAutoStartOnBoot(app, false)
     }
 
@@ -38,7 +38,7 @@ class StartupDiagnosticSnapshotTest {
             override fun startActivity(intent: Intent) { launch = intent }
         }
         BootReceiver().onReceive(context, Intent(Intent.ACTION_BOOT_COMPLETED))
-        assertEquals(DiPlayActivity::class.java.name, launch!!.component!!.className)
+        assertEquals(OsnPlayActivity::class.java.name, launch!!.component!!.className)
         assertTrue(launch!!.flags and Intent.FLAG_ACTIVITY_NEW_TASK != 0)
         assertTrue(StartupDiagnosticSnapshot.report(app).contains("launchResult=startActivity-returned"))
     }

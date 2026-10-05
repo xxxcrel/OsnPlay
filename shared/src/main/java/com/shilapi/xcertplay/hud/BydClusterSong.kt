@@ -88,18 +88,18 @@ internal class ClusterSongState {
 /**
  * Optional, needs ADB over network: shows the CarPlay song in the dashboard's music card. Apps cannot
  * write it (BYDAutoInstrumentDevice checks a BYD permission), but autoservice accepts the adb shell
- * user, so DiPlay runs [BydClusterSongTool] from its own APK under the head unit's adb shell. The card
+ * user, so OsnPlay runs [BydClusterSongTool] from its own APK under the head unit's adb shell. The card
  * appears as BYD's "other" music source; CarPlay's own source value is not drawn on this dashboard.
  */
 internal object BydClusterSong {
-    private const val TAG = "DiPlay-BYD-Song"
+    private const val TAG = "OsnPlay-BYD-Song"
     private const val SOURCE_OTHERS = 11
     private const val STATE_PLAYING = 1
     private const val STATE_PAUSED = 2
     private const val STATE_STOPPED = 3
 
     private val shell = BydAdbShell(TAG)
-    private val writer = Executors.newSingleThreadExecutor { Thread(it, "diplay-cluster-song").apply { isDaemon = true } }
+    private val writer = Executors.newSingleThreadExecutor { Thread(it, "osnplay-cluster-song").apply { isDaemon = true } }
     private val state = ClusterSongState() // guards wanted too
     @Volatile private var context: Context? = null
     private var wanted: ClusterSong? = null
@@ -123,13 +123,13 @@ internal object BydClusterSong {
         }
     }
 
-    /** The setting changed: show the current song now, or stop the card DiPlay set. */
+    /** The setting changed: show the current song now, or stop the card OsnPlay set. */
     fun settingChanged(enabled: Boolean) {
         val app = context ?: return
         if (enabled) synchronized(state) { state.current() }?.let { show(app, it) } else stop(app)
     }
 
-    /** The session ended: forget the song and stop the card DiPlay set. */
+    /** The session ended: forget the song and stop the card OsnPlay set. */
     fun end() {
         val app = context ?: return
         synchronized(state) { state.clear() }
@@ -179,7 +179,7 @@ internal object BydClusterSong {
 }
 
 /**
- * Runs under the head unit's adb shell through app_process, not in DiPlay: writes the dashboard's music
+ * Runs under the head unit's adb shell through app_process, not in OsnPlay: writes the dashboard's music
  * source, play state and song text to the instrument (device 1007), as BYD's media controller does
  * (source 0x33F00030, state 0x43E0000A, text 0x43FB1008 in UTF-16LE). Arguments: source, state and
  * base64 UTF-8 text, "-" to skip one. Prints "name=result" per write; 0 is success.

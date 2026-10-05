@@ -10,11 +10,11 @@ import java.util.concurrent.TimeUnit
 object BydOemClusterNavi {
     internal const val STOCK_MAP = "com.byd.automap"
     internal const val STOCK_MAP_CLUSTER_ACTIVITY = "$STOCK_MAP.extra.MeterActivity"
-    private const val TAG = "DiPlay-BYD-OemCluster"
+    private const val TAG = "OsnPlay-BYD-OemCluster"
     private const val JOURNAL = "restore_journal"
     private val shell = BydAdbShell(TAG)
     private val worker = Executors.newSingleThreadScheduledExecutor {
-        Thread(it, "diplay-oem-cluster").apply { isDaemon = true }
+        Thread(it, "osnplay-oem-cluster").apply { isDaemon = true }
     }
     private var session: OemClusterHoldSession? = null
 
@@ -53,8 +53,8 @@ object BydOemClusterNavi {
             else app.packageManager.getComponentEnabledSetting(ComponentName(STOCK_MAP, STOCK_MAP_CLUSTER_ACTIVITY))
         }.getOrNull() },
         setState = { target, value ->
-            val output = shell.run(app, command(target, value) + "; printf '\nDIPLAY_PM_RC:%s\n' \"\$?\"")
-            output != null && Regex("(?m)^DIPLAY_PM_RC:0\\s*$").containsMatchIn(output) &&
+            val output = shell.run(app, command(target, value) + "; printf '\nOSNPLAY_PM_RC:%s\n' \"\$?\"")
+            output != null && Regex("(?m)^OSNPLAY_PM_RC:0\\s*$").containsMatchIn(output) &&
                 !Regex("(?i)error|exception|permission\\s*deni(?:al|ed)").containsMatchIn(output)
         },
         loadJournal = { journal(app) },
@@ -87,5 +87,5 @@ object BydOemClusterNavi {
         return "pm $operation --user 0 $component"
     }
 
-    private fun prefs(context: Context) = context.getSharedPreferences("diplay_oem_cluster", Context.MODE_PRIVATE)
+    private fun prefs(context: Context) = context.getSharedPreferences("osnplay_oem_cluster", Context.MODE_PRIVATE)
 }

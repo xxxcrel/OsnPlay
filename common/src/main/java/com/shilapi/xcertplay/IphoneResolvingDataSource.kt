@@ -85,7 +85,7 @@ internal class IphoneResolvingDataSource(
     }
 
     private companion object {
-        const val TAG = "DiPlay-Video"
+        const val TAG = "OsnPlay-Video"
         const val MAX_REDIRECTS = 5
         val DIRECT_SCHEMES = setOf("http", "https", "data")
     }

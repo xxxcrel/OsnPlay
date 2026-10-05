@@ -1,0 +1,8 @@
+<resources>
+    <string name="osn_media_sync">Синхронізація системного керування музикою</string>
+    <string name="osn_media_sync_description">Вимкніть, якщо штатний плеєр сам ставить CarPlay на паузу. Команди системи не передаються, аудіофокус не запитується повторно під час відтворення. Сенсорні кнопки CarPlay працюють. Після зміни перепідключіться.</string>
+    <string name="osn_microphone_compatibility">Сумісність мікрофона</string>
+    <string name="osn_microphone_compatibility_description">Використовувати стандартний вхід MIC зі штатною маршрутизацією дзвінків. Після зміни перепідключіться.</string>
+    <string name="osn_microphone_required">Перед підключенням дозвольте OsnPlay доступ до мікрофона для запису голосу в дзвінках і голосових повідомленнях.</string>
+    <string name="osn_microphone_granted">Доступ до мікрофона дозволено</string>
+</resources>

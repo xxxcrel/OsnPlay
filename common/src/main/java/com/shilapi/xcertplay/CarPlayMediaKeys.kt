@@ -18,6 +18,7 @@ import android.view.KeyEvent
 import com.shilapi.xcertplay.airplay.CarPlayMediaButton
 import com.shilapi.xcertplay.media.CarPlayNowPlaying
 import com.shilapi.xcertplay.orchestration.CarPlayController
+import com.shilapi.xcertplay.host.R
 import java.util.concurrent.Executors
 import java.util.concurrent.Executor
 
@@ -25,19 +26,19 @@ import java.util.concurrent.Executor
  * Steering-wheel and other hardware media buttons for CarPlay.
  *
  * Android delivers media keys to a media session; BYD picks the session of the audio-focus
- * owner. Once CarPlay plays music, DiPlay holds audio focus and an active session until the
+ * owner. Once CarPlay plays music, OsnPlay holds audio focus and an active session until the
  * CarPlay session ends, so play also works after a pause. Keys go to the iPhone as CarPlay media
  * HID presses ([CarPlayMediaButton]).
  */
 internal object CarPlayMediaKeys {
-    private const val TAG = "DiPlay-MediaKeys"
+    private const val TAG = "OsnPlay-MediaKeys"
     private const val ACTIONS = PlaybackState.ACTION_PLAY or PlaybackState.ACTION_PAUSE or
         PlaybackState.ACTION_PLAY_PAUSE or PlaybackState.ACTION_SKIP_TO_NEXT or PlaybackState.ACTION_SKIP_TO_PREVIOUS
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private val artworkQueue = NowPlayingArtworkQueue(
         worker = Executors.newSingleThreadExecutor { task ->
-            Thread(task, "diplay-now-playing-artwork").apply { isDaemon = true }
+            Thread(task, "osnplay-now-playing-artwork").apply { isDaemon = true }
         },
         main = Executor { mainHandler.post(it) },
         decode = ::decodeArtwork,
@@ -57,7 +58,8 @@ internal object CarPlayMediaKeys {
     private val artworkCache = LinkedHashMap<Int, Bitmap?>()
 
     @Synchronized
-    fun attach(context: Context, next: CarPlayController) {
+    fun attach(context: Context, next: CarPlayController,
+        claimFocusEarly: Boolean = AirPlayPersistence.loadEarlyMediaFocus(context)) {
         if (controller !== next) {
             releaseLocked()
             artworkOwner = artworkQueue.newSession()
@@ -67,6 +69,10 @@ internal object CarPlayMediaKeys {
         next.playbackListener = { playing -> onIphonePlaying(next, playing) }
         next.nowPlayingListener = { update -> onNowPlayingChanged(next, update) }
         next.artworkListener = { id, bytes -> onArtworkChanged(next, id, bytes) }
+        // Some OSN Bluetooth players send AVRCP pause when they lose focus. Taking focus
+        // after the first CarPlay audio packet therefore pauses the iPhone just as music starts.
+        // Switch source before initiating the phone connection, rather than during playback.
+        if (claimFocusEarly && focusRequest == null) start(context.applicationContext, "before-connection")
     }
 
     /** Ends key handling for [expected]; a newer controller's state is left alone. */
@@ -87,9 +93,12 @@ internal object CarPlayMediaKeys {
 
     /** The iPhone started or stopped playing; may run on any thread. */
     private fun onIphonePlaying(expected: CarPlayController, playing: Boolean) {
-        if (playing) mainHandler.post {
+        mainHandler.post {
             synchronized(this) {
-                if (controller === expected) regainFocusLocked()
+                if (controller === expected) {
+                    reportLocked("iPhone playing=$playing")
+                    if (playing) regainFocusLocked()
+                }
             }
         }
     }
@@ -143,22 +152,26 @@ internal object CarPlayMediaKeys {
     // keys. When CarPlay starts playing again it becomes the car's media source again, as any player
     // would; only the start counts, so a car source picked while the iPhone plays on is not undone.
     private fun regainFocusLocked() {
+        // Compatibility mode keeps the initial source switch, but does not fight the
+        // factory Bluetooth player for focus again when the iPhone starts a track.
+        if (appContext?.let(AirPlayPersistence::loadSystemMediaSyncEnabled) != true) return
         val request = focusRequest ?: return
         if (focusHeld) return
         val audio = appContext?.getSystemService(AudioManager::class.java) ?: return
         focusHeld = audio.requestAudioFocus(request) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-        Log.i(TAG, "audio focus regained=$focusHeld")
+        reportLocked("audio focus regained=$focusHeld")
     }
 
     private fun updateLocked(active: Boolean) {
         val context = appContext ?: return
         if (controller == null) return
         mediaAudioActive = active
-        if (active && session == null) start(context) else if (active) regainFocusLocked()
+        reportLocked("audio stream active=$active")
+        if (active && focusRequest == null) start(context, "first-audio") else if (active) regainFocusLocked()
         publishPlaybackStateLocked()
     }
 
-    private fun start(context: Context) {
+    private fun start(context: Context, phase: String) {
         val audio = context.getSystemService(AudioManager::class.java)
         val request = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
             .setAudioAttributes(
@@ -168,20 +181,30 @@ internal object CarPlayMediaKeys {
                     .build(),
             )
             .setOnAudioFocusChangeListener({ change ->
-                Log.i(TAG, "audio focus change=$change")
-                // Only a permanent loss moves the car's media keys elsewhere; transient losses come back.
-                if (change == AudioManager.AUDIOFOCUS_LOSS) synchronized(this) { focusHeld = false }
+                synchronized(this) {
+                    reportLocked("audio focus change=$change")
+                    // Only a permanent loss moves the car's media keys elsewhere; transient losses come back.
+                    if (change == AudioManager.AUDIOFOCUS_LOSS) focusHeld = false
+                    if (change == AudioManager.AUDIOFOCUS_GAIN) focusHeld = true
+                }
             }, mainHandler)
             .build()
         val granted = audio?.requestAudioFocus(request) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
         focusRequest = request
         focusHeld = granted
-        session = MediaSession(context, "DiPlay CarPlay").apply {
-            setCallback(callback, mainHandler)
+        val sync = AirPlayPersistence.loadSystemMediaSyncEnabled(context)
+        session = if (sync) MediaSession(context, "${context.getString(R.string.app_name)} CarPlay").apply {
+            setCallback(CarPlayMediaCallback(
+                hardwareToggleWorkaround = !context.resources.getBoolean(R.bool.config_standard_media_keys),
+                commandsEnabled = { AirPlayPersistence.loadSystemMediaSyncEnabled(context) },
+                suppressed = { source -> synchronized(CarPlayMediaKeys) { reportLocked("system command suppressed source=$source") } },
+                send = ::send,
+            ), mainHandler)
             setMetadata(androidMetadata(nowPlaying, artwork))
             isActive = true
-        }
-        Log.i(TAG, "media keys active focusGranted=$granted")
+        } else null
+        reportLocked("media keys active phase=$phase focusGranted=$granted systemSync=$sync standardKeys=${context.resources.getBoolean(R.bool.config_standard_media_keys)}")
+        publishPlaybackStateLocked()
     }
 
     private fun releaseLocked() {
@@ -230,10 +253,13 @@ internal object CarPlayMediaKeys {
             return
         }
         val sent = synchronized(this) { controller }?.sendMediaButton(index) ?: false
-        Log.i(TAG, "media key $source -> CarPlay $index sent=$sent")
+        synchronized(this) { reportLocked("media key source=$source index=$index sent=$sent") }
     }
 
-    private val callback = CarPlayMediaCallback(::send)
+    private fun reportLocked(message: String) {
+        Log.i(TAG, message)
+        controller?.reportMediaDiagnostic(message)
+    }
 
     /** Whether [next] changes what the media session's metadata shows; position and play state do not. */
     internal fun metadataChanged(previous: CarPlayNowPlaying, next: CarPlayNowPlaying): Boolean =
@@ -293,19 +319,29 @@ internal object CarPlayMediaKeys {
  * Media-session input → CarPlay presses. Hardware keys arrive as button events and keep the toggle;
  * media controllers (not hardware keys) call [onPlay] and [onPause] with an explicit intent.
  */
-internal class CarPlayMediaCallback(private val send: (index: Int, source: String) -> Unit) : MediaSession.Callback() {
+internal class CarPlayMediaCallback(
+    private val hardwareToggleWorkaround: Boolean = true,
+    private val commandsEnabled: () -> Boolean = { true },
+    private val suppressed: (String) -> Unit = {},
+    private val send: (index: Int, source: String) -> Unit,
+) : MediaSession.Callback() {
     override fun onMediaButtonEvent(mediaButtonIntent: Intent): Boolean {
         @Suppress("DEPRECATION")
         val event = mediaButtonIntent.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT) ?: return false
-        val index = CarPlayMediaButton.forKeyCode(event.keyCode) ?: return super.onMediaButtonEvent(mediaButtonIntent)
+        val index = CarPlayMediaButton.forKeyCode(event.keyCode, hardwareToggleWorkaround)
+            ?: return super.onMediaButtonEvent(mediaButtonIntent)
         if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
-            send(index, KeyEvent.keyCodeToString(event.keyCode))
+            dispatch(index, KeyEvent.keyCodeToString(event.keyCode))
         }
         return true
     }
 
-    override fun onPlay() = send(CarPlayMediaButton.PLAY, "play")
-    override fun onPause() = send(CarPlayMediaButton.PAUSE, "pause")
-    override fun onSkipToNext() = send(CarPlayMediaButton.NEXT, "next")
-    override fun onSkipToPrevious() = send(CarPlayMediaButton.PREVIOUS, "previous")
+    private fun dispatch(index: Int, source: String) {
+        if (commandsEnabled()) send(index, source) else suppressed(source)
+    }
+
+    override fun onPlay() = dispatch(CarPlayMediaButton.PLAY, "play")
+    override fun onPause() = dispatch(CarPlayMediaButton.PAUSE, "pause")
+    override fun onSkipToNext() = dispatch(CarPlayMediaButton.NEXT, "next")
+    override fun onSkipToPrevious() = dispatch(CarPlayMediaButton.PREVIOUS, "previous")
 }

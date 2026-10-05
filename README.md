@@ -1,12 +1,12 @@
-# DiPlay
+# OsnPlay
 
-**CarPlay for compatible BYD Android head units.** Wired and wireless, with the familiar DiAuto interface. Independent app: `com.shihab.diplay`.
+**OsnPlay for the 2023 Lynk & Co 03 / OSN 2.0 head unit.** Native system-aware themes, wireless/USB CarPlay, and one-finger settings access. The local product package is `com.sinyee.babybus.story`; see `docs/OSNPLAY.md` for the current build and on-car checks.
 
 > **BYD support scope:** These projects focus on BYD cars. They may work on other brands, but other brands are unsupported and there are no plans to add support or fix brand-specific incompatibilities.
 
 [Download & website](https://shihabal3amri.github.io/DiPlay/) · [Release](https://github.com/shihabal3amri/DiPlay/releases/tag/v0.2.11) · [Report a problem](https://github.com/shihabal3amri/DiPlay/issues/new/choose)
 
-![DiPlay home](site/assets/home.png)
+![OsnPlay home](site/assets/home.png)
 
 ## 0.2.11 — public preview
 
@@ -20,7 +20,7 @@ Install on the **car**, not the iPhone. No jailbreak, dongle, Mac, account or au
 - Local diagnostic export. Reports are sent only if you choose to share them.
 - Separate installation alongside DiAuto. Run one projection app at a time.
 
-This is **not an Apple-certified product**. The APK bundles an experimental accessory identity recovered from public Carlinkit firmware, not a newly provisioned MFi identity for DiPlay. A bundled private key is extractable. Acceptance after future iOS updates, reliability across head units and suitability of that identity for general distribution are unresolved. This release invites community testing; it is not a guarantee of universal compatibility.
+This is **not an Apple-certified product**. The APK bundles an experimental accessory identity recovered from public Carlinkit firmware, not a newly provisioned MFi identity for OsnPlay. A bundled private key is extractable. Acceptance after future iOS updates, reliability across head units and suitability of that identity for general distribution are unresolved. This release invites community testing; it is not a guarantee of universal compatibility.
 
 Earlier releases were tested on the development DiLink5.1 car: live windshield guidance and street names work, Car hotspot now starts CarPlay, and Wi-Fi Direct performance is substantially improved. Occasional audio cutouts remain and are deferred to a later update. The floating-map test build was installed on the development DiLink 5.1 car; feedback led to the pinch corrections in 0.2.9. Earlier wheel-speed and video contributions were tested on a BYD Tang with DiLink 5.0 and an iPhone 15 Pro on iOS 27; wheel-speed dead reckoning in tunnels remains unverified. Broader head-unit and iOS compatibility is not guaranteed. The HUD firmware scope and cleanup limits are documented in [BYD navigation](docs/BYD_NAVIGATION.md).
 
@@ -30,15 +30,15 @@ Earlier releases were tested on the development DiLink5.1 car: live windshield g
 - A custom dashboard turn card with size choices and position changes in 2% steps. Unknown maneuvers show no guessed arrow; expired guidance clears.
 - Two-, three- or four-finger settings swipes, keeping three as the default, plus Android TV/remote controls that preserve ordinary touch and knob behavior.
 - Opt-in read-only legacy vehicle-data detection under Location → Advanced vehicle data. Default DiLink 5.0 mode remains the default; only accepted fields/readings become runtime data. Stale-probe and battery-publication concurrency corrections are included.
-- Optional automatic startup of the existing car hotspot, off by default, with verified permissions limited to DiPlay's own package.
+- Optional automatic startup of the existing car hotspot, off by default, with verified permissions limited to OsnPlay's own package.
 - Wireless location/vehicle data on the runtime Wi-Fi link and parked-video availability delivered after SETUP/event-channel readiness. Non-P or unreadable gear still closes video.
 - Retain artists across partial song updates and publish media-session metadata/artwork only when changed; position/play state keep updating.
-- Android 9 audio API compatibility, failed-codec cleanup, settled-size/readiness checks after reconnect, an exact-error Android 10 P2P compatibility path in Auto mode, and a wired VPN restricted to DiPlay.
+- Android 9 audio API compatibility, failed-codec cleanup, settled-size/readiness checks after reconnect, an exact-error Android 10 P2P compatibility path in Auto mode, and a wired VPN restricted to OsnPlay.
 - Bounded wireless/media/theme and own-app exit diagnostics, without audio/video/packet payload recording or automatic uploads.
 
 Optional legacy vehicle data, battery, wheel speed and parked video require authorized network ADB and supported readings. Dashboard, hotspot and audio effects depend on firmware and Android support. See [0.2.11 release notes](docs/RELEASE-NOTES-0.2.11.md) and [validation](docs/VALIDATION.md) for review corrections and device-test limits. Qin Plus startup, Wi-Fi Direct stutter, Siri/microphone quality, iOS 15 connection and day/night firmware reports still need fresh hardware evidence.
 
-If a problem remains, reproduce it on **0.2.11**, then use **Settings → Diagnostics → Save diagnostic report**. Android 10+ saves to **Downloads/DiPlay**; Android 9 uses the document picker. If the picker or Downloads storage is unavailable, the report saves to **Android/data/com.shihab.diplay/files/diagnostic-reports/** and the confirmation shows the full `.txt` path. If that storage is also unavailable, the report saves privately in DiPlay. You can view or share either fallback report from the confirmation. Review the `.txt` file and attach it to your existing [issue](https://github.com/shihabal3amri/DiPlay/issues), including vehicle/firmware, phone/iOS, connection mode, steps and failure time. Reports are shared only when you choose; never post your hotspot password.
+If a problem remains, reproduce it on **0.2.11**, then use **Settings → Diagnostics → Save diagnostic report**. Android 10+ saves to **Downloads/OsnPlay**; Android 9 uses the document picker. If the picker or Downloads storage is unavailable, the report saves to **Android/data/<applicationId>/files/diagnostic-reports/** and the confirmation shows the full `.txt` path. If that storage is also unavailable, the report saves privately in OsnPlay. You can view or share either fallback report from the confirmation. Review the `.txt` file and attach it to your existing [issue](https://github.com/shihabal3amri/DiPlay/issues), including vehicle/firmware, phone/iOS, connection mode, steps and failure time. Reports are shared only when you choose; never post your hotspot password.
 
 ## Documentation
 

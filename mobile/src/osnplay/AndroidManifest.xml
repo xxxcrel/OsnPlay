@@ -1,0 +1,30 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application
+        android:icon="@mipmap/ic_osnplay"
+        android:roundIcon="@mipmap/ic_osnplay_round"
+        android:label="@string/app_name"
+        android:banner="@drawable/osnplay_banner"
+        tools:replace="android:icon,android:roundIcon">
+        <!-- Explicit bitmap icons and a real MAIN/LAUNCHER entry for OEM app lists. -->
+        <activity android:name="com.shilapi.xcertplay.OsnPlayActivity"
+            android:exported="true" android:launchMode="singleTask"
+            android:screenOrientation="landscape"
+            android:configChanges="density|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+            android:theme="@style/Theme.OsnPlay.Startup"
+            tools:node="replace" />
+        <activity android:name="com.osnplay.app.MainActivity"
+            android:enabled="true" android:exported="true"
+            android:launchMode="singleTask" android:screenOrientation="landscape"
+            android:configChanges="density|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+            android:theme="@style/Theme.OsnPlay.Startup"
+            android:label="@string/app_name"
+            android:banner="@drawable/osnplay_banner"
+            android:icon="@mipmap/ic_osnplay">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

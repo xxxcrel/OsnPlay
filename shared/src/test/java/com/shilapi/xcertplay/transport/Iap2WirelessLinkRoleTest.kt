@@ -7,10 +7,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class Iap2WirelessLinkRoleTest {
-    private val wireless = Iap2WirelessIdentification("AA:BB:CC:DD:EE:FF", "DiPlay")
+    private val wireless = Iap2WirelessIdentification("AA:BB:CC:DD:EE:FF", "OsnPlay")
     private val full = Iap2IdentificationConfig(
-        name = "DiPlay",
-        modelIdentifier = "DiPlay",
+        name = "OsnPlay",
+        modelIdentifier = "OsnPlay",
         manufacturer = "BYD",
         serialNumber = "test",
         firmwareVersion = "1",

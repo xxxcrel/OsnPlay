@@ -33,8 +33,8 @@ class DiagnosticExportFallbackTest {
     }
 
     @Test fun androidNineSavesUtf8WithoutAPickerOrStoragePermission() {
-        val report = "DiPlay · تقرير\nUSB: waiting\n"
-        val saved = DiagnosticExportStore.saveWithoutPicker(context, "DiPlay-test.txt", report)
+        val report = "OsnPlay · تقرير\nUSB: waiting\n"
+        val saved = DiagnosticExportStore.saveWithoutPicker(context, "OsnPlay-test.txt", report)
         assertFalse(saved.savedInApp)
         val file = reports.listFiles()!!.single()
         assertEquals(report, file.readText(Charsets.UTF_8))
@@ -52,7 +52,7 @@ class DiagnosticExportFallbackTest {
         val provider = MissingDownloadsProvider()
         provider.attachInfo(context, ProviderInfo().apply { authority = "media" })
         ShadowContentResolver.registerProviderInternal("media", provider)
-        val saved = DiagnosticExportStore.saveWithoutPicker(context, "DiPlay-test.txt", "report")
+        val saved = DiagnosticExportStore.saveWithoutPicker(context, "OsnPlay-test.txt", "report")
         assertTrue(provider.insertAttempted)
         assertFalse(saved.savedInApp)
         assertEquals("report", reports.listFiles()!!.single().readText())
@@ -60,8 +60,8 @@ class DiagnosticExportFallbackTest {
     }
 
     @Test fun anEarlierShareUriCannotReadALaterExport() {
-        val first = DiagnosticExportStore.saveWithoutPicker(context, "DiPlay-test.txt", "first")
-        val second = DiagnosticExportStore.saveWithoutPicker(context, "DiPlay-test.txt", "second")
+        val first = DiagnosticExportStore.saveWithoutPicker(context, "OsnPlay-test.txt", "first")
+        val second = DiagnosticExportStore.saveWithoutPicker(context, "OsnPlay-test.txt", "second")
         assertNotEquals(first.uri, second.uri)
         assertEquals("first", read(first.uri))
         assertEquals("second", read(second.uri))
@@ -69,14 +69,14 @@ class DiagnosticExportFallbackTest {
 
     @Test fun onlyEightExternalExportsAreRetained() {
         var latest: Uri? = null
-        repeat(12) { latest = DiagnosticExportStore.saveWithoutPicker(context, "DiPlay-test.txt", "report $it").uri }
+        repeat(12) { latest = DiagnosticExportStore.saveWithoutPicker(context, "OsnPlay-test.txt", "report $it").uri }
         assertEquals(8, reports.listFiles()!!.size)
         assertEquals("report 11", read(latest!!))
     }
 
     @Test fun providerCannotExposeSessionLogsOrOtherPrivateFiles() {
-        DiagnosticExportStore.saveWithoutPicker(context, "DiPlay-test.txt", "report")
-        for (path in listOf("logs/diplay.log", "other.txt")) {
+        DiagnosticExportStore.saveWithoutPicker(context, "OsnPlay-test.txt", "report")
+        for (path in listOf("logs/osnplay.log", "other.txt")) {
             val file = File(context.filesDir, path).apply { parentFile!!.mkdirs(); writeText("private") }
             assertThrows(IllegalArgumentException::class.java) {
                 FileProvider.getUriForFile(context, "${context.packageName}.diagnostic-reports", file)
@@ -92,7 +92,7 @@ class DiagnosticExportFallbackTest {
         val unavailableExternal = object : ContextWrapper(context) {
             override fun getExternalFilesDir(type: String?): File? = null
         }
-        val saved = DiagnosticExportStore.saveWithoutPicker(unavailableExternal, "DiPlay-test.txt", "report")
+        val saved = DiagnosticExportStore.saveWithoutPicker(unavailableExternal, "OsnPlay-test.txt", "report")
         assertTrue(saved.savedInApp)
         assertNull(saved.savedPath)
         assertEquals("report", read(saved.uri))
@@ -101,7 +101,7 @@ class DiagnosticExportFallbackTest {
 
     @Test fun unwritableExternalStorageStillSavesPrivately() {
         reports.writeText("blocks directory creation")
-        val saved = DiagnosticExportStore.saveWithoutPicker(context, "DiPlay-test.txt", "report")
+        val saved = DiagnosticExportStore.saveWithoutPicker(context, "OsnPlay-test.txt", "report")
         assertTrue(saved.savedInApp)
         assertEquals("report", read(saved.uri))
         assertEquals("blocks directory creation", reports.readText())
@@ -111,14 +111,14 @@ class DiagnosticExportFallbackTest {
         reports.writeText("blocks directory creation")
         privateReports.writeText("blocks directory creation")
         assertThrows(IOException::class.java) {
-            DiagnosticExportStore.saveWithoutPicker(context, "DiPlay-test.txt", "report")
+            DiagnosticExportStore.saveWithoutPicker(context, "OsnPlay-test.txt", "report")
         }
     }
 
     @Test fun onlyEightPrivateExportsAreRetainedWhenExternalStorageIsUnavailable() {
         reports.writeText("blocks directory creation")
         var latest: Uri? = null
-        repeat(12) { latest = DiagnosticExportStore.saveWithoutPicker(context, "DiPlay-test.txt", "report $it").uri }
+        repeat(12) { latest = DiagnosticExportStore.saveWithoutPicker(context, "OsnPlay-test.txt", "report $it").uri }
         assertEquals(8, privateReports.listFiles()!!.size)
         assertEquals("report 11", read(latest!!))
     }

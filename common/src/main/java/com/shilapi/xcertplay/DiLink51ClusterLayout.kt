@@ -11,7 +11,7 @@ internal object DiLink51ClusterLayout {
     const val BASE = "fission_bg_XDJAScreenProjection"
     const val FULL = "shared_${BASE}_0"
     const val SIDE = "shared_${BASE}_1"
-    private const val PREFS = "diplay_cluster_layout"
+    private const val PREFS = "osnplay_cluster_layout"
 
     enum class Theme(val label: String) {
         SCENARIO("Scenario · side map"), MAP("Map · full map"), SIMPLE("Simple · side map")

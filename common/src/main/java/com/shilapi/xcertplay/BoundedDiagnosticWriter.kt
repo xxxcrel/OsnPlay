@@ -16,7 +16,7 @@ internal class BoundedDiagnosticWriter<T : Any>(
 
     init {
         require(maxPending > 0)
-        Thread(::drain, "diplay-diagnostic-writer").apply {
+        Thread(::drain, "osnplay-diagnostic-writer").apply {
             isDaemon = true
             start()
         }

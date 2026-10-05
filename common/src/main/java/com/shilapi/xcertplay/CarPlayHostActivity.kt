@@ -139,10 +139,10 @@ class CarPlayHostActivity : ComponentActivity() {
         remoteMfiServer = remoteMfiServer.trim().takeIf { it.isNotEmpty() },
         remoteMfiToken = remoteMfiToken.takeIf { it.isNotEmpty() },
         identification = Iap2IdentificationConfig(
-            name = "DiPlay",
+            name = getString(R.string.app_name),
             modelIdentifier = normalizedModel(),
             manufacturer = normalizedManufacturer(),
-            serialNumber = "DIPLAY-" + DiPlayBootstrap.deviceId(airPlayIdentity).replace(":", ""),
+            serialNumber = "OSNPLAY-" + OsnPlayBootstrap.deviceId(airPlayIdentity).replace(":", ""),
             firmwareVersion = "0.1.0",
             hardwareVersion = "1.0",
             carPlayUsbInterfaceNumber = 3,
@@ -151,10 +151,10 @@ class CarPlayHostActivity : ComponentActivity() {
             chargingConnectors = com.shilapi.xcertplay.hud.BydOutputSettings.chargingConnectors(this),
             vehicleSpeedEnabled = locationReportingEnabled && com.shilapi.xcertplay.hud.BydOutputSettings.wheelSpeedToIphoneActive(this),
         ),
-        label = "DiPlay",
-        hostName = "diplay-" + DiPlayBootstrap.deviceId(airPlayIdentity).replace(":", "").lowercase(),
-        hostMac = DiPlayBootstrap.deviceId(airPlayIdentity).split(":").map { it.toInt(16).toByte() }.toByteArray(),
-        wirelessBluetoothDeviceAddress = DiPlayPreferences.phoneAddress(this),
+        label = getString(R.string.app_name),
+        hostName = getString(R.string.app_name).lowercase(java.util.Locale.ROOT) + "-" + OsnPlayBootstrap.deviceId(airPlayIdentity).replace(":", "").lowercase(),
+        hostMac = OsnPlayBootstrap.deviceId(airPlayIdentity).split(":").map { it.toInt(16).toByte() }.toByteArray(),
+        wirelessBluetoothDeviceAddress = OsnPlayPreferences.phoneAddress(this),
         transport = if (wirelessEnabled) CarPlayTransport.WIRELESS else CarPlayTransport.WIRED,
         wirelessHotspotMode = wirelessHotspotMode,
         wifiP2pPreferredChannel = AirPlayPersistence.loadWifiP2pPreferredChannel(this),
@@ -165,6 +165,9 @@ class CarPlayHostActivity : ComponentActivity() {
         manualHotspotSecurity = manualHotspotSecurity,
         existingWifiSsid = existingWifiSsid,
         existingWifiPassphrase = existingWifiPassphrase,
+        manualHotspotInterface = AirPlayPersistence.loadManualHotspotInterface(this),
+        manualHotspotAddressMode = AirPlayPersistence.loadManualHotspotAddressMode(this),
+        manualHotspotInterfaceRequired = resources.getBoolean(R.bool.config_require_hotspot_interface),
         locationReportingEnabled = locationReportingEnabled,
     )
 
@@ -197,6 +200,12 @@ class CarPlayHostActivity : ComponentActivity() {
             microphoneAvailable = granted
             microphonePermissionResolved = true
             appendLog(if (granted) "Microphone permission granted" else "Microphone permission denied")
+            if (!granted && resources.getBoolean(R.bool.config_require_microphone_permission)) {
+                android.widget.Toast.makeText(this, R.string.osn_microphone_required, android.widget.Toast.LENGTH_LONG).show()
+                startActivity(Intent(this, OsnPlayActivity::class.java).putExtra("page", "connection"))
+                finish()
+                return@registerForActivityResult
+            }
             requestStartupPrerequisites()
         }
     private val locationPermission =
@@ -392,6 +401,12 @@ class CarPlayHostActivity : ComponentActivity() {
     private var reconnectScheduled = false
     private var sessionLog: SessionLogFile? = null
     private var gestureFingerCount = 3
+    private var shortcutMode = SettingsShortcut.Mode.MULTI_SWIPE
+    private var shortcutButton: Button? = null
+    private val edgeShortcut by lazy {
+        EdgeHoldShortcut(mainHandler, dp(24).toFloat(), android.view.ViewConfiguration.get(this).scaledTouchSlop.toFloat(),
+            { controller?.sendTouch(it) }, { appendLog("Settings shortcut: one-finger edge hold"); openSettingsMenu() })
+    }
     private var settingsGestureHint: TextView? = null
     private var gestureSequenceActive = false
     private var gestureTracking = false
@@ -478,8 +493,8 @@ class CarPlayHostActivity : ComponentActivity() {
         if (isIphoneUsbAttachment(intent)) {
             AirPlayPersistence.saveWirelessEnabled(this, false)
         }
-        if (runCatching { DiPlayBootstrap.ensure(this, AirPlayPersistence.loadMfiTarget(this)) }.isFailure) {
-            startActivity(Intent(this, DiPlayActivity::class.java))
+        if (runCatching { OsnPlayBootstrap.ensure(this, AirPlayPersistence.loadMfiTarget(this)) }.isFailure) {
+            startActivity(Intent(this, OsnPlayActivity::class.java))
             finish(); return
         }
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -504,7 +519,7 @@ class CarPlayHostActivity : ComponentActivity() {
                     } else if (menuOpen) {
                         if (safeAreaEditorActive) closeSafeAreaEditor() else cancelSettingsEdits()
                     } else {
-                        showDiPlayHome()
+                        showOsnPlayHome()
                     }
                 }
             },
@@ -572,7 +587,7 @@ class CarPlayHostActivity : ComponentActivity() {
     }
 
     /**
-     * Connection settings owned by the settings screen ([DiPlayActivity]). It saves them in this
+     * Connection settings owned by the settings screen ([OsnPlayActivity]). It saves them in this
      * process while this screen keeps running, so they are re-read on every resume instead of
      * relying on the snapshot [onCreate] took: otherwise the next handshake would keep using the
      * mode, hotspot and MFI settings that were current when this screen was first opened.
@@ -693,7 +708,7 @@ class CarPlayHostActivity : ComponentActivity() {
         logThemeState(ThemeModeDiagnostics.Source.START, resources.configuration)
         mainHandler.removeCallbacks(pollConfiguration)
         mainHandler.post(pollConfiguration)
-        CenterMapOverlay.onDiPlayScreenShown()
+        CenterMapOverlay.onOsnPlayScreenShown()
         homeMonitor?.stop()
         homeScreenVisible = null
     }
@@ -744,7 +759,11 @@ class CarPlayHostActivity : ComponentActivity() {
             clusterMonitor = null
         }
         if (!menuOpen) gestureFingerCount = AirPlayPersistence.loadSettingsGestureFingers(this)
-        settingsGestureHint?.text = getString(R.string.open_diplay_settings_hint, gestureFingerCount)
+        shortcutMode = SettingsShortcut.mode(this)
+        edgeShortcut.cancel()
+        gestureSequenceActive = false; gestureTracking = false
+        shortcutButton?.visibility = if (SettingsShortcut.button(this)) View.VISIBLE else View.GONE
+        settingsGestureHint?.text = if (shortcutMode == SettingsShortcut.Mode.MULTI_SWIPE) getString(R.string.open_osnplay_settings_hint, gestureFingerCount) else getString(R.string.osn_shortcut_hint)
         ensureClusterPresentation()
         AirPlayPersistence.overlaySettingsListener = { runOnUiThread { applyClusterTurnOverlay() } }
         com.shilapi.xcertplay.hud.BydNavigationOutputs.setTurnOverlayListener(clusterTurnOverlayListener)
@@ -992,7 +1011,7 @@ class CarPlayHostActivity : ComponentActivity() {
             return true
         }
 
-        // Keep DiPlay's existing steering-wheel/voice-key Siri handling intact.
+        // Keep OsnPlay's existing steering-wheel/voice-key Siri handling intact.
         if (!CarPlayMediaButton.opensSiri(event.keyCode)) return super.dispatchKeyEvent(event)
         if (event.action == KeyEvent.ACTION_UP) {
             val sent = controller?.requestSiri() == true
@@ -1016,6 +1035,7 @@ class CarPlayHostActivity : ComponentActivity() {
 
     override fun onPause() {
         nightModeController.pause()
+        edgeShortcut.cancel()
         super.onPause()
     }
 
@@ -1029,7 +1049,7 @@ class CarPlayHostActivity : ComponentActivity() {
         if (!isFinishing && !isChangingConfigurations) CenterMapOverlay.scheduleShow()
     }
 
-    /** Shows the dashboard map as a card on the centre screen while DiPlay is in the background. */
+    /** Shows the dashboard map as a card on the centre screen while OsnPlay is in the background. */
     private fun showCenterMap() {
         if (isDestroyed || shuttingDown.get() || sink == null || isActivityStarted) return
         if (!AirPlayPersistence.loadCenterMapOverlay(this) || !AirPlayPersistence.loadClusterMapEnabled(this)) return
@@ -1065,9 +1085,9 @@ class CarPlayHostActivity : ComponentActivity() {
         appendLog("Centre map: home screen ${if (visible) "in front" else "not in front"}")
         if (!AirPlayPersistence.loadCenterMapAutoHide(this)) {
             homeMonitor?.stop()
-            if (!isActivityStarted && !CenterMapOverlay.diPlayInFront()) showCenterMap()
+            if (!isActivityStarted && !CenterMapOverlay.osnPlayInFront()) showCenterMap()
         } else if (!visible) CenterMapOverlay.hide()
-        else if (!isActivityStarted && !CenterMapOverlay.diPlayInFront()) showCenterMap()
+        else if (!isActivityStarted && !CenterMapOverlay.osnPlayInFront()) showCenterMap()
     }
 
     private fun onCenterMapSurface(surface: Surface?) {
@@ -1106,6 +1126,7 @@ class CarPlayHostActivity : ComponentActivity() {
         nightModeController.pause()
         pictureBinding?.close()
         pictureBinding = null
+        edgeShortcut.cancel()
         mainHandler.removeCallbacks(refreshTurnOverlay)
         AirPlayPersistence.overlaySettingsListener = null
         com.shilapi.xcertplay.hud.BydNavigationOutputs.setTurnOverlayListener(null)
@@ -1172,7 +1193,7 @@ class CarPlayHostActivity : ComponentActivity() {
         }
         panel.addView(icon, LinearLayout.LayoutParams(dp(88), dp(88)))
         val title = TextView(this).apply {
-            text = getString(R.string.diplay)
+            text = getString(R.string.osnplay)
             setTextColor(Color.rgb(241, 245, 252))
             gravity = Gravity.CENTER
             typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
@@ -1195,23 +1216,24 @@ class CarPlayHostActivity : ComponentActivity() {
             text = getString(R.string.reset_carplay_wi_fi)
             isAllCaps = false
             visibility = View.GONE
-            setOnClickListener { showDiPlayHome("wireless-recovery") }
+            setOnClickListener { showOsnPlayHome("wireless-recovery") }
             wifiRecoveryButton = this
         }
         panel.addView(recovery, LinearLayout.LayoutParams(dp(300), dp(64)).apply { bottomMargin = dp(12) })
         val back = Button(this).apply {
-            text = getString(R.string.back_to_diplay)
+            text = getString(R.string.back_to_osnplay)
             isAllCaps = false
             setTextColor(Color.rgb(12, 17, 27))
             background = GradientDrawable().apply {
                 setColor(Color.rgb(166, 200, 255))
                 cornerRadius = dp(20).toFloat()
             }
-            setOnClickListener { showDiPlayHome() }
+            setOnClickListener { showOsnPlayHome() }
         }
         panel.addView(back, LinearLayout.LayoutParams(dp(300), dp(64)))
         val gestureHint = TextView(this).apply {
-            text = getString(R.string.open_diplay_settings_hint, gestureFingerCount)
+            text = if (SettingsShortcut.mode(this@CarPlayHostActivity) == SettingsShortcut.Mode.MULTI_SWIPE)
+                getString(R.string.open_osnplay_settings_hint, gestureFingerCount) else getString(R.string.osn_shortcut_hint)
             gravity = Gravity.CENTER
             setTextColor(Color.rgb(168, 182, 202))
         }
@@ -1274,6 +1296,17 @@ class CarPlayHostActivity : ComponentActivity() {
         root.addView(settingsMenu, FrameLayout.LayoutParams(-1, -1))
         safeAreaEditor = buildSafeAreaEditor().apply { visibility = View.GONE }
         root.addView(safeAreaEditor, FrameLayout.LayoutParams(-1, -1))
+        val shortcut = Button(this).apply {
+            text = getString(R.string.settings); textSize = 15f; isAllCaps = false; alpha = .65f
+            setTextColor(Color.WHITE)
+            background = GradientDrawable().apply { setColor(Color.rgb(35, 45, 40)); cornerRadius = dp(16).toFloat() }
+            contentDescription = getString(R.string.osn_shortcut_title)
+            visibility = if (SettingsShortcut.button(this@CarPlayHostActivity)) View.VISIBLE else View.GONE
+            setOnClickListener { appendLog("Settings shortcut: button"); showOsnPlayHome("settings") }
+        }
+        val shortcutSize = dp((56 * OsnAppearance.size(this) / 100f).toInt())
+        root.addView(shortcut, FrameLayout.LayoutParams(shortcutSize, shortcutSize, Gravity.END or Gravity.CENTER_VERTICAL).apply { marginEnd = dp(8) })
+        shortcutButton = shortcut
         videoView = video
         gestureOverlay = gestureLayer
         settingsGestureHint = gestureHint
@@ -2922,7 +2955,7 @@ class CarPlayHostActivity : ComponentActivity() {
 
     private fun validateMfiSettings(): Boolean {
         val error = when {
-            mfiTarget == MfiTarget.LOCAL && runCatching { DiPlayBootstrap.ensure(this, mfiTarget) }.isFailure ->
+            mfiTarget == MfiTarget.LOCAL && runCatching { OsnPlayBootstrap.ensure(this, mfiTarget) }.isFailure ->
                 getString(R.string.setup_error_auth)
             mfiTarget == MfiTarget.I2C && mfiI2cPath.isBlank() ->
                 getString(R.string.i2c_device_path_is_required)
@@ -3263,15 +3296,16 @@ class CarPlayHostActivity : ComponentActivity() {
         appendLog(support.details)
         appendLog(effectiveSummary)
         return AirPlayConfig(
-            deviceName = "DiPlay",
-            deviceId = DiPlayBootstrap.deviceId(airPlayIdentity),
-            btMac = DiPlayBluetooth.localAddress(this) ?: DiPlayBootstrap.deviceId(airPlayIdentity),
+            deviceName = getString(R.string.app_name),
+            deviceId = OsnPlayBootstrap.deviceId(airPlayIdentity),
+            btMac = OsnPlayBluetooth.localAddress(this) ?: OsnPlayBootstrap.deviceId(airPlayIdentity),
             sourceVersion = "950.7.1",
             main = display,
             cluster = clusterDisplayConfig(),
             rightHandDrive = rightHandDrive,
             hevc = hevcEnabled,
             microphone = microphoneAvailable,
+            microphoneOpus = com.shilapi.xcertplay.media.MicrophoneCodecSupport.opusAvailable(),
             manufacturer = normalizedManufacturer(),
             model = normalizedModel(),
             oemLabel = oemLabel,
@@ -3319,7 +3353,7 @@ class CarPlayHostActivity : ComponentActivity() {
                 AirPlayPersistence.clearCustomAirPlayIcon(this)
             }
         }
-        val bitmap = customBitmap ?: BitmapFactory.decodeResource(resources, R.raw.placeholder_icon)
+        val bitmap = customBitmap ?: BitmapFactory.decodeResource(resources, R.raw.ic_car_home)
         preview.setImageBitmap(bitmap)
         iconStatusView?.text =
             if (customBitmap != null) getString(R.string.custom_1_1_icon) else getString(R.string.default_placeholder_icon)
@@ -3432,10 +3466,10 @@ class CarPlayHostActivity : ComponentActivity() {
     }
 
     private fun normalizedManufacturer(): String =
-        manufacturer.trim().ifBlank { AirPlayPersistence.DEFAULT_MANUFACTURER }
+        manufacturer.trim().ifBlank { getString(R.string.app_name) }
 
     private fun normalizedModel(): String =
-        model.trim().ifBlank { AirPlayPersistence.DEFAULT_MODEL }
+        model.trim().ifBlank { getString(R.string.app_name) }
 
     private fun createMediaSink(
         videoWidth: Int,
@@ -3467,6 +3501,7 @@ class CarPlayHostActivity : ComponentActivity() {
                 }
             },
             onMediaAudioChanged = CarPlayMediaKeys::onMediaAudioChanged,
+            standardMicrophoneInput = AirPlayPersistence.loadStandardMicrophoneInput(this),
         )
     }
 
@@ -3498,6 +3533,9 @@ class CarPlayHostActivity : ComponentActivity() {
 
             override fun onSessionEnded(session: AirPlaySession) {
                 runOnUiThread {
+                    if (controllerGeneration != restartGeneration || (activeAirPlaySession != null && activeAirPlaySession !== session)) {
+                        return@runOnUiThread
+                    }
                     if (activeAirPlaySession === session) activeAirPlaySession = null
                     CarPlayBackgroundSession.active = false
                     if (controllerGeneration != restartGeneration) return@runOnUiThread
@@ -3586,7 +3624,7 @@ class CarPlayHostActivity : ComponentActivity() {
         CarPlayBackgroundSession.store(snapshot.controller, snapshot.sink, snapshot.width, snapshot.height,
             this, snapshot.display) { completion ->
             runOnUiThread {
-                shutdown(false, "DiPlay disconnect", completion)
+                shutdown(false, "OsnPlay disconnect", completion)
                 finish()
             }
         }
@@ -3632,6 +3670,17 @@ class CarPlayHostActivity : ComponentActivity() {
     private fun startCarPlay(size: DisplaySize) {
         if (CarPlayBackgroundSession.hasSession() && !CarPlayBackgroundSession.isOwner(this)) return
         if (shuttingDown.get() || menuOpen || handshakeResetInProgress || controller != null) return
+        val interfaceError = ManualHotspotSelection.error(
+            resources.getBoolean(R.bool.config_require_hotspot_interface), wirelessEnabled, wirelessHotspotMode,
+            AirPlayPersistence.loadManualHotspotInterface(this),
+            com.shilapi.xcertplay.network.ManualHotspotInterfaces.available(),
+        )
+        if (interfaceError != null) {
+            appendLog(getString(interfaceError.messageResource))
+            startActivity(Intent(this, OsnPlayActivity::class.java).putExtra("page", "connection"))
+            finish()
+            return
+        }
         val controllerGeneration = restartGeneration
         val config = createRuntimeConfig()
         val effectiveSize = if (isMultiWindowActive() && !AirPlayPersistence.loadAdaptPipResolution(this) &&
@@ -3718,17 +3767,17 @@ class CarPlayHostActivity : ComponentActivity() {
         videoView?.let { updateVideoLayout(it.width, it.height) }
         CarPlayBackgroundSession.store(next, renderer, size.width, size.height, this, display) { completion ->
             runOnUiThread {
-                shutdown(terminateProcess = false, reason = "DiPlay disconnect", completion = completion)
+                shutdown(terminateProcess = false, reason = "OsnPlay disconnect", completion = completion)
                 finish()
             }
         }
         try {
-            startForegroundService(Intent(this, DiPlaySessionService::class.java))
+            startForegroundService(Intent(this, OsnPlaySessionService::class.java))
             next.start()
         } catch (error: RuntimeException) {
             appendLog("Connection could not start: ${error.javaClass.simpleName}")
             shutdown(false, "foreground service could not start")
-            setConnectionStage(getString(R.string.could_not_start_carplay_return_to_diplay_and_check_app_per))
+            setConnectionStage(getString(R.string.could_not_start_carplay_return_to_osnplay_and_check_app_per))
         }
     }
 
@@ -3996,13 +4045,17 @@ class CarPlayHostActivity : ComponentActivity() {
         }
     }
 
-    private fun showDiPlayHome(page: String = "home") {
+    private fun showOsnPlayHome(page: String = "home") {
         controller?.sendTouch(emptyList())
-        startActivity(Intent(this, DiPlayActivity::class.java)
+        startActivity(Intent(this, OsnPlayActivity::class.java)
             .putExtra("page", page).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
     }
 
     private fun openSettingsMenu() {
+        if (resources.getBoolean(R.bool.config_osn_ui)) {
+            showOsnPlayHome("settings")
+            return
+        }
         if (menuOpen) return
         controller?.sendTouch(emptyList())
         loadPersistedSettings()
@@ -4069,7 +4122,8 @@ class CarPlayHostActivity : ComponentActivity() {
         menuOpen = false
         settingsMenu?.visibility = View.GONE
         gestureOverlay?.visibility = View.VISIBLE
-        settingsGestureHint?.text = getString(R.string.open_diplay_settings_hint, gestureFingerCount)
+        settingsGestureHint?.text = if (shortcutMode == SettingsShortcut.Mode.MULTI_SWIPE)
+            getString(R.string.open_osnplay_settings_hint, gestureFingerCount) else getString(R.string.osn_shortcut_hint)
         updateDebugOverlays()
         logLines.clear()
         appendLog(
@@ -4102,6 +4156,7 @@ class CarPlayHostActivity : ComponentActivity() {
     }
 
     private fun shutdown(terminateProcess: Boolean, reason: String, completion: () -> Unit = {}) {
+        edgeShortcut.cancel()
         if (!shuttingDown.compareAndSet(false, true)) { completion(); return }
         restartGeneration += 1
         mainHandler.removeCallbacks(applyDisplaySize)
@@ -4122,7 +4177,7 @@ class CarPlayHostActivity : ComponentActivity() {
                 applicationContext.stopService(Intent(applicationContext, CarPlayVpnService::class.java))
             }
             Log.i(TAG, "shutdown complete clean=$clean")
-            applicationContext.stopService(Intent(applicationContext, DiPlaySessionService::class.java))
+            applicationContext.stopService(Intent(applicationContext, OsnPlaySessionService::class.java))
             teardownExecutor.shutdown()
             mainHandler.post { completion() }
             if (terminateProcess) Process.killProcess(Process.myPid())
@@ -4140,8 +4195,14 @@ class CarPlayHostActivity : ComponentActivity() {
 
     private fun onHostTouch(view: View, event: MotionEvent): Boolean {
         if (menuOpen) return true
+        val touchContent = contentRect(view.width, view.height)
+        if (event.actionMasked == MotionEvent.ACTION_DOWN) touchOutsideContent = !touchContent.contains(event.x, event.y)
+        if (shortcutMode == SettingsShortcut.Mode.EDGE_HOLD) {
+            val edgeContacts = if (touchOutsideContent) emptyList() else CarPlayTouchMapper.contacts(event, touchContent)
+            if (edgeShortcut.touch(event, view.width, view.height, edgeContacts)) return true
+        }
 
-        when (event.actionMasked) {
+        if (shortcutMode == SettingsShortcut.Mode.MULTI_SWIPE) when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 gestureSequenceActive = false
                 gestureTracking = false
@@ -4153,7 +4214,7 @@ class CarPlayHostActivity : ComponentActivity() {
                     gestureStartX = pointerCentroid(event, horizontal = true)
                     gestureStartY = pointerCentroid(event, horizontal = false)
                     controller?.sendTouch(emptyList())
-                    appendLog("Settings swipe tracking started; fingers=$gestureFingerCount")
+                    appendLog("Settings shortcut: multi-finger swipe count=$gestureFingerCount")
                     return true
                 }
             }
@@ -4272,8 +4333,8 @@ class CarPlayHostActivity : ComponentActivity() {
         message == getString(R.string.waiting_for_mfi_coprocessor) ||
             message == getString(R.string.requesting_mfi_usb_permission) -> message
         message.contains("Turn on Wi-Fi", true) -> getString(R.string.turn_on_wi_fi_in_the_head_unit_s_settings_to_connect)
-        message.contains("Allow precise Location", true) -> getString(R.string.allow_precise_location_for_diplay_in_the_head_unit_s_app_p)
-        message.contains("Allow Nearby devices", true) -> getString(R.string.allow_nearby_devices_for_diplay_in_the_head_unit_s_app_per)
+        message.contains("Allow precise Location", true) -> getString(R.string.allow_precise_location_for_osnplay_in_the_head_unit_s_app_p)
+        message.contains("Allow Nearby devices", true) -> getString(R.string.allow_nearby_devices_for_osnplay_in_the_head_unit_s_app_per)
         message.contains("createGroup failed", true) -> getString(R.string.the_head_unit_couldn_t_start_carplay_wi_fi_check_wi_fi_and)
         message.contains("needs a reset", true) -> getString(R.string.a_previous_wi_fi_direct_connection_is_still_running_reset)
         message.contains("socket", true) || message.contains("RFCOMM", true) -> getString(R.string.your_iphone_isn_t_available_unlock_it_and_check_bluetooth)
@@ -4301,11 +4362,11 @@ class CarPlayHostActivity : ComponentActivity() {
         "${SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(Date(nowMillis))}  $message"
 
     private fun initializeSessionLog() {
-        val logFile = File(File(filesDir, "logs"), "diplay.log")
+        val logFile = File(File(filesDir, "logs"), "osnplay.log")
         val activeLog = SessionLogFile(logFile)
         runCatching {
             activeLog.reset(
-                "DiPlay log started " +
+                "OsnPlay log started " +
                     "${SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(Date())} " +
                     "pid=${Process.myPid()} path=${logFile.absolutePath}",
             )

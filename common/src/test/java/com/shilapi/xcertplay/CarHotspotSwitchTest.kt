@@ -36,12 +36,12 @@ import org.robolectric.shadows.ShadowToast
 @Config(sdk = [29], qualifiers = "en", manifest = Config.NONE, shadows = [CarHotspotSwitchTest.Grant::class,
     CarHotspotAdbGrantTest.WritePermission::class, CarHotspotSwitchTest.StatusCheck::class])
 class CarHotspotSwitchTest {
-    private lateinit var activity: DiPlayActivity
+    private lateinit var activity: OsnPlayActivity
     private lateinit var controls: LinearLayout
 
     @Before fun setUp() {
         val app = RuntimeEnvironment.getApplication()
-        for (name in listOf("diplay_byd_outputs", "diplay_byd_vehicle_fields", "diplay_car_hotspot", "xcertplay_airplay", "diplay")) {
+        for (name in listOf("osnplay_byd_outputs", "osnplay_byd_vehicle_fields", "osnplay_car_hotspot", "xcertplay_airplay", "osnplay")) {
             app.getSharedPreferences(name, 0).edit().clear().commit()
         }
         BydVehicleFieldStore.clearMemoryForTests()
@@ -56,12 +56,12 @@ class CarHotspotSwitchTest {
         StatusCheck.workers.clear()
         Grant.allowed = CarHotspotSetup.Permission.entries.toSet()
         Grant.access = LocalAdb.Access.READY
-        activity = Robolectric.buildActivity(DiPlayActivity::class.java).get()
+        activity = Robolectric.buildActivity(OsnPlayActivity::class.java).get()
         activity.setTheme(android.R.style.Theme_Material_NoActionBar)
         AirPlayPersistence.saveWirelessHotspotMode(activity, WirelessHotspotMode.MANUAL)
         AirPlayPersistence.saveAutoStartOnBoot(activity, false)
         controls = LinearLayout(activity)
-        DiPlayActivity::class.java.getDeclaredMethod("renderBydAdbControls", LinearLayout::class.java,
+        OsnPlayActivity::class.java.getDeclaredMethod("renderBydAdbControls", LinearLayout::class.java,
             LocalAdb.Access::class.java).apply { isAccessible = true }.invoke(activity, controls, LocalAdb.Access.READY)
         activity.setContentView(controls)
     }
@@ -184,7 +184,7 @@ class CarHotspotSwitchTest {
     }
 
     @Test fun anOutstandingVehicleCheckPreventsASecondAuthorizationFlow() {
-        DiPlayActivity::class.java.getDeclaredField("adbCheckInProgress").apply {
+        OsnPlayActivity::class.java.getDeclaredField("adbCheckInProgress").apply {
             isAccessible = true
         }.setBoolean(activity, true)
         refreshControls()
@@ -196,7 +196,7 @@ class CarHotspotSwitchTest {
         assertTrue(Grant.requested.isEmpty())
         assertNull(Grant.worker)
 
-        DiPlayActivity::class.java.getDeclaredField("adbCheckInProgress").apply {
+        OsnPlayActivity::class.java.getDeclaredField("adbCheckInProgress").apply {
             isAccessible = true
         }.setBoolean(activity, false)
         refreshControls()
@@ -244,12 +244,12 @@ class CarHotspotSwitchTest {
     }
 
     private fun lifecycle(name: String) {
-        DiPlayActivity::class.java.getDeclaredMethod(name).apply { isAccessible = true }.invoke(activity)
+        OsnPlayActivity::class.java.getDeclaredMethod(name).apply { isAccessible = true }.invoke(activity)
     }
 
     private fun prepareResume() {
         for ((name, value) in mapOf("initialLaunch" to false, "page" to "settings")) {
-            DiPlayActivity::class.java.getDeclaredField(name).apply { isAccessible = true }.set(activity, value)
+            OsnPlayActivity::class.java.getDeclaredField(name).apply { isAccessible = true }.set(activity, value)
         }
     }
 
@@ -278,7 +278,7 @@ class CarHotspotSwitchTest {
     }
 
     private fun refreshControls() {
-        DiPlayActivity::class.java.getDeclaredMethod("updateAdbSwitches").apply {
+        OsnPlayActivity::class.java.getDeclaredMethod("updateAdbSwitches").apply {
             isAccessible = true
         }.invoke(activity)
     }
@@ -288,7 +288,7 @@ class CarHotspotSwitchTest {
             it.contentDescription == activity.getString(R.string.open_after_the_car_starts)
         }?.let { return it }
         val bootControls = LinearLayout(activity)
-        DiPlayActivity::class.java.getDeclaredMethod("settings", LinearLayout::class.java).apply {
+        OsnPlayActivity::class.java.getDeclaredMethod("settings", LinearLayout::class.java).apply {
             isAccessible = true
         }.invoke(activity, bootControls)
         controls.addView(bootControls)

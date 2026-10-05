@@ -24,12 +24,12 @@ import java.util.concurrent.atomic.AtomicLong
  * as the iPhone starts the item (or sends requestUI "videoplayback:") and only while the car is in P.
  */
 internal object CarPlayVideo : CarPlayVideoListener {
-    private const val TAG = "DiPlay-Video"
+    private const val TAG = "OsnPlay-Video"
     const val SKIP_MILLIS = 10_000
     private const val URL_TIMEOUT_SECONDS = 10L
 
     private val main = Handler(Looper.getMainLooper())
-    private val sender = Executors.newSingleThreadExecutor { Thread(it, "diplay-video-reply").apply { isDaemon = true } }
+    private val sender = Executors.newSingleThreadExecutor { Thread(it, "osnplay-video-reply").apply { isDaemon = true } }
     @Volatile private var appContext: Context? = null
     @Volatile private var controller: CarPlayController? = null
 

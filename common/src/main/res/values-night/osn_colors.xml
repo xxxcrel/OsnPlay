@@ -1,0 +1,13 @@
+<resources>
+    <color name="osn_background">#111914</color>
+    <color name="osn_surface">#1B251E</color>
+    <color name="osn_soft">#243128</color>
+    <color name="osn_border">#334237</color>
+    <color name="osn_accent">#64DF91</color>
+    <color name="osn_on_accent">#122C1C</color>
+    <color name="osn_text">#EDF5EE</color>
+    <color name="osn_muted">#A5B8AA</color>
+    <color name="osn_tint">#203D2B</color>
+    <color name="osn_warning">#F5CF82</color>
+    <style name="Theme.OsnPlay.Startup" parent="Theme.OsnPlay.Dark" />
+</resources>

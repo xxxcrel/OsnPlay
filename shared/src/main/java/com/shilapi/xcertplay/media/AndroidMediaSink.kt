@@ -111,7 +111,7 @@ internal class AudioFocusCoordinator(
     }
 
     private companion object {
-        const val TAG = "DiPlay-AudioFocus"
+        const val TAG = "OsnPlay-AudioFocus"
         const val FULL_VOLUME = 1f
         const val DUCKED_VOLUME = 0.2f
     }
@@ -140,6 +140,7 @@ class AndroidMediaSink(
     private val onAudioDiagnostic: (String) -> Unit = {},
     /** True while any music ("media") audio stream is running; called from media threads. */
     private val onMediaAudioChanged: (Boolean) -> Unit = {},
+    private val standardMicrophoneInput: Boolean = false,
 ) : MediaSink {
     private val appContext = context?.applicationContext
     private val audioManager = appContext?.getSystemService(AudioManager::class.java)
@@ -291,8 +292,10 @@ class AndroidMediaSink(
     override fun onMicrophoneStarted(id: AudioStreamId, config: MicrophoneConfig) {
         // This callback runs on the downlink thread; microphone failures must not stop playback.
         try {
-            if (config.audioType == "telephony") enterCommunicationMode(id)
-            val uplink = microphoneUplinks.computeIfAbsent(id) { MicrophoneUplink(config, onAudioDiagnostic) }
+            if (config.audioType == "telephony" && !standardMicrophoneInput) enterCommunicationMode(id)
+            val capture = if (standardMicrophoneInput) config.copy(captureSource = com.shilapi.xcertplay.airplay.MicrophoneSource.MIC) else config
+            runCatching { onAudioDiagnostic("Microphone: route compatibility=$standardMicrophoneInput mode=${audioManager?.mode} muted=${audioManager?.isMicrophoneMute}") }
+            val uplink = microphoneUplinks.computeIfAbsent(id) { MicrophoneUplink(capture, onAudioDiagnostic) }
             if (!uplink.start()) {
                 microphoneUplinks.remove(id, uplink)
                 restoreAudioMode(id)
@@ -398,6 +401,7 @@ class AndroidMediaSink(
             onAudioDiagnostic,
         ).also { audioRenderers[id] = it }
     }
+
 }
 
 /** Serial MediaCodec video decoder: one worker owns configure and frame feeding. */
@@ -1506,7 +1510,7 @@ private class AudioRenderer(
         // Holds a burst after a Wi-Fi gap (~4 s of AAC) instead of dropping it.
         const val MAX_QUEUED_PACKETS = 192
         const val PREBUFFER_WRITE_CHUNK_BYTES = 2 * 1024
-        const val STATS_TAG = "DiPlay-AudioStats"
+        const val STATS_TAG = "OsnPlay-AudioStats"
         const val STATS_WINDOW_NS = 5_000_000_000L
         const val DECODED_BUFFER_LOG_INTERVAL = 50
     }

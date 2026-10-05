@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 
 /** Publishes CarPlay route arrows, distance and street to BYD's native windshield HUD. */
 internal object BydHudBridge {
-    private const val TAG = "DiPlay-BYD-HUD"
+    private const val TAG = "OsnPlay-BYD-HUD"
     private const val SOMEIP_PACKAGE = "com.ts.car.someip.service"
     private const val SOMEIP_CLASS = "com.ts.car.someip.service.manager.SomeIpServerService"
     private const val SOMEIP_ACTION = "com.ts.car.someip.SomeIpServerService"
@@ -28,7 +28,7 @@ internal object BydHudBridge {
     private const val ICON_ASSET_DIR = "byd-hud-icons"
 
     private val callbacks = Executors.newSingleThreadExecutor { task ->
-        Thread(task, "diplay-hud-callback").apply { isDaemon = true }
+        Thread(task, "osnplay-hud-callback").apply { isDaemon = true }
     }
     private val lock = Any()
     private val route = BydHudRouteState()
@@ -76,7 +76,7 @@ internal object BydHudBridge {
         if (!senderStarted) {
             senderStarted = true
             Executors.newSingleThreadScheduledExecutor { runnable ->
-                Thread(runnable, "diplay-byd-hud").apply { isDaemon = true }
+                Thread(runnable, "osnplay-byd-hud").apply { isDaemon = true }
             }.scheduleWithFixedDelay(::tick, BydHudProtocol.REPEAT_MILLIS, BydHudProtocol.REPEAT_MILLIS, TimeUnit.MILLISECONDS)
         }
     }
@@ -95,7 +95,7 @@ internal object BydHudBridge {
         }
     }
 
-    /** Clears the HUD immediately; called when DiPlay is about to be killed. */
+    /** Clears the HUD immediately; called when OsnPlay is about to be killed. */
     fun clearNow() = clear()
 
     fun clear() = synchronized(lock) {

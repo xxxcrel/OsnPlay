@@ -72,6 +72,9 @@ class AirPlaySession(
     internal var encBuf = ByteArray(0)
     internal var deviceBtMac = ""
     internal val activeStreams = linkedSetOf<Int>()
+    private val audioState = CarPlayAudioState()
+    fun audioDiagnosticReport(): String = audioState.report(!config.disableAudioOutput)
+    internal fun recordAudioPacket(type: Int, audioType: String, bytes: Int) = audioState.packet(type, audioType, bytes)
 
     /** Counts the iPhone's cluster stream setups; 0 while no cluster stream is up. */
     @Volatile var clusterStream = 0
@@ -99,6 +102,8 @@ class AirPlaySession(
     internal val remoteAddress: InetAddress?
         get() = (socket.remoteSocketAddress as? InetSocketAddress)?.address
     val controllerId: String? get() = pairVerify.verifiedControllerId
+    val authenticated: Boolean get() = pairVerify.isVerified
+    val isClosed: Boolean get() = closed.get()
     val sharedSecret: ByteArray? get() = pairVerify.shared?.copyOf()
     val videoInCar: Boolean get() = config.videoInCar
     private val videoPlaybackAvailability = VideoPlaybackAvailability { allowed ->
@@ -433,6 +438,7 @@ class AirPlaySession(
                         "videoPlaybackAllowed=${if (config.videoInCar) VideoInCar.allowed else "not-offered"}",
                 )
                 debugLog("airplay /info displays=${info["displays"]}")
+                debugLog("CarPlay audio offer: enabled=${!config.disableAudioOutput} formats=${(info["audioFormats"] as? List<*>)?.size ?: 0} latencies=${(info["audioLatencies"] as? List<*>)?.size ?: 0} AAC=102/media")
                 RtspMessage.Response(
                     headers = mapOf("Content-Type" to PLIST_CONTENT_TYPE),
                     body = BplistCodec.encode(info),
@@ -550,6 +556,7 @@ class AirPlaySession(
                             "controlPort=${streamResponse?.get("controlPort") ?: "none"}",
                     )
                     if (streamResponse != null) {
+                        audioState.accepted(type, stream["audioType"]?.toString().orEmpty())
                         activeStreams.add(type)
                         result.add(streamResponse)
                     }
@@ -580,6 +587,10 @@ class AirPlaySession(
         val type = string(body["type"])
         val params = asMap(body["params"]) ?: emptyMap()
         debugLog("airplay command type=$type keys=${params.keys.sorted()}")
+        if (type == "modesChanged") {
+            audioState.modes(params)
+            debugLog("CarPlay audio state: ${audioDiagnosticReport()}")
+        }
         val streamId = request.headers["x-apple-streamid"]?.toLongOrNull()
         val data = params["data"] as? ByteArray
         if (streamId != null && data != null) {

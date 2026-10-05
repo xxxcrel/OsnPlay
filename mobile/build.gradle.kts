@@ -4,8 +4,10 @@ plugins {
 }
 
 // Optional local-only input. CI and ordinary source builds contain no accessory identity.
-val localAuthenticationAssets = providers.environmentVariable("DIPLAY_AUTH_ASSETS_DIR")
+val localAuthenticationAssets = providers.environmentVariable("OSNPLAY_AUTH_ASSETS_DIR")
     .orNull?.let { file(it).canonicalFile }
+val osnTestBuild = providers.gradleProperty("osnplayOsnTest").isPresent
+val osnPlay = providers.gradleProperty("osnPlay").isPresent
 
 android {
     namespace = "com.shilapi.xcertplay"
@@ -14,16 +16,24 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.shihab.diplay"
+        applicationId = if (osnPlay) "com.sinyee.babybus.story" else "com.shihab.osnplay"
         minSdk = 28
-        targetSdk = 37
-        versionCode = 30
-        versionName = "0.2.11"
+        targetSdk = if (osnPlay) 28 else 37
+        versionCode = if (osnPlay) 8 else 30
+        versionName = if (osnPlay) "1.3.0" else "0.2.11"
 
     }
 
 
     localAuthenticationAssets?.let { sourceSets.getByName("main").assets.srcDir(it) }
+    if (osnPlay) {
+        sourceSets.getByName("release").apply {
+            res.srcDir("src/osnplay/res")
+            java.srcDir("src/osnplay/java")
+            kotlin.srcDir("src/osnplay/java")
+            manifest.srcFile("src/osnplay/AndroidManifest.xml")
+        }
+    }
 
     signingConfigs {
         create("release") {
@@ -39,8 +49,9 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".hudtest"
-            versionNameSuffix = "-hud-test"
+            applicationIdSuffix = if (osnTestBuild) ".osntest" else ".hudtest"
+            versionNameSuffix = if (osnTestBuild) "-osn-test1" else "-hud-test"
+            manifestPlaceholders["testAppLabel"] = if (osnTestBuild) "OsnPlay OSN Test" else "OsnPlay HUD Test"
         }
         release {
             optimization {
@@ -105,7 +116,7 @@ val verifyStandaloneAuthentication by tasks.registering {
     val directory = localAuthenticationAssets
     doLast {
         check(directory != null) {
-            "Standalone car builds require DIPLAY_AUTH_ASSETS_DIR; assembleDebug alone is source-only."
+            "Standalone car builds require OSNPLAY_AUTH_ASSETS_DIR; assembleDebug alone is source-only."
         }
         check(listOf("identity.pk8", "certificate.p7b").all {
             directory.resolve("offline-mfi/$it").let { file -> file.isFile && file.length() > 0 }
@@ -117,4 +128,9 @@ tasks.register("assembleStandaloneDebug") {
     group = "build"
     description = "Build a standalone car-test APK with explicitly provisioned authentication."
     dependsOn(verifyStandaloneAuthentication, "assembleDebug")
+}
+tasks.register("assembleStandaloneRelease") {
+    group = "build"
+    description = "Build a signed release with explicitly provisioned runtime authentication."
+    dependsOn(verifyStandaloneAuthentication, "assembleRelease")
 }

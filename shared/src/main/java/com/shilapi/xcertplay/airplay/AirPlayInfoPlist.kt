@@ -50,7 +50,7 @@ object AirPlayInfoPlist {
         )
         if (!config.disableAudioOutput) {
             info["audioLatencies"] = audioLatencies()
-            info["audioFormats"] = audioFormats(config.entertainmentSampleRate, config.microphone)
+            info["audioFormats"] = audioFormats(config.entertainmentSampleRate, config.microphone, config.microphoneOpus)
         }
         info["extendedFeatures"] = listOf("vocoderInfo", "enhancedRequestCarUI")
         info["displays"] = displays
@@ -112,13 +112,14 @@ object AirPlayInfoPlist {
         return listOf(
             base(100), base(100, "default"), base(100, "media"), base(100, "telephony"),
             base(100, "speechRecognition"), base(100, "alert"), base(101), base(101, "default"),
-            base(102, "default"),
+            base(102, "default"), base(102, "media"),
         )
     }
 
     private fun audioFormats(
         entertainmentRate: Int,
         microphone: Boolean,
+        microphoneOpus: Boolean,
     ): List<Map<String, Any?>> {
         fun format(type: Int, audioType: String, outputFormats: Int, inputFormats: Int? = null): Map<String, Any?> {
             val entry = linkedMapOf<String, Any?>(
@@ -137,16 +138,17 @@ object AirPlayInfoPlist {
         val opus = 0x70000000
         val aacLc = if (is48) 0x800000 else 0x400000
         val pcmInput = if (microphone) pcmMono else null
-        val wirelessInput = if (microphone) pcmMono or opus else null
+        val voiceOpus = if (!microphone || microphoneOpus) opus else 0
+        val wirelessInput = if (microphone) pcmMono or voiceOpus else null
 
         return listOf(
             format(100, "compatibility", pcm, pcmInput),
             format(101, "compatibility", pcm),
-            format(100, "default", pcm or opus, wirelessInput),
+            format(100, "default", pcm or voiceOpus, wirelessInput),
             format(100, "alert", pcm or opus),
             format(100, "media", pcm),
-            format(100, "telephony", pcmMono or opus, wirelessInput),
-            format(100, "speechRecognition", pcmMono or opus, wirelessInput),
+            format(100, "telephony", pcmMono or voiceOpus, wirelessInput),
+            format(100, "speechRecognition", pcmMono or voiceOpus, wirelessInput),
             format(101, "default", pcm or opus),
             format(102, "media", aacLc),
         )

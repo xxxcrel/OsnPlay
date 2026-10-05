@@ -21,11 +21,11 @@ class NightModeDialogsTest {
     @Test @Config(qualifiers = "ru") fun russianDialogs() = numericDialogsKeepNaturalHeightWhenResetting()
     @Test @Config(qualifiers = "uk") fun ukrainianDialogs() = numericDialogsKeepNaturalHeightWhenResetting()
     @Test fun numericDialogsKeepNaturalHeightWhenResetting() {
-        val a = Robolectric.buildActivity(DiPlayActivity::class.java).get()
+        val a = Robolectric.buildActivity(OsnPlayActivity::class.java).get()
         val parent = LinearLayout(a)
-        val integer = DiPlayActivity::class.java.declaredMethods.first { it.name == "nightDelaySettingControl" }
+        val integer = OsnPlayActivity::class.java.declaredMethods.first { it.name == "nightDelaySettingControl" }
         integer.isAccessible = true
-        val threshold = DiPlayActivity::class.java.getDeclaredMethod("ambientLightThresholdControl", LinearLayout::class.java)
+        val threshold = OsnPlayActivity::class.java.getDeclaredMethod("ambientLightThresholdControl", LinearLayout::class.java)
         threshold.isAccessible = true
         threshold.invoke(a, parent)
         integer.invoke(a, parent, R.string.ambient_delay_title, R.string.ambient_delay_hint,

@@ -22,8 +22,8 @@ class VehicleProbeBatteryConcurrencyTest {
     private val context get() = RuntimeEnvironment.getApplication()
 
     @Before fun reset() {
-        context.getSharedPreferences("diplay_byd_vehicle_fields", Context.MODE_PRIVATE).edit().clear().commit()
-        context.getSharedPreferences("diplay_byd_outputs", Context.MODE_PRIVATE).edit().clear().commit()
+        context.getSharedPreferences("osnplay_byd_vehicle_fields", Context.MODE_PRIVATE).edit().clear().commit()
+        context.getSharedPreferences("osnplay_byd_outputs", Context.MODE_PRIVATE).edit().clear().commit()
         BydVehicleFieldStore.clearMemoryForTests()
         BydBatteryStatus.read(context) { null }
     }

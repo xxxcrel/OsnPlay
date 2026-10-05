@@ -13,11 +13,14 @@ import com.shilapi.xcertplay.airplay.PairingStore
 import com.shilapi.xcertplay.airplay.SafeAreaCodec
 import com.shilapi.xcertplay.airplay.SafeAreaRect
 import com.shilapi.xcertplay.orchestration.ManualHotspotBand
+import com.shilapi.xcertplay.orchestration.ManualHotspotAddressMode
+import com.shilapi.xcertplay.network.ManualHotspotInterfaces
 import com.shilapi.xcertplay.orchestration.ManualHotspotSecurity
 import com.shilapi.xcertplay.orchestration.MfiTarget
 import com.shilapi.xcertplay.orchestration.WirelessHotspotMode
 import com.shilapi.xcertplay.network.WifiP2pChannels
 import com.shilapi.xcertplay.transport.LockdownPairRecord
+import com.shilapi.xcertplay.host.R
 import java.io.File
 
 /** SharedPreferences persistence for the accessory identity and paired controllers. */
@@ -44,6 +47,8 @@ object AirPlayPersistence {
     private const val KEY_HEVC_SOFTWARE_DECODER = "hevc_software_decoder"
     private const val KEY_ADVANCED_AUDIO_CHANNEL_MAPPING = "advanced_audio_channel_mapping"
     private const val KEY_AUDIO_FOCUS_ENABLED = "audio_focus_enabled"
+    private const val KEY_SYSTEM_MEDIA_SYNC = "system_media_sync"
+    private const val KEY_STANDARD_MICROPHONE_INPUT = "standard_microphone_input"
     private const val KEY_MEDIA_AUDIO_CHANNEL = "media_audio_channel"
     private const val KEY_NAVIGATION_AUDIO_CHANNEL = "navigation_audio_channel"
     private const val KEY_NAVIGATION_STREAM_TYPE = "navigation_stream_type"
@@ -55,6 +60,8 @@ object AirPlayPersistence {
     private const val KEY_MANUAL_HOTSPOT_BAND = "manual_hotspot_band"
     private const val KEY_MANUAL_HOTSPOT_CHANNEL = "manual_hotspot_channel"
     private const val KEY_MANUAL_HOTSPOT_SECURITY = "manual_hotspot_security"
+    private const val KEY_MANUAL_HOTSPOT_INTERFACE = "manual_hotspot_interface"
+    private const val KEY_MANUAL_HOTSPOT_ADDRESS_MODE = "manual_hotspot_address_mode"
     private const val KEY_DEBUG_LOGS_ENABLED = "debug_logs_enabled"
     private const val KEY_MANUFACTURER = "manufacturer"
     private const val KEY_MODEL = "model"
@@ -96,8 +103,8 @@ object AirPlayPersistence {
     private const val SAFE_AREA_KEY_PREFIX = "safe_area_"
     private const val CUSTOM_ICON_FILE = "airplay-icon.png"
 
-    const val DEFAULT_MANUFACTURER = "DiPlay"
-    const val DEFAULT_MODEL = "DiPlay"
+    const val DEFAULT_MANUFACTURER = "OsnPlay"
+    const val DEFAULT_MODEL = "OsnPlay"
     const val DEFAULT_OEM_LABEL = "BYD"
     const val DEFAULT_MFI_I2C_PATH = "/dev/i2c-1"
 
@@ -190,6 +197,31 @@ object AirPlayPersistence {
     fun loadAudioFocusEnabled(context: Context): Boolean =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .getBoolean(KEY_AUDIO_FOCUS_ENABLED, false)
+
+    fun loadEarlyMediaFocus(context: Context): Boolean = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        .getBoolean("early_media_focus", context.resources.getBoolean(R.bool.config_media_focus_before_connect))
+
+    fun saveEarlyMediaFocus(context: Context, enabled: Boolean) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean("early_media_focus", enabled).apply()
+    }
+
+    fun loadSystemMediaSyncEnabled(context: Context): Boolean =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getBoolean(KEY_SYSTEM_MEDIA_SYNC, context.resources.getBoolean(R.bool.config_system_media_sync))
+
+    fun saveSystemMediaSyncEnabled(context: Context, enabled: Boolean) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putBoolean(KEY_SYSTEM_MEDIA_SYNC, enabled).apply()
+    }
+
+    fun loadStandardMicrophoneInput(context: Context): Boolean =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getBoolean(KEY_STANDARD_MICROPHONE_INPUT, context.resources.getBoolean(R.bool.config_standard_microphone_input))
+
+    fun saveStandardMicrophoneInput(context: Context, enabled: Boolean) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putBoolean(KEY_STANDARD_MICROPHONE_INPUT, enabled).apply()
+    }
 
     fun saveAudioFocusEnabled(context: Context, enabled: Boolean) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -385,6 +417,28 @@ object AirPlayPersistence {
             .apply()
     }
 
+    fun loadManualHotspotInterface(context: Context): String? =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getString(KEY_MANUAL_HOTSPOT_INTERFACE, context.getString(R.string.config_default_hotspot_interface))
+            ?.takeIf(ManualHotspotInterfaces::isValidName)
+
+    fun saveManualHotspotInterface(context: Context, name: String?) {
+        require(name == null || ManualHotspotInterfaces.isValidName(name))
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putString(KEY_MANUAL_HOTSPOT_INTERFACE, name.orEmpty()).apply()
+    }
+
+    fun loadManualHotspotAddressMode(context: Context): ManualHotspotAddressMode {
+        val stored = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getString(KEY_MANUAL_HOTSPOT_ADDRESS_MODE, context.getString(R.string.config_default_hotspot_address_mode))
+        return ManualHotspotAddressMode.entries.firstOrNull { it.name == stored } ?: ManualHotspotAddressMode.AUTO
+    }
+
+    fun saveManualHotspotAddressMode(context: Context, mode: ManualHotspotAddressMode) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putString(KEY_MANUAL_HOTSPOT_ADDRESS_MODE, mode.name).apply()
+    }
+
     fun loadDebugLogsEnabled(context: Context): Boolean =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .getBoolean(KEY_DEBUG_LOGS_ENABLED, false)
@@ -419,7 +473,7 @@ object AirPlayPersistence {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .getString(KEY_MANUFACTURER, null)
             ?.takeIf { it.isNotBlank() }
-            ?: DEFAULT_MANUFACTURER
+            ?: context.getString(R.string.app_name)
 
     fun saveManufacturer(context: Context, manufacturer: String) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -431,7 +485,7 @@ object AirPlayPersistence {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .getString(KEY_MODEL, null)
             ?.takeIf { it.isNotBlank() }
-            ?: DEFAULT_MODEL
+            ?: context.getString(R.string.app_name)
 
     fun saveModel(context: Context, model: String) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -441,9 +495,9 @@ object AirPlayPersistence {
 
     fun loadOemLabel(context: Context): String =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .getString(KEY_OEM_LABEL, DEFAULT_OEM_LABEL)
+            .getString(KEY_OEM_LABEL, context.getString(R.string.config_oem_label))
             // iOS hides the car icon without a label.
-            .orEmpty().ifBlank { DEFAULT_OEM_LABEL }
+            .orEmpty().ifBlank { context.getString(R.string.config_oem_label) }
 
     fun saveOemLabel(context: Context, oemLabel: String) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -539,7 +593,8 @@ object AirPlayPersistence {
     }
 
     fun loadClusterMapEnabled(context: Context): Boolean =
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_CLUSTER_MAP, false)
+        context.resources.getBoolean(R.bool.config_cluster_map_available) &&
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_CLUSTER_MAP, false)
 
     fun loadAdbClusterEnabled(context: Context): Boolean = loadClusterMapEnabled(context) &&
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_ADB_CLUSTER_ACTIVITY, false)
@@ -555,7 +610,7 @@ object AirPlayPersistence {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_CLUSTER_MAP, enabled).apply()
     }
 
-    /** The dashboard map as a card on the centre screen while DiPlay is in the background. */
+    /** The dashboard map as a card on the centre screen while OsnPlay is in the background. */
     fun loadCenterMapOverlay(context: Context): Boolean =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_CENTER_MAP_OVERLAY, false)
 

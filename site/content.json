@@ -5,7 +5,7 @@
     "tag": "Independent community project",
     "badge": "PUBLIC PREVIEW",
     "title": "Your iPhone.\nAt home in your car.",
-    "intro": "Maps, music and conversations on your car display. DiPlay brings wired and wireless CarPlay to compatible Android head units, with the familiar DiAuto interface.",
+    "intro": "Maps, music and conversations on your car display. OsnPlay brings wired and wireless CarPlay to compatible Android head units, with the familiar DiAuto interface.",
     "download": "Download APK",
     "install": "How to install",
     "promise": "No jailbreak, dongle, account or authentication server required.",
@@ -18,7 +18,7 @@
     "setup": "Install on your car",
     "steps": [
       "While parked, download the APK and install it using the method supported by your head unit.",
-      "Open DiPlay and allow the requested Bluetooth, Wi-Fi/location and microphone permissions.",
+      "Open OsnPlay and allow the requested Bluetooth, Wi-Fi/location and microphone permissions.",
       "Turn on the car’s built-in hotspot (5 GHz if available). In Settings → Connection setup, select Built-in car hotspot and save its exact name and password. Keep phone Wi-Fi and Bluetooth on, pair with the car, then tap Connect phone and accept the phone prompts.",
       "For wired use, connect a USB data cable and choose Connect with USB. Approve any USB, Trust or local VPN prompts."
     ],
@@ -30,10 +30,10 @@
       "Movable custom turn card over the dashboard map, with size choices and 2% position steps. Unknown maneuvers show no guessed arrow; expired guidance clears.",
       "Two-, three- or four-finger settings swipes, with three as the default. Android TV/remote controls preserve ordinary head-unit touch and knob behavior.",
       "Optional read-only legacy vehicle-data detection; default DiLink 5.0 mode remains the default. Only accepted fields/readings are used, with stale-probe and battery-publication concurrency corrections.",
-      "Optional automatic startup of the existing car hotspot, off by default, with verified permissions limited to DiPlay’s own package. Hotspot credentials are preserved.",
+      "Optional automatic startup of the existing car hotspot, off by default, with verified permissions limited to OsnPlay’s own package. Hotspot credentials are preserved.",
       "Wireless location/vehicle data use the runtime Wi-Fi link; parked-video availability waits for SETUP/event readiness. Video still requires network ADB and valid P-gear data.",
       "Keep artists across partial song updates and publish metadata/artwork only when changed, while playback position and state continue updating.",
-      "Android 9 audio compatibility, failed-codec cleanup, settled geometry/startup checks after reconnect, guarded Android 10 P2P recovery in Auto mode, and a wired VPN restricted to DiPlay.",
+      "Android 9 audio compatibility, failed-codec cleanup, settled geometry/startup checks after reconnect, guarded Android 10 P2P recovery in Auto mode, and a wired VPN restricted to OsnPlay.",
       "Bounded wireless, media, theme and own-app exit diagnostics without audio/video/packet payload recording or automatic uploads."
     ],
     "compat": "Before you try it",
@@ -50,7 +50,7 @@
     "footer": "Independent project based on xcertplay, with interface design from DiAuto. Not affiliated with Apple or BYD. CarPlay and its icon belong to Apple Inc.",
     "supportScope": "These projects focus on BYD cars. They may work on other brands, but other brands are unsupported and there are no plans to add support or fix brand-specific incompatibilities.",
     "diagnosticsTitle": "Please send fresh reports from 0.2.11",
-    "diagnosticsText": "If a problem remains, reproduce it on 0.2.11, then open Settings → Diagnostics → Save diagnostic report. Android 10+ saves to Downloads/DiPlay; Android 9 uses a document picker. Review the .txt file and attach it to your existing GitHub issue with vehicle/firmware, iPhone/iOS, connection mode, steps and failure time. Never post your hotspot password. Qin Plus startup, Wi-Fi Direct stutter, Siri, iOS 15 and day/night firmware reports still need device evidence."
+    "diagnosticsText": "If a problem remains, reproduce it on 0.2.11, then open Settings → Diagnostics → Save diagnostic report. Android 10+ saves to Downloads/OsnPlay; Android 9 uses a document picker. Review the .txt file and attach it to your existing GitHub issue with vehicle/firmware, iPhone/iOS, connection mode, steps and failure time. Never post your hotspot password. Qin Plus startup, Wi-Fi Direct stutter, Siri, iOS 15 and day/night firmware reports still need device evidence."
   },
   "ar": {
     "name": "العربية",
@@ -58,7 +58,7 @@
     "tag": "مشروع مجتمعي مستقل",
     "badge": "نسخة تجريبية عامة",
     "title": "آيفونك.\nعلى شاشة سيارتك.",
-    "intro": "خرائطك وموسيقاك ومحادثاتك على شاشة السيارة. يوفّر DiPlay كار بلاي سلكياً ولاسلكياً لشاشات أندرويد المتوافقة، بواجهة مألوفة من DiAuto.",
+    "intro": "خرائطك وموسيقاك ومحادثاتك على شاشة السيارة. يوفّر OsnPlay كار بلاي سلكياً ولاسلكياً لشاشات أندرويد المتوافقة، بواجهة مألوفة من DiAuto.",
     "download": "تنزيل APK",
     "install": "طريقة التثبيت",
     "promise": "لا حاجة إلى جيلبريك أو قطعة خارجية أو حساب أو خادم مصادقة.",
@@ -71,7 +71,7 @@
     "setup": "التثبيت على شاشة السيارة",
     "steps": [
       "والسيارة متوقفة، نزّل ملف APK وثبّته بالطريقة التي تدعمها شاشة سيارتك.",
-      "افتح DiPlay وامنح أذونات البلوتوث والواي فاي/الموقع والميكروفون المطلوبة.",
+      "افتح OsnPlay وامنح أذونات البلوتوث والواي فاي/الموقع والميكروفون المطلوبة.",
       "شغّل نقطة اتصال السيارة المدمجة واختر 5 غيغاهرتز إن توفر. من الإعدادات ← إعداد الاتصال، اختر نقطة اتصال السيارة وأدخل الاسم وكلمة المرور بدقة. أبقِ Wi-Fi وBluetooth مفعّلين على الهاتف، واقرنه بالسيارة، ثم اضغط توصيل الهاتف ووافق على الطلبات.",
       "للاتصال السلكي، استخدم كابل USB يدعم نقل البيانات واختر Connect with USB. وافق على طلبات USB أو الوثوق أو اتصال VPN المحلي إن ظهرت."
     ],
@@ -83,10 +83,10 @@
       "بطاقة انعطاف مخصصة قابلة للتحريك فوق خريطة العدادات، مع أحجام مختلفة وخطوات موضع بنسبة 2%. لا يظهر سهم تخميني للمناورات غير المعروفة، وتُزال الإرشادات المنتهية.",
       "سحب لفتح الإعدادات بإصبعين أو ثلاثة أو أربعة، مع بقاء ثلاثة هو الافتراضي. تدعم أدوات Android TV والتحكم عن بُعد مع الحفاظ على لمس الشاشة وسلوك المقبض المعتاد.",
       "اكتشاف اختياري للقراءة فقط لبيانات الوحدات القديمة؛ يبقى وضع DiLink 5.0 هو الافتراضي. تُستخدم الحقول والقراءات المقبولة فقط، مع تصحيحات للنتائج القديمة وتزامن نشر البطارية.",
-      "تشغيل تلقائي اختياري لنقطة اتصال السيارة الحالية، معطّل افتراضيًا. تُتحقق الأذونات لحزمة DiPlay نفسها فقط، وتُحفظ بيانات نقطة الاتصال.",
+      "تشغيل تلقائي اختياري لنقطة اتصال السيارة الحالية، معطّل افتراضيًا. تُتحقق الأذونات لحزمة OsnPlay نفسها فقط، وتُحفظ بيانات نقطة الاتصال.",
       "تُرسل بيانات الموقع والسيارة اللاسلكية عبر رابط Wi-Fi الفعلي؛ ينتظر توفر فيديو الوقوف جاهزية SETUP وقناة الأحداث. يبقى الفيديو بحاجة إلى ADB الشبكي وقراءة صالحة للوضع P.",
       "الاحتفاظ بالفنان عند تحديث الأغنية جزئيًا، ونشر المعلومات وصورة الألبوم فقط عند تغيّرها؛ يستمر تحديث موضع التشغيل وحالته.",
-      "توافق صوت أندرويد 9، وتحرير برامج الترميز التي فشل تشغيلها، وفحص حجم الشاشة والجاهزية بعد إعادة الاتصال، واستعادة P2P محددة على أندرويد 10 في الوضع التلقائي، وVPN سلكي محصور في DiPlay.",
+      "توافق صوت أندرويد 9، وتحرير برامج الترميز التي فشل تشغيلها، وفحص حجم الشاشة والجاهزية بعد إعادة الاتصال، واستعادة P2P محددة على أندرويد 10 في الوضع التلقائي، وVPN سلكي محصور في OsnPlay.",
       "تشخيص محدود للاتصال اللاسلكي والوسائط ووضع الليل/النهار وخروج التطبيق، دون تسجيل محتوى الصوت أو الفيديو أو الحزم ودون رفع تلقائي."
     ],
     "compat": "قبل التجربة",
@@ -103,7 +103,7 @@
     "footer": "مشروع مستقل مبني على xcertplay وبتصميم واجهة من DiAuto. غير تابع لـ Apple أو BYD. كار بلاي وأيقونته ملك لشركة Apple.",
     "supportScope": "يركز هذان المشروعان على سيارات BYD. قد يعملان على علامات أخرى، لكنها غير مدعومة، ولا توجد خطط لإضافة دعم لها أو إصلاح مشكلات التوافق الخاصة بها.",
     "diagnosticsTitle": "نحتاج تقارير جديدة من 0.2.11",
-    "diagnosticsText": "إذا استمرت المشكلة، أعد إظهارها على 0.2.11 ثم افتح الإعدادات → التشخيص → حفظ تقرير التشخيص. يحفظ أندرويد 10 فأحدث في Downloads/DiPlay؛ يستخدم أندرويد 9 منتقي المستندات. راجع ملف .txt وأرفقه بالمشكلة الحالية في GitHub مع السيارة والنظام والآيفون/iOS ونوع الاتصال والخطوات ووقت العطل. لا تنشر كلمة مرور نقطة الاتصال. ما زالت مشكلات بدء Qin Plus وتقطّع Wi-Fi Direct وSiri وiOS 15 ووضع الليل/النهار بحاجة إلى أدلة من الجهاز."
+    "diagnosticsText": "إذا استمرت المشكلة، أعد إظهارها على 0.2.11 ثم افتح الإعدادات → التشخيص → حفظ تقرير التشخيص. يحفظ أندرويد 10 فأحدث في Downloads/OsnPlay؛ يستخدم أندرويد 9 منتقي المستندات. راجع ملف .txt وأرفقه بالمشكلة الحالية في GitHub مع السيارة والنظام والآيفون/iOS ونوع الاتصال والخطوات ووقت العطل. لا تنشر كلمة مرور نقطة الاتصال. ما زالت مشكلات بدء Qin Plus وتقطّع Wi-Fi Direct وSiri وiOS 15 ووضع الليل/النهار بحاجة إلى أدلة من الجهاز."
   },
   "ru": {
     "name": "Русский",
@@ -111,7 +111,7 @@
     "tag": "Независимый проект сообщества",
     "badge": "ОТКРЫТОЕ ТЕСТИРОВАНИЕ",
     "title": "Ваш iPhone.\nНа экране автомобиля.",
-    "intro": "Карты, музыка и общение на экране автомобиля. DiPlay добавляет проводной и беспроводной CarPlay на совместимые головные устройства Android со знакомым интерфейсом DiAuto.",
+    "intro": "Карты, музыка и общение на экране автомобиля. OsnPlay добавляет проводной и беспроводной CarPlay на совместимые головные устройства Android со знакомым интерфейсом DiAuto.",
     "download": "Скачать APK",
     "install": "Как установить",
     "promise": "Без джейлбрейка, адаптера, аккаунта и сервера аутентификации.",
@@ -124,7 +124,7 @@
     "setup": "Установка в автомобиле",
     "steps": [
       "На стоянке скачайте APK и установите его способом, поддерживаемым головным устройством.",
-      "Откройте DiPlay и предоставьте запрошенные разрешения Bluetooth, Wi-Fi/геолокации и микрофона.",
+      "Откройте OsnPlay и предоставьте запрошенные разрешения Bluetooth, Wi-Fi/геолокации и микрофона.",
       "Включите встроенную точку доступа автомобиля (5 ГГц, если доступно). В Настройки → Настройка подключения выберите точку доступа автомобиля и сохраните её точные имя и пароль. Включите Wi-Fi и Bluetooth на телефоне, выполните сопряжение с автомобилем, нажмите «Подключить телефон» и подтвердите запросы.",
       "Для проводного подключения используйте USB-кабель с передачей данных и нажмите Connect with USB. Подтвердите запросы USB, доверия и локального VPN, если они появятся."
     ],
@@ -136,10 +136,10 @@
       "Перемещаемая карточка поворота поверх карты приборной панели: выбор размера и изменение положения с шагом 2%. Для неизвестного манёвра стрелка не придумывается; устаревшие указания очищаются.",
       "Свайп вниз двумя, тремя или четырьмя пальцами для настроек; по умолчанию три. Управление Android TV/пультом сохраняет обычную работу сенсорного экрана и поворотного регулятора.",
       "Необязательное определение полей старого головного устройства только чтением; стандартный режим DiLink 5.0 остаётся исходным. Используются только принятые поля/показания; исправлены устаревшие результаты и синхронизация публикации батареи.",
-      "Необязательный автозапуск существующей точки доступа автомобиля, выключенный по умолчанию. Проверяются разрешения только пакета DiPlay; имя и пароль точки доступа сохраняются.",
+      "Необязательный автозапуск существующей точки доступа автомобиля, выключенный по умолчанию. Проверяются разрешения только пакета OsnPlay; имя и пароль точки доступа сохраняются.",
       "Беспроводные данные местоположения/автомобиля идут по рабочему Wi-Fi-соединению; доступность видео в P ждёт SETUP и канала событий. По-прежнему нужны сетевой ADB и достоверное положение P.",
       "Исполнитель сохраняется при частичном обновлении песни; метаданные и обложка публикуются лишь при изменениях. Позиция и состояние воспроизведения продолжают обновляться.",
-      "Совместимость аудио с Android 9, освобождение кодека после сбоя запуска, актуальные размеры и проверки готовности при переподключении, узкое восстановление P2P на Android 10 в Авто и проводной VPN только для DiPlay.",
+      "Совместимость аудио с Android 9, освобождение кодека после сбоя запуска, актуальные размеры и проверки готовности при переподключении, узкое восстановление P2P на Android 10 в Авто и проводной VPN только для OsnPlay.",
       "Ограниченные сводки беспроводного соединения, медиа, дневной/ночной темы и завершения самого приложения без записи аудио, видео, содержимого пакетов или автоматической отправки."
     ],
     "compat": "Перед установкой",
@@ -156,7 +156,7 @@
     "footer": "Независимый проект на базе xcertplay с дизайном интерфейса DiAuto. Не связан с Apple или BYD. CarPlay и его значок принадлежат Apple Inc.",
     "supportScope": "Эти проекты ориентированы на автомобили BYD. На других марках они могут работать, но другие марки не поддерживаются; добавление поддержки и исправление несовместимости с ними не планируются.",
     "diagnosticsTitle": "Нужны свежие отчёты из 0.2.11",
-    "diagnosticsText": "Если проблема осталась, воспроизведите её на 0.2.11 и откройте Настройки → Диагностика → Сохранить диагностический отчёт. Android 10+ сохраняет в Downloads/DiPlay; Android 9 открывает выбор документа. Проверьте .txt и прикрепите к существующей задаче GitHub с моделью/прошивкой, iPhone/iOS, способом подключения, шагами и временем сбоя. Не публикуйте пароль точки доступа. Для запуска Qin Plus, заиканий Wi-Fi Direct, Siri, подключения iOS 15 и дневной/ночной темы всё ещё нужны данные с устройств."
+    "diagnosticsText": "Если проблема осталась, воспроизведите её на 0.2.11 и откройте Настройки → Диагностика → Сохранить диагностический отчёт. Android 10+ сохраняет в Downloads/OsnPlay; Android 9 открывает выбор документа. Проверьте .txt и прикрепите к существующей задаче GitHub с моделью/прошивкой, iPhone/iOS, способом подключения, шагами и временем сбоя. Не публикуйте пароль точки доступа. Для запуска Qin Plus, заиканий Wi-Fi Direct, Siri, подключения iOS 15 и дневной/ночной темы всё ещё нужны данные с устройств."
   },
   "uk": {
     "name": "Українська",
@@ -164,7 +164,7 @@
     "tag": "Незалежний проєкт спільноти",
     "badge": "ПОПЕРЕДНЯ ВЕРСІЯ",
     "title": "Ваш iPhone.\nЯк удома у вашому авто.",
-    "intro": "Карти, музика й розмови на екрані автомобіля. DiPlay додає дротовий і бездротовий CarPlay на сумісні головні пристрої Android зі звичним інтерфейсом DiAuto.",
+    "intro": "Карти, музика й розмови на екрані автомобіля. OsnPlay додає дротовий і бездротовий CarPlay на сумісні головні пристрої Android зі звичним інтерфейсом DiAuto.",
     "download": "Завантажити APK",
     "install": "Як встановити",
     "promise": "Без джейлбрейка, адаптера, облікового запису й сервера автентифікації.",
@@ -177,7 +177,7 @@
     "setup": "Встановлення в автомобілі",
     "steps": [
       "На стоянці завантажте APK і встановіть його способом, який підтримує ваш головний пристрій.",
-      "Відкрийте DiPlay і надайте запитані дозволи на Bluetooth, Wi-Fi/геопозицію й мікрофон.",
+      "Відкрийте OsnPlay і надайте запитані дозволи на Bluetooth, Wi-Fi/геопозицію й мікрофон.",
       "Увімкніть вбудовану точку доступу автомобіля (5 ГГц, якщо є). У Налаштування → Налаштування підключення виберіть «Вбудована точка доступу автомобіля» й збережіть її точну назву та пароль. Тримайте Wi-Fi і Bluetooth на телефоні увімкненими, сполучіть телефон з автомобілем, потім натисніть «Підключити телефон» і підтвердьте запити на телефоні.",
       "Для дротового підключення під’єднайте USB-кабель для передавання даних і виберіть «Підключити через USB». Підтвердьте запити USB, «Довіряти» або локальної VPN."
     ],
@@ -189,10 +189,10 @@
       "Рухома картка повороту поверх карти панелі приладів: вибір розміру й зміна положення з кроком 2%. Для невідомого маневру стрілка не вигадується; прострочені вказівки очищаються.",
       "Свайп униз двома, трьома або чотирма пальцями для налаштувань; типово три. Керування Android TV/пультом зберігає звичну роботу сенсорного екрана й поворотного регулятора.",
       "Необов’язкове визначення полів старого головного пристрою лише зчитуванням; типовий режим DiLink 5.0 зберігається. Використовуються лише прийняті поля/показники; виправлено застарілі результати та синхронізацію публікації батареї.",
-      "Необов’язковий автозапуск наявної точки доступу автомобіля, типово вимкнений. Перевіряються дозволи лише пакета DiPlay; назва й пароль точки доступу зберігаються.",
+      "Необов’язковий автозапуск наявної точки доступу автомобіля, типово вимкнений. Перевіряються дозволи лише пакета OsnPlay; назва й пароль точки доступу зберігаються.",
       "Бездротові дані місцезнаходження/автомобіля йдуть робочим Wi-Fi-з’єднанням; доступність відео в P чекає SETUP і каналу подій. Як і раніше, потрібні мережевий ADB та достовірне положення P.",
       "Виконавець зберігається за часткового оновлення пісні; метадані й обкладинка публікуються лише після змін. Позиція та стан відтворення продовжують оновлюватися.",
-      "Сумісність аудіо з Android 9, звільнення кодека після збою запуску, актуальні розміри й перевірки готовності після перепідключення, вузьке відновлення P2P на Android 10 в Авто та дротовий VPN лише для DiPlay.",
+      "Сумісність аудіо з Android 9, звільнення кодека після збою запуску, актуальні розміри й перевірки готовності після перепідключення, вузьке відновлення P2P на Android 10 в Авто та дротовий VPN лише для OsnPlay.",
       "Обмежені зведення бездротового з’єднання, медіа, денної/нічної теми та завершення самого застосунку без запису аудіо, відео, вмісту пакетів або автоматичного надсилання."
     ],
     "compat": "Перш ніж спробувати",
@@ -209,7 +209,7 @@
     "footer": "Незалежний проєкт на основі xcertplay з дизайном інтерфейсу від DiAuto. Не пов’язаний з Apple чи BYD. CarPlay і його значок належать Apple Inc.",
     "supportScope": "Ці проєкти зосереджені на автомобілях BYD. Вони можуть працювати й з іншими марками, але інші марки не підтримуються, і планів додавати їхню підтримку чи виправляти несумісності з ними немає.",
     "diagnosticsTitle": "Потрібні свіжі звіти з 0.2.11",
-    "diagnosticsText": "Якщо проблема лишилася, відтворіть її на 0.2.11 і відкрийте Налаштування → Діагностика → Зберегти діагностичний звіт. Android 10+ зберігає в Downloads/DiPlay; Android 9 відкриває вибір документа. Перевірте .txt і додайте до наявної проблеми GitHub із моделлю/прошивкою, iPhone/iOS, способом підключення, кроками й часом збою. Не публікуйте пароль точки доступу. Для запуску Qin Plus, перебоїв Wi-Fi Direct, Siri, підключення iOS 15 і денної/нічної теми досі потрібні дані з пристроїв."
+    "diagnosticsText": "Якщо проблема лишилася, відтворіть її на 0.2.11 і відкрийте Налаштування → Діагностика → Зберегти діагностичний звіт. Android 10+ зберігає в Downloads/OsnPlay; Android 9 відкриває вибір документа. Перевірте .txt і додайте до наявної проблеми GitHub із моделлю/прошивкою, iPhone/iOS, способом підключення, кроками й часом збою. Не публікуйте пароль точки доступу. Для запуску Qin Plus, перебоїв Wi-Fi Direct, Siri, підключення iOS 15 і денної/нічної теми досі потрібні дані з пристроїв."
   },
   "es": {
     "name": "Español",
@@ -217,7 +217,7 @@
     "tag": "Proyecto comunitario independiente",
     "badge": "VERSIÓN PRELIMINAR PÚBLICA",
     "title": "Tu iPhone.\nEn la pantalla de tu coche.",
-    "intro": "Mapas, música y conversaciones en la pantalla del coche. DiPlay ofrece CarPlay por USB e inalámbrico en unidades Android compatibles, con la interfaz familiar de DiAuto.",
+    "intro": "Mapas, música y conversaciones en la pantalla del coche. OsnPlay ofrece CarPlay por USB e inalámbrico en unidades Android compatibles, con la interfaz familiar de DiAuto.",
     "download": "Descargar APK",
     "install": "Cómo instalar",
     "promise": "Sin jailbreak, adaptador, cuenta ni servidor de autenticación.",
@@ -230,7 +230,7 @@
     "setup": "Instalar en el coche",
     "steps": [
       "Con el coche estacionado, descarga el APK e instálalo mediante el método que admita tu unidad.",
-      "Abre DiPlay y concede los permisos solicitados de Bluetooth, Wi-Fi/ubicación y micrófono.",
+      "Abre OsnPlay y concede los permisos solicitados de Bluetooth, Wi-Fi/ubicación y micrófono.",
       "Activa el punto de acceso integrado del coche (5 GHz si está disponible). En Ajustes → Configuración de conexión, selecciónalo y guarda su nombre y contraseña exactos. Mantén Wi-Fi y Bluetooth activos en el teléfono, emparéjalo con el coche, pulsa Conectar teléfono y acepta las indicaciones.",
       "Para USB, usa un cable de datos y pulsa Connect with USB. Acepta las solicitudes de USB, confianza o VPN local que aparezcan."
     ],
@@ -242,10 +242,10 @@
       "Tarjeta de giro personalizada y movible sobre el mapa del cuadro, con tamaños y pasos de posición del 2%. No se inventa una flecha para maniobras desconocidas; se borran indicaciones caducadas.",
       "Desliza hacia abajo con dos, tres o cuatro dedos para abrir ajustes; tres sigue siendo el valor inicial. Los controles de Android TV/mando conservan el comportamiento táctil y del mando giratorio habitual.",
       "Detección opcional de datos en equipos antiguos, solo de lectura; el modo DiLink 5.0 sigue siendo el predeterminado. Solo se usan campos/lecturas aceptados; se corrigen resultados obsoletos y la concurrencia al publicar la batería.",
-      "Inicio automático opcional del punto de acceso existente del coche, desactivado de inicio. Se verifican permisos solo para el paquete de DiPlay; se conservan el nombre y la contraseña del punto de acceso.",
+      "Inicio automático opcional del punto de acceso existente del coche, desactivado de inicio. Se verifican permisos solo para el paquete de OsnPlay; se conservan el nombre y la contraseña del punto de acceso.",
       "Los datos inalámbricos de ubicación/vehículo usan el enlace Wi-Fi activo; la disponibilidad de vídeo en P espera a SETUP y al canal de eventos. Sigue requiriendo ADB por red y datos válidos de la posición P.",
       "Conserva el artista en actualizaciones parciales de canciones y publica metadatos/portadas solo cuando cambian. La posición y el estado de reproducción siguen actualizándose.",
-      "Compatibilidad de audio con Android 9, liberación del códec tras fallos de inicio, tamaño actual y comprobaciones al reconectar, recuperación limitada de P2P en Android 10 con Auto y VPN por cable solo para DiPlay.",
+      "Compatibilidad de audio con Android 9, liberación del códec tras fallos de inicio, tamaño actual y comprobaciones al reconectar, recuperación limitada de P2P en Android 10 con Auto y VPN por cable solo para OsnPlay.",
       "Diagnóstico limitado de conexión inalámbrica, medios, tema día/noche y cierre de la propia aplicación, sin grabar audio, vídeo o contenido de paquetes ni enviar informes automáticamente."
     ],
     "compat": "Antes de probar",
@@ -262,7 +262,7 @@
     "footer": "Proyecto independiente basado en xcertplay, con diseño de interfaz de DiAuto. Sin afiliación a Apple ni BYD. CarPlay y su icono pertenecen a Apple Inc.",
     "supportScope": "Estos proyectos se centran en coches BYD. Pueden funcionar en otras marcas, pero no se ofrece soporte para ellas ni hay planes de añadirlo o corregir incompatibilidades específicas.",
     "diagnosticsTitle": "Necesitamos informes nuevos de 0.2.11",
-    "diagnosticsText": "Si el problema continúa, reprodúcelo en 0.2.11 y abre Ajustes → Diagnóstico → Guardar informe de diagnóstico. Android 10+ guarda en Downloads/DiPlay; Android 9 usa un selector de documentos. Revisa el .txt y adjúntalo a tu incidencia existente en GitHub con modelo/firmware, iPhone/iOS, conexión, pasos y hora del fallo. No publiques la contraseña del punto de acceso. El inicio de Qin Plus, los cortes de Wi-Fi Direct, Siri, la conexión con iOS 15 y el tema día/noche aún necesitan pruebas en dispositivos."
+    "diagnosticsText": "Si el problema continúa, reprodúcelo en 0.2.11 y abre Ajustes → Diagnóstico → Guardar informe de diagnóstico. Android 10+ guarda en Downloads/OsnPlay; Android 9 usa un selector de documentos. Revisa el .txt y adjúntalo a tu incidencia existente en GitHub con modelo/firmware, iPhone/iOS, conexión, pasos y hora del fallo. No publiques la contraseña del punto de acceso. El inicio de Qin Plus, los cortes de Wi-Fi Direct, Siri, la conexión con iOS 15 y el tema día/noche aún necesitan pruebas en dispositivos."
   },
   "zh-Hans": {
     "name": "简体中文",
@@ -270,7 +270,7 @@
     "tag": "独立社区项目",
     "badge": "公开预览版",
     "title": "你的 iPhone。\n你的车载屏幕。",
-    "intro": "在车载屏幕上使用地图、音乐和通话。DiPlay 为兼容的安卓车机带来有线和无线 CarPlay，采用熟悉的 DiAuto 界面。",
+    "intro": "在车载屏幕上使用地图、音乐和通话。OsnPlay 为兼容的安卓车机带来有线和无线 CarPlay，采用熟悉的 DiAuto 界面。",
     "download": "下载 APK",
     "install": "安装方法",
     "promise": "无需越狱、转接盒、账号或认证服务器。",
@@ -283,7 +283,7 @@
     "setup": "安装到车机",
     "steps": [
       "停车后下载 APK，并通过车机支持的方式安装。",
-      "打开 DiPlay，授予所需的蓝牙、Wi-Fi/位置及麦克风权限。",
+      "打开 OsnPlay，授予所需的蓝牙、Wi-Fi/位置及麦克风权限。",
       "开启车机内置热点，如可选请使用 5 GHz。在“设置 → 连接设置”中选择车机内置热点，准确填写并保存名称和密码。保持手机 Wi-Fi 和蓝牙开启，与车机配对后点击“连接手机”，并同意手机上的提示。",
       "有线连接请使用 USB 数据线，并点击 Connect with USB。如出现 USB、信任或本地 VPN 提示，请确认。"
     ],
@@ -295,10 +295,10 @@
       "仪表地图上可移动的自定义转向卡片，支持大小选择及每次 2% 的位置调整。未知转向不显示猜测的箭头，过期指引会清除。",
       "打开设置的下滑手势可选 2、3 或 4 指，默认仍为 3 指。新增 Android TV/遥控器操作，并保留普通车机触摸及旋钮行为。",
       "可选旧版车机只读车辆数据探测，默认仍为 DiLink 5.0 模式。只使用已接受的字段及读数，并修正过期探测结果与电池发布的并发问题。",
-      "可选自动开启车机已有热点，默认关闭；启用前验证仅针对 DiPlay 自身应用包的权限，并保留热点名称与密码。",
+      "可选自动开启车机已有热点，默认关闭；启用前验证仅针对 OsnPlay 自身应用包的权限，并保留热点名称与密码。",
       "无线位置及车辆数据由实际 Wi-Fi 链路发送；停车视频等待 SETUP 和事件通道就绪。仍需网络 ADB 及有效的 P 挡数据。",
       "歌曲部分更新未提供歌手时保留已有歌手；仅在信息或封面变化时重新发布，播放进度及状态继续更新。",
-      "修正 Android 9 音频兼容性，释放启动失败的编解码器；重连采用稳定尺寸及启动检查，自动模式下提供限定的 Android 10 P2P 兼容回退，有线 VPN 仅作用于 DiPlay。",
+      "修正 Android 9 音频兼容性，释放启动失败的编解码器；重连采用稳定尺寸及启动检查，自动模式下提供限定的 Android 10 P2P 兼容回退，有线 VPN 仅作用于 OsnPlay。",
       "新增有界无线、媒体、昼夜主题及本应用退出诊断，不录制音频、视频或数据包内容，也不自动上传。"
     ],
     "compat": "试用前请了解",
@@ -315,6 +315,6 @@
     "footer": "基于 xcertplay 的独立项目，界面设计源自 DiAuto。与 Apple 或比亚迪无隶属关系。CarPlay 及其图标归 Apple Inc. 所有。",
     "supportScope": "这些项目专注于比亚迪汽车。它们可能在其他品牌上运行，但其他品牌不在支持范围内，也没有增加支持或修复其品牌特定兼容性问题的计划。",
     "diagnosticsTitle": "请提供 0.2.11 的新诊断报告",
-    "diagnosticsText": "若问题仍在，请在 0.2.11 上复现，再打开设置 → 诊断 → 保存诊断报告。Android 10 及以上保存到 Downloads/DiPlay；Android 9 使用文件选择器。检查 .txt 后附在原有 GitHub 问题中，注明车型/固件、iPhone/iOS、连接方式、步骤和故障时间。请勿公开热点密码。Qin Plus 连接、Wi-Fi Direct 卡顿、Siri、iOS 15 连接及昼夜模式仍需真机证据。"
+    "diagnosticsText": "若问题仍在，请在 0.2.11 上复现，再打开设置 → 诊断 → 保存诊断报告。Android 10 及以上保存到 Downloads/OsnPlay；Android 9 使用文件选择器。检查 .txt 后附在原有 GitHub 问题中，注明车型/固件、iPhone/iOS、连接方式、步骤和故障时间。请勿公开热点密码。Qin Plus 连接、Wi-Fi Direct 卡顿、Siri、iOS 15 连接及昼夜模式仍需真机证据。"
   }
 }

@@ -1,0 +1,16 @@
+<resources>
+    <string name="hotspot_network_pick_interface">Select an interface</string>
+    <string name="hotspot_network_pick_required">Choose a hotspot interface in Connection setup before connecting.</string>
+    <string name="hotspot_network_pick_unavailable">The saved interface is not available. Turn on the car hotspot and select an interface again.</string>
+    <string name="hotspot_network_no_interfaces">No usable network interface was found. Turn on the car hotspot and reopen this list.</string>
+    <string name="hotspot_network_manual_description">Turn on the car hotspot, choose its network interface and save. Only interfaces currently available on this head unit are listed. Your choice is remembered for the next connection.</string>
+    <string name="hotspot_network_address_title">Hotspot address mode</string>
+    <string name="hotspot_network_address_summary">Hotspot address: %1$s</string>
+    <string name="hotspot_network_auto">Auto (IPv4 preferred on Android 9)</string>
+    <string name="hotspot_network_ipv4">IPv4 compatibility</string>
+    <string name="hotspot_network_ipv6">IPv6 link-local</string>
+    <string name="hotspot_network_interface_title">Hotspot network interface</string>
+    <string name="hotspot_network_interface_summary">Hotspot interface: %1$s</string>
+    <string name="hotspot_network_unavailable">Not currently available</string>
+    <string name="hotspot_network_description">Start with Auto. If the phone recognizes the car but no picture appears, try IPv4 compatibility and select the interface whose IPv4 address matches the router shown in your iPhone’s Wi-Fi details. Turn the car hotspot on before opening the interface list. Changes apply to the next connection.</string>
+</resources>

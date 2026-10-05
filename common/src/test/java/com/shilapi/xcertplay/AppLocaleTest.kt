@@ -30,7 +30,7 @@ class AppLocaleTest {
     }
 
     @Test fun oldPreferenceMigratesOnceAndCannotOverrideLaterSystemChanges() {
-        context.getSharedPreferences("diplay", Context.MODE_PRIVATE).edit()
+        context.getSharedPreferences("osnplay", Context.MODE_PRIVATE).edit()
             .putString("app_language", "ar").commit()
         AppLocale.wrap(context)
         assertEquals("ar", manager.applicationLocales.toLanguageTags())
@@ -40,7 +40,7 @@ class AppLocaleTest {
     }
 
     @Test fun existingSystemChoiceWinsOverLegacyPreference() {
-        context.getSharedPreferences("diplay", Context.MODE_PRIVATE).edit()
+        context.getSharedPreferences("osnplay", Context.MODE_PRIVATE).edit()
             .putString("app_language", "ar").commit()
         manager.applicationLocales = LocaleList.forLanguageTags("zh-CN")
         AppLocale.wrap(context)

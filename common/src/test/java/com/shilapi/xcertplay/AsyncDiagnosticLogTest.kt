@@ -6,7 +6,7 @@ import org.junit.Test
 
 class AsyncDiagnosticLogTest {
     @Test fun queuedEvidenceIsRedactedAndTimestampedBeforeUsingItsCapturedFileTarget() {
-        val folder = Files.createTempDirectory("diplay-async-log").toFile()
+        val folder = Files.createTempDirectory("osnplay-async-log").toFile()
         val old = SessionLogFile(folder.resolve("old.log"))
         val current = SessionLogFile(folder.resolve("current.log"))
         try {

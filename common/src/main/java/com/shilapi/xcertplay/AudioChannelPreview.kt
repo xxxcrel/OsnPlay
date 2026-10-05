@@ -17,7 +17,7 @@ import kotlin.math.sin
 internal class AudioChannelPreview(private val onUnavailable: (Int) -> Unit) : Closeable {
     private val mainHandler = Handler(Looper.getMainLooper())
     private val worker = Executors.newSingleThreadExecutor { task ->
-        Thread(task, "diplay-channel-preview").apply { isDaemon = true }
+        Thread(task, "osnplay-channel-preview").apply { isDaemon = true }
     }
     private val generation = AtomicInteger()
     private val activeTrack = AtomicReference<AudioTrack?>()
@@ -122,7 +122,7 @@ internal class AudioChannelPreview(private val onUnavailable: (Int) -> Unit) : C
     }
 
     private companion object {
-        private const val TAG = "DiPlayAudioPreview"
+        private const val TAG = "OsnPlayAudioPreview"
         private const val SAMPLE_RATE = 48_000
         private const val TONE_MILLIS = 600
     }
