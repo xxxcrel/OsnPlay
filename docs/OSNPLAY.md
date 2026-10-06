@@ -1,12 +1,71 @@
-# OsnPlay 1.3.0
+# OsnPlay 1.5.2
 
 Local OsnPlay product build for the 2023 Lynk & Co 03 / OSN 2.0 (Android 9).
 Application ID: `com.sinyee.babybus.story`, reused from the supplied CarMax APK at
 the user's request (CarMax is not installed on the target). It installs separately
 from OsnPlay 1.0.0, official OsnPlay and OsnPlay OSN Test. The receiver is built from this source tree with a persistent local
-release key, without debug-only HUD components. Version 1.3.0 (versionCode 8)
-is prepared for the user's requested fresh uninstall/reinstall. No legacy preference,
+release key, without debug-only HUD components. Version 1.5.2 (versionCode 13)
+fixes numeric-dialog readability and keeps manual-only GitHub Release checks. No legacy preference,
 class-name or storage migration is included.
+
+## 1.5.2 dialog themes and release automation
+
+Resolution, ambient-light threshold and night-mode delay dialogs now use the
+explicit OsnPlay day/night dialog theme before inflation. Their custom show
+listeners also apply the palette, including input text/hints and all action
+buttons. Open dialogs retain their drafts and update colors when the native
+theme changes; text size is not scaled repeatedly. Numeric validation, reset
+actions and natural dialog height remain covered by regression tests.
+
+The version defaults live in `mobile/osnplay-release.properties`. The
+**Publish OsnPlay release** Actions workflow supports matching `osnplay-v*` tags,
+version-configuration changes on main and manual dispatch. It signs with
+provisioned repository secrets, verifies the new APK, generates update.json,
+uploads both assets to a draft and then publishes it. It does not download or
+compare legacy repository Releases. See [Actions setup](ACTIONS_RELEASE.md).
+
+## 1.5.1 manual-only GitHub Release updates
+
+The OSN product has **Settings → About and updates**, using only the public
+`xxxcrel/OsnPlay` repository. Only tapping **Check for updates** starts a request.
+Startup, resume and opening the update page do not contact GitHub. The automatic
+check switch, schedule/backoff preferences and unsolicited update notices have
+been removed, including for installations that enabled the former switch.
+Requested checks run outside the UI thread. Downloads and system installation
+are explicit actions. Android 9 requires the source's installation permission and
+system installation confirmation; there is no silent installation or system UID.
+
+Each stable Release must contain its named APK and `update.json`. The release
+script automatically generates these assets next to `mobile-release.apk` using
+the actual signed APK's package, versionCode, versionName, minSdk, byte size and
+SHA-256. See [GitHub release publishing](GITHUB_UPDATES.md). Drafts/prereleases,
+an empty repository and releases without update metadata have distinct handling.
+
+The updater compares versionCode, bounds JSON/download sizes, supports download
+progress/cancellation/retry and verifies the APK checksum, actual package/version,
+Android requirement and signing certificates. It rechecks the cached APK before
+installation, grants a read-only FileProvider URI and stops the current CarPlay
+session only when the user starts installation. Checks, downloads and validation
+use a process-owned worker; screen subscriptions detach on destruction without
+retaining activities or losing an in-progress download. Rate limits/network errors
+are shown for manual retry and never trigger another request. No GitHub token is embedded.
+
+Install an updater-enabled version manually once; future releases can then be
+downloaded and handed to the system installer from the app. Instrument projection
+remains removed.
+
+## 1.4.1 instrument projection removal
+
+The user reported that the 1.4.0 instrument projection experiment was not usable
+on the vehicle and requested its removal. Its settings, calibration grid,
+secondary-display controller, DIM Binder layer management, extra permission,
+map-capability negotiation and experiment-specific decoder callbacks are removed.
+The OSN product does not advertise or open an instrument map, including when
+preferences from 1.4.0 remain saved. Main-screen CarPlay and the integrated
+upstream night mode, Same LAN support and diagnostic export fallback remain.
+
+The APK verifier checks that the withdrawn classes, resources and permission
+are absent, and that `config_cluster_map_available` remains false.
 
 ## 1.3.0 cleanup, settings shortcuts and audio evidence
 

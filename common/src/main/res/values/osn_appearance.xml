@@ -26,8 +26,10 @@
     <style name="Theme.OsnPlay.Light.Dialog" parent="android:Theme.Material.Light.Dialog.Alert">
         <item name="android:colorAccent">#157E43</item>
         <item name="android:colorControlNormal">#5B6D61</item>
+        <item name="android:colorControlActivated">#157E43</item>
         <item name="android:textColorPrimary">#17251D</item>
         <item name="android:textColorSecondary">#5B6D61</item>
+        <item name="android:textColorHint">#5B6D61</item>
         <item name="android:colorBackground">#FFFFFF</item>
         <item name="android:windowBackground">#FFFFFF</item>
     </style>
@@ -47,8 +49,10 @@
     <style name="Theme.OsnPlay.Dark.Dialog" parent="android:Theme.Material.Dialog.Alert">
         <item name="android:colorAccent">#64DF91</item>
         <item name="android:colorControlNormal">#A5B8AA</item>
+        <item name="android:colorControlActivated">#64DF91</item>
         <item name="android:textColorPrimary">#EDF5EE</item>
         <item name="android:textColorSecondary">#A5B8AA</item>
+        <item name="android:textColorHint">#A5B8AA</item>
         <item name="android:colorBackground">#1B251E</item>
         <item name="android:windowBackground">#1B251E</item>
     </style>

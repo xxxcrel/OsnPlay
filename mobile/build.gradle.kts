@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -8,6 +10,15 @@ val localAuthenticationAssets = providers.environmentVariable("OSNPLAY_AUTH_ASSE
     .orNull?.let { file(it).canonicalFile }
 val osnTestBuild = providers.gradleProperty("osnplayOsnTest").isPresent
 val osnPlay = providers.gradleProperty("osnPlay").isPresent
+val osnReleaseConfig = providers.fileContents(layout.projectDirectory.file("osnplay-release.properties")).asText.map { text ->
+    Properties().apply { load(text.reader()) }
+}
+val osnVersionName = providers.gradleProperty("osnVersionName")
+    .orElse(osnReleaseConfig.map { it.getProperty("versionName") }).get()
+val osnVersionCode = providers.gradleProperty("osnVersionCode")
+    .orElse(osnReleaseConfig.map { it.getProperty("versionCode") }).get().toInt()
+require(osnVersionCode > 0) { "OsnPlay versionCode must be positive" }
+require(Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,70}").matches(osnVersionName)) { "Invalid OsnPlay versionName" }
 
 android {
     namespace = "com.shilapi.xcertplay"
@@ -19,8 +30,8 @@ android {
         applicationId = if (osnPlay) "com.sinyee.babybus.story" else "com.shihab.osnplay"
         minSdk = 28
         targetSdk = if (osnPlay) 28 else 37
-        versionCode = if (osnPlay) 8 else 30
-        versionName = if (osnPlay) "1.3.0" else "0.2.11"
+        versionCode = if (osnPlay) osnVersionCode else 30
+        versionName = if (osnPlay) osnVersionName else "0.2.11"
 
     }
 

@@ -1,0 +1,136 @@
+name: Publish OsnPlay release
+
+on:
+  push:
+    branches: [main]
+    tags: ['osnplay-v*']
+    paths: ['mobile/osnplay-release.properties']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Optional osnplay-v1.5.2 tag; empty uses the release configuration'
+        type: string
+        required: false
+      version_code:
+        description: 'Optional versionCode override; increase it for each new version'
+        type: string
+        required: false
+      prerelease:
+        description: 'Publish as a prerelease (excluded from the app stable update channel)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      name: ${{ steps.version.outputs.versionName }}
+      code: ${{ steps.version.outputs.versionCode }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+      source: ${{ steps.source.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        name: Resolve tag or release configuration
+        env:
+          RELEASE_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || inputs.tag || '' }}
+          VERSION_CODE: ${{ inputs.version_code || '' }}
+          PRERELEASE: ${{ inputs.prerelease && 'true' || 'false' }}
+        run: >-
+          python3 scripts/resolve-osnplay-release.py
+          --tag "$RELEASE_TAG" --version-code "$VERSION_CODE" --prerelease "$PRERELEASE"
+          --github-output "$GITHUB_OUTPUT"
+      - id: source
+        name: Capture the actual source commit
+        run: printf 'sha=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  publish:
+    needs: version
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    # Serialize releases so configuration and tag triggers cannot publish simultaneously.
+    concurrency:
+      group: osnplay-release-${{ github.repository }}
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ needs.version.outputs.tag }}
+      VERSION_NAME: ${{ needs.version.outputs.name }}
+      VERSION_CODE: ${{ needs.version.outputs.code }}
+      PRERELEASE: ${{ needs.version.outputs.prerelease }}
+      SOURCE_SHA: ${{ needs.version.outputs.source }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.source }}
+      - id: existing
+        name: Skip an already published tag
+        run: >-
+          python3 scripts/osnplay-release-ci.py exists --repo "$GITHUB_REPOSITORY"
+          --tag "$RELEASE_TAG" --github-output "$GITHUB_OUTPUT"
+      - name: Reject credential files in public source
+        if: steps.existing.outputs.published != 'true'
+        run: python3 scripts/check_public_tree.py
+      - uses: actions/setup-java@v4
+        if: steps.existing.outputs.published != 'true'
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: actions/setup-python@v5
+        if: steps.existing.outputs.published != 'true'
+        with:
+          python-version: '3.12'
+      - uses: android-actions/setup-android@v3
+        if: steps.existing.outputs.published != 'true'
+        with:
+          packages: platform-tools platforms;android-37.0 build-tools;37.0.0 ndk;28.2.13676358
+      - uses: gradle/actions/setup-gradle@v4
+        if: steps.existing.outputs.published != 'true'
+      - name: Restore the existing signing key and runtime inputs
+        if: steps.existing.outputs.published != 'true'
+        env:
+          OSNPLAY_KEYSTORE_B64: ${{ secrets.OSNPLAY_KEYSTORE_B64 }}
+          OSNPLAY_KEYSTORE_PASSWORD: ${{ secrets.OSNPLAY_KEYSTORE_PASSWORD }}
+          OSNPLAY_KEY_ALIAS: ${{ secrets.OSNPLAY_KEY_ALIAS }}
+          OSNPLAY_AUTH_IDENTITY_B64: ${{ secrets.OSNPLAY_AUTH_IDENTITY_B64 }}
+          OSNPLAY_AUTH_CERTIFICATE_B64: ${{ secrets.OSNPLAY_AUTH_CERTIFICATE_B64 }}
+        run: python3 scripts/osnplay-release-ci.py restore --assets-dir "$RUNNER_TEMP/osnplay-auth"
+      - name: Verify release helpers and application regressions
+        if: steps.existing.outputs.published != 'true'
+        run: |
+          python3 -m unittest discover -s scripts/tests -p 'test_osnplay_release.py'
+          ./gradlew -PosnPlay :common:testDebugUnitTest --tests 'com.shilapi.xcertplay.Osn*Test' --tests 'com.shilapi.xcertplay.SettingsShortcutTest' --tests 'com.shilapi.xcertplay.CarPlayHost*Test' --tests 'com.shilapi.xcertplay.HostConnectionSettingsRefreshTest' --tests 'com.shilapi.xcertplay.MediaFocusStartupTest' --tests 'com.shilapi.xcertplay.ResolutionDialogTest' --tests 'com.shilapi.xcertplay.NightModeDialogsTest' --console=plain --max-workers=4
+      - name: Build the signed standalone APK and update.json
+        if: steps.existing.outputs.published != 'true'
+        run: >-
+          python3 scripts/build-osnplay-release.py --require-signing-key
+          --auth-assets-dir "$RUNNER_TEMP/osnplay-auth"
+          --version-name "$VERSION_NAME" --version-code "$VERSION_CODE"
+      - name: Verify the signed APK and release configuration
+        if: steps.existing.outputs.published != 'true'
+        run: |
+          python3 -m pip install 'Pillow>=10,<13'
+          python3 scripts/verify-osnplay-apk.py --apk mobile/build/outputs/apk/release/mobile-release.apk --auth-assets-dir "$RUNNER_TEMP/osnplay-auth" --build-tools "$ANDROID_HOME/build-tools/37.0.0" --version-name "$VERSION_NAME" --version-code "$VERSION_CODE"
+      - name: Publish both verified assets
+        if: steps.existing.outputs.published != 'true'
+        run: >-
+          python3 scripts/osnplay-release-ci.py publish --repo "$GITHUB_REPOSITORY"
+          --tag "$RELEASE_TAG" --source-sha "$SOURCE_SHA" --prerelease "$PRERELEASE"
+          --directory mobile/build/outputs/apk/release
+      - uses: actions/upload-artifact@v4
+        if: steps.existing.outputs.published != 'true' && success()
+        with:
+          name: OsnPlay-${{ needs.version.outputs.name }}
+          path: |
+            mobile/build/outputs/apk/release/OsnPlay-${{ needs.version.outputs.name }}.apk
+            mobile/build/outputs/apk/release/update.json
+          if-no-files-found: error
+      - name: Remove temporary signing and authentication inputs
+        if: always()
+        run: python3 -c 'import os, pathlib, shutil; shutil.rmtree(".private/osnplay-signing", ignore_errors=True); shutil.rmtree(pathlib.Path(os.environ["RUNNER_TEMP"]) / "osnplay-auth", ignore_errors=True)'

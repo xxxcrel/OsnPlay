@@ -1,4 +1,5 @@
 <resources>
+    <bool name="config_app_updates">false</bool>
     <string name="config_default_settings_shortcut" translatable="false">MULTI_SWIPE</string>
     <bool name="config_settings_button_default">false</bool>
     <bool name="config_byd_features">true</bool>

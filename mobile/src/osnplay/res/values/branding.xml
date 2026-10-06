@@ -3,6 +3,7 @@
     <bool name="config_settings_button_default">true</bool>
     <bool name="config_byd_features">false</bool>
     <bool name="config_osn_ui">true</bool>
+    <bool name="config_app_updates">true</bool>
     <bool name="config_cluster_map_available">false</bool>
     <string name="app_name">OsnPlay</string>
     <string name="osnplay">OsnPlay</string>

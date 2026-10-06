@@ -1,11 +1,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <application
         android:icon="@mipmap/ic_osnplay"
         android:roundIcon="@mipmap/ic_osnplay_round"
         android:label="@string/app_name"
         android:banner="@drawable/osnplay_banner"
         tools:replace="android:icon,android:roundIcon">
+        <provider android:name="com.shilapi.xcertplay.OsnUpdateProvider"
+            android:authorities="${applicationId}.updates"
+            android:exported="false" android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/osn_update_paths" />
+        </provider>
         <!-- Explicit bitmap icons and a real MAIN/LAUNCHER entry for OEM app lists. -->
         <activity android:name="com.shilapi.xcertplay.OsnPlayActivity"
             android:exported="true" android:launchMode="singleTask"

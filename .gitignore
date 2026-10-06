@@ -10,6 +10,10 @@
 build/
 local.properties
 
+# Python release-helper caches
+__pycache__/
+*.pyc
+
 # Native build output
 .cxx/
 .externalNativeBuild/

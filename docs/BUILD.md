@@ -2,6 +2,10 @@
 
 Requirements: JDK 25, Android SDK 37, NDK 28.2.13676358 and the included Gradle wrapper.
 
+OsnPlay product versions are configured in `mobile/osnplay-release.properties`.
+See [Actions release publishing](ACTIONS_RELEASE.md) for automatic tag/config
+builds, signing-secret setup and APK/update.json publication.
+
 ## Source and CI builds
 
 ```sh

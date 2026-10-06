@@ -10,6 +10,7 @@ import struct
 import subprocess
 import zipfile
 from PIL import Image
+from osnplay_release_config import resolve
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--apk', type=Path, required=True)
@@ -19,13 +20,17 @@ reference.add_argument('--auth-assets-dir', type=Path, help='Explicit runtime as
 parser.add_argument('--build-tools', type=Path, required=True)
 parser.add_argument('--output', type=Path)
 parser.add_argument('--upgrade-from', type=Path, help='Check package and signing certificate against an earlier release')
+parser.add_argument('--version-name', help='Expected versionName; defaults to the release configuration')
+parser.add_argument('--version-code', help='Expected versionCode; defaults to the release configuration')
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
+release = resolve(root / 'mobile/osnplay-release.properties',
+                  'osnplay-v' + args.version_name if args.version_name else '', args.version_code or '')
 
 badging = subprocess.check_output([str(args.build_tools / 'aapt'), 'dump', 'badging', str(args.apk)], text=True)
 assert "name='com.sinyee.babybus.story'" in badging
-assert "versionName='1.3.0'" in badging
-assert "versionCode='8'" in badging
+assert f"versionName='{release['versionName']}'" in badging
+assert f"versionCode='{release['versionCode']}'" in badging
 assert "sdkVersion:'28'" in badging and "targetSdkVersion:'28'" in badging
 assert "application: label='OsnPlay'" in badging
 assert "launchable-activity: name='com.osnplay.app.MainActivity'  label='OsnPlay'" in badging
@@ -33,10 +38,16 @@ assert 'application-debuggable' not in badging
 manifest = subprocess.check_output([str(args.build_tools / 'aapt'), 'dump', 'xmltree', str(args.apk), 'AndroidManifest.xml'], text=True)
 assert 'android:sharedUserId' not in manifest, 'This build must retain an ordinary app UID'
 assert 'eCarX_OpenAPI' not in manifest and 'CHANGE_COMPONENT_ENABLED_STATE' not in manifest
+assert 'geely.oneos.permission.SERVICE' not in manifest
+assert 'android.permission.REQUEST_INSTALL_PACKAGES' in manifest
+assert 'com.shilapi.xcertplay.OsnUpdateProvider' in manifest
+assert 'com.sinyee.babybus.story.updates' in manifest
 subprocess.run([str(args.build_tools / 'apksigner'), 'verify', '--verbose', str(args.apk)], check=True)
 if args.upgrade_from:
     previous_badging = subprocess.check_output([str(args.build_tools / 'aapt'), 'dump', 'badging', str(args.upgrade_from)], text=True)
     assert "name='com.sinyee.babybus.story'" in previous_badging, 'Upgrade package differs'
+    previous_code = int(re.search(r"versionCode='(\d+)'", previous_badging).group(1))
+    assert release['versionCode'] > previous_code, 'Release versionCode must exceed the previous published APK'
     def signing_certificates(path):
         output = subprocess.check_output([str(args.build_tools / 'apksigner'), 'verify', '--print-certs', str(path)], text=True)
         return sorted(set(value.lower() for value in re.findall(
@@ -53,11 +64,15 @@ def resource(name):
     return re.split(r'(?m)^\s*(?:resource|type)\s', following, maxsplit=1)[0]
 
 for name in ('config_standard_media_keys', 'config_require_hotspot_interface',
-             'config_standard_microphone_input', 'config_require_microphone_permission', 'config_osn_ui'):
+              'config_standard_microphone_input', 'config_require_microphone_permission', 'config_osn_ui', 'config_app_updates'):
     assert '() true' in resource('bool/' + name)
 assert '() false' in resource('bool/config_system_media_sync')
 assert '() false' in resource('bool/config_media_focus_before_connect')
 assert '() false' in resource('bool/config_cluster_map_available')
+assert 'bool/config_lynk_cluster' not in resources
+assert not re.search(r'\bstring/lynk_cluster_\w+\b', resources)
+assert not re.search(r'\bstring/osn_update_(?:auto|auto_hint|notice)\b', resources)
+assert resource('string/osn_update_manual_hint')
 assert '() false' in resource('bool/config_byd_features')
 assert '() true' in resource('bool/config_settings_button_default')
 assert '() "EDGE_HOLD"' in resource('string/config_default_settings_shortcut')
@@ -122,10 +137,15 @@ with zipfile.ZipFile(args.apk) as apk:
             assert b'Lcom/shilapi/xcertplay/ecarx/' not in dex, 'Vehicle integration remains in DEX'
             assert b'Lcom/android/dx/stock/ProxyBuilder;' not in dex, 'Unneeded vendor callback dependency remains'
             assert b'Lcom/shilapi/xcertplay/DiPlay' not in dex, 'Old application class names remain'
+            assert b'Lcom/shilapi/xcertplay/LynkCluster' not in dex, 'Withdrawn instrument projection remains'
+            assert b'Lcom/shilapi/xcertplay/LynkDim' not in dex, 'Withdrawn DIM layer control remains'
+            assert b'Lcom/shilapi/xcertplay/airplay/ClusterMapCapability;' not in dex, 'Withdrawn map capability code remains'
     assert any(launcher_superclass(apk.read(name)) == 'Lcom/shilapi/xcertplay/OsnPlayActivity;'
                for name in apk.namelist() if re.fullmatch(r'classes\d*\.dex', name))
     assert any(b'Lcom/shilapi/xcertplay/OsnUiDeviceMonitor;' in apk.read(name)
                for name in apk.namelist() if re.fullmatch(r'classes\d*\.dex', name)), 'Background UI monitor is missing'
+    assert any(b'Lcom/shilapi/xcertplay/OsnUpdateManager;' in apk.read(name)
+               for name in apk.namelist() if re.fullmatch(r'classes\d*\.dex', name)), 'Updater is missing'
     for abi in ('arm64-v8a', 'armeabi-v7a'):
         assert any(name.startswith(f'lib/{abi}/') for name in apk.namelist())
     assert not any(name.endswith(('.jks', '.keystore', '.p12')) or name.endswith('signing.json') for name in apk.namelist())

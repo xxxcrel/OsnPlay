@@ -63,6 +63,24 @@ import kotlin.math.roundToInt
 /** DiAuto's visual language, with a connection flow for an independent CarPlay receiver. */
 open class OsnPlayActivity : ComponentActivity() {
     protected open val modernUi: Boolean get() = resources.getBoolean(R.bool.config_osn_ui)
+    protected open val updatesEnabled: Boolean get() = resources.getBoolean(R.bool.config_app_updates)
+    internal open fun updateManager(context: Context): OsnUpdateManager = OsnUpdateManager.forApp(context)
+    private var updater: OsnUpdateManager? = null
+    private var updateSubscription: java.io.Closeable? = null
+    private var updateStatus: TextView? = null
+    private var updateProgress: ProgressBar? = null
+    private var updateCheckButton: Button? = null
+    private var updateActionButton: Button? = null
+    private var updateCancelButton: Button? = null
+    private var updateNotes: TextView? = null
+    private var pendingUpdatePermission = false
+    private val updateInstallPermission = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (pendingUpdatePermission) {
+            pendingUpdatePermission = false
+            if (OsnUpdateInstaller.permitted(this)) handler.post { installUpdate() }
+            else toast(getString(R.string.osn_update_permission_needed))
+        }
+    }
     private val bydFeatures get() = !modernUi && resources.getBoolean(R.bool.config_byd_features)
     private var palette = OsnAppearance.legacy
     private var uiScale = 1f
@@ -222,8 +240,13 @@ open class OsnPlayActivity : ComponentActivity() {
         bydVehicleAdvancedExpanded = savedInstanceState?.getBoolean("byd_vehicle_advanced") ?: false
         page = savedInstanceState?.getString("page") ?: intent.getStringExtra("page") ?: "home"
         settingsCategory = savedInstanceState?.getString("settings_category")
-            ?.takeIf { it in listOf("appearance", "display", "audio", "connection", "diagnostics") } ?: "appearance"
+            ?.takeIf { it in listOf("appearance", "display", "audio", "connection", "diagnostics", "updates") } ?: "appearance"
         connectionWireless = savedInstanceState?.getBoolean("connection_wireless") ?: AirPlayPersistence.loadWirelessEnabled(this)
+        pendingUpdatePermission = savedInstanceState?.getBoolean("update_permission_pending") ?: false
+        if (updatesEnabled) {
+            updater = updateManager(applicationContext)
+            updateSubscription = updater?.observe { refreshUpdateUi() }
+        }
         if (modernUi) {
             val dispatcher = handler
             deviceMonitor = OsnUiDeviceMonitor(uiDeviceSource(applicationContext), java.util.concurrent.Executor { dispatcher.post(it) }, changed = {
@@ -256,6 +279,7 @@ open class OsnPlayActivity : ComponentActivity() {
         outState.putBoolean("byd_vehicle_advanced", bydVehicleAdvancedExpanded)
         outState.putString("settings_category", settingsCategory)
         outState.putBoolean("connection_wireless", connectionWireless)
+        outState.putBoolean("update_permission_pending", pendingUpdatePermission)
         outState.putInt("scroll_y", pendingScrollY ?: rootScroll?.scrollY ?: 0)
         super.onSaveInstanceState(outState)
     }
@@ -300,6 +324,9 @@ open class OsnPlayActivity : ComponentActivity() {
                 handler.post { connect(AirPlayPersistence.loadWirelessEnabled(this)) }
             }
         }
+        if (updater != null) {
+            refreshUpdateUi()
+        }
     }
     override fun onPause() {
         uiForeground = false
@@ -310,6 +337,7 @@ open class OsnPlayActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        updateSubscription?.close(); updateSubscription = null
         deviceMonitor?.close()
         handler.removeCallbacks(tick)
         activeDialog?.dismiss()
@@ -361,6 +389,8 @@ open class OsnPlayActivity : ComponentActivity() {
         statusBadge = null; statusDetail = null; clockLabel = null; exportButton = null
         hotspotCheck = null; permissionCheck = null; permissionBadge = null; hotspotStep = null
         hotspotWarning = null; hotspotSettingsButton = null; interfaceValue = null
+        updateStatus = null; updateProgress = null; updateCheckButton = null
+        updateActionButton = null; updateCancelButton = null; updateNotes = null
         bydAdbControls = null
         adbSwitches.clear()
         adbStatus = null
@@ -439,7 +469,7 @@ open class OsnPlayActivity : ComponentActivity() {
         Triple("audio", R.string.osn_audio, R.drawable.ic_dp_connection),
         Triple("connection", R.string.osn_connection, R.drawable.ic_dp_automation),
         Triple("diagnostics", R.string.osn_diagnostics, R.drawable.ic_dp_diagnostics),
-    )
+    ) + if (updatesEnabled) listOf(Triple("updates", R.string.osn_updates, R.drawable.ic_dp_about)) else emptyList()
 
     private fun navigate(destination: String, category: String? = null) {
         page = destination
@@ -809,6 +839,7 @@ open class OsnPlayActivity : ComponentActivity() {
         getString(R.string.osn_theme_title), getString(R.string.osn_ui_preferences), getString(R.string.carplay_controls), getString(R.string.language_section_title) -> "appearance"
         getString(R.string.display_and_performance) -> "display"
         getString(R.string.audio_routing) -> "audio"
+        getString(R.string.osn_updates) -> "updates"
         getString(R.string.diagnostics), getString(R.string.permissions_and_connection_help), getString(R.string.about) -> "diagnostics"
         else -> "connection"
     }
@@ -975,6 +1006,7 @@ open class OsnPlayActivity : ComponentActivity() {
     }
 
     private fun settings(content: LinearLayout) {
+        if (updatesEnabled) section(content, getString(R.string.osn_updates), R.drawable.ic_dp_about) { updateControls(it) }
         if (!modernUi) {
             content.addView(label(getString(R.string.your_drive_your_way), 34, TEXT, true))
             content.addView(label(getString(R.string.apply_reconnects_carplay_for_size_resolution_music_buffer), 17, MUTED).apply { setPadding(0, dp(8), 0, dp(24)) })
@@ -1349,7 +1381,106 @@ open class OsnPlayActivity : ComponentActivity() {
         section(content, getString(R.string.made_possible_by_open_source)) { card ->
             card.addView(label(getString(R.string.receiver_based_on_xcertplay_licensed_under_gpl_3_0_osnplay), 16, MUTED))
         }
+        if (updatesEnabled) section(content, getString(R.string.osn_updates), R.drawable.ic_dp_about) { updateControls(it) }
     }
+
+    private fun updateControls(card: LinearLayout) {
+        val manager = updater ?: return
+        card.addView(label(getString(R.string.osn_update_current, version()), 18, TEXT, true))
+        card.addView(label(getString(R.string.osn_update_source), 14, MUTED))
+        card.addView(label(getString(R.string.osn_update_manual_hint), 14, MUTED))
+        updateStatus = label("", 16, TEXT).apply { tag = "update-status" }
+        card.addView(updateStatus)
+        updateProgress = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply { max = 100; tag = "update-progress" }
+        card.addView(updateProgress, LinearLayout.LayoutParams(-1, dp(16)))
+        updateCheckButton = button(getString(R.string.osn_update_check), false) { manager.check() }.apply { tag = "update-check" }
+        card.addView(updateCheckButton, matchButton(12, 56))
+        updateActionButton = button(getString(R.string.osn_update_download), true) {
+            if (manager.state.phase == OsnUpdatePhase.READY) installUpdate() else manager.download()
+        }.apply { tag = "update-action" }
+        card.addView(updateActionButton, matchButton(12, 56))
+        updateCancelButton = button(getString(R.string.cancel), false) { manager.cancel() }.apply { tag = "update-cancel" }
+        card.addView(updateCancelButton, matchButton(12, 56))
+        updateNotes = label("", 14, MUTED).apply { tag = "update-notes" }
+        card.addView(updateNotes)
+        card.addView(label(getString(R.string.osn_update_install_hint), 14, MUTED).apply { setPadding(0, dp(12), 0, 0) })
+        card.addView(button(getString(R.string.osn_update_open_releases), false) {
+            openSystem(Intent(Intent.ACTION_VIEW, Uri.parse(OsnUpdateProtocol.RELEASES_URL)))
+        }, matchButton(12, 56))
+        refreshUpdateUi()
+    }
+
+    private fun refreshUpdateUi() {
+        val state = updater?.state ?: return
+        val release = state.release
+        val percent = if (release == null) 0 else (state.bytes * 100 / release.apk.size).toInt().coerceIn(0, 100)
+        val message = when (state.phase) {
+            OsnUpdatePhase.IDLE -> getString(R.string.osn_update_idle)
+            OsnUpdatePhase.CHECKING -> getString(R.string.osn_update_checking)
+            OsnUpdatePhase.AVAILABLE -> getString(R.string.osn_update_available, release?.versionName.orEmpty())
+            OsnUpdatePhase.LATEST -> getString(R.string.osn_update_latest)
+            OsnUpdatePhase.NO_RELEASE -> getString(R.string.osn_update_no_release)
+            OsnUpdatePhase.NO_PACKAGE -> getString(R.string.osn_update_no_package)
+            OsnUpdatePhase.INCOMPATIBLE -> getString(R.string.osn_update_incompatible, release?.versionName.orEmpty(), release?.minSdk ?: 0)
+            OsnUpdatePhase.DOWNLOADING -> getString(R.string.osn_update_downloading, release?.versionName.orEmpty(), percent)
+            OsnUpdatePhase.VERIFYING, OsnUpdatePhase.PREPARING_INSTALL -> getString(R.string.osn_update_verifying)
+            OsnUpdatePhase.READY -> getString(R.string.osn_update_ready)
+            OsnUpdatePhase.CANCELLING -> getString(R.string.osn_update_cancelling)
+            OsnUpdatePhase.CANCELLED -> getString(R.string.osn_update_cancelled)
+            OsnUpdatePhase.ERROR -> getString(when (state.error) {
+                OsnUpdateError.RATE_LIMIT -> R.string.osn_update_error_rate
+                OsnUpdateError.INVALID_RELEASE, OsnUpdateError.INVALID_METADATA -> R.string.osn_update_error_metadata
+                OsnUpdateError.PACKAGE -> R.string.osn_update_error_package
+                OsnUpdateError.VERSION -> R.string.osn_update_error_version
+                OsnUpdateError.SIGNATURE -> R.string.osn_update_error_signature
+                OsnUpdateError.HASH -> R.string.osn_update_error_hash
+                OsnUpdateError.SIZE -> R.string.osn_update_error_size
+                OsnUpdateError.ANDROID_VERSION -> R.string.osn_update_error_android
+                OsnUpdateError.STORAGE -> R.string.osn_update_error_storage
+                OsnUpdateError.CACHE_MISSING -> R.string.osn_update_error_cache
+                else -> R.string.osn_update_error_network
+            })
+        }
+        updateStatus?.updateText(message)
+        val busy = state.phase in setOf(OsnUpdatePhase.CHECKING, OsnUpdatePhase.DOWNLOADING, OsnUpdatePhase.VERIFYING, OsnUpdatePhase.PREPARING_INSTALL, OsnUpdatePhase.CANCELLING)
+        updateProgress?.apply { visibility = if (busy) View.VISIBLE else View.GONE; isIndeterminate = state.phase != OsnUpdatePhase.DOWNLOADING; progress = percent }
+        updateCheckButton?.isEnabled = !busy
+        updateActionButton?.apply {
+            visibility = if (release != null && state.phase in setOf(OsnUpdatePhase.AVAILABLE, OsnUpdatePhase.READY, OsnUpdatePhase.CANCELLED, OsnUpdatePhase.ERROR)) View.VISIBLE else View.GONE
+            isEnabled = !busy
+            updateText(getString(if (state.phase == OsnUpdatePhase.READY) R.string.osn_update_install else R.string.osn_update_download))
+        }
+        updateCancelButton?.apply {
+            visibility = if (state.phase in setOf(OsnUpdatePhase.DOWNLOADING, OsnUpdatePhase.VERIFYING, OsnUpdatePhase.CANCELLING)) View.VISIBLE else View.GONE
+            isEnabled = state.phase != OsnUpdatePhase.CANCELLING
+        }
+        updateNotes?.apply {
+            visibility = if (release != null) View.VISIBLE else View.GONE
+            updateText(getString(R.string.osn_update_notes) + "\n" + (release?.notes?.takeIf { it.isNotBlank() } ?: getString(R.string.osn_update_no_notes)))
+        }
+    }
+    private fun installUpdate() {
+        val manager = updater ?: return
+        if (manager.state.phase != OsnUpdatePhase.READY) return
+        if (!OsnUpdateInstaller.permitted(this)) {
+            pendingUpdatePermission = true
+            runCatching { updateInstallPermission.launch(OsnUpdateInstaller.permissionIntent(this)) }.onFailure {
+                pendingUpdatePermission = false; toast(getString(R.string.osn_update_installer_missing))
+            }
+            return
+        }
+        manager.prepareInstall { file ->
+            if (!uiForeground || isFinishing || isDestroyed) return@prepareInstall
+            val open = {
+                if (uiForeground && !isFinishing && !isDestroyed) runCatching { launchUpdateInstaller(file) }
+                    .onFailure { toast(getString(R.string.osn_update_installer_missing)) }
+                Unit
+            }
+            if (CarPlayBackgroundSession.hasSession()) CarPlayBackgroundSession.stop { runOnUiThread { open() } }
+            else open()
+        }
+    }
+    internal open fun launchUpdateInstaller(file: File) { startActivity(OsnUpdateInstaller.installIntent(this, file)) }
 
     // An opted-in connection prepares the hotspot in the controller instead of stopping at this reminder.
     private fun carHotspotOff(): Boolean =
@@ -2812,11 +2943,12 @@ open class OsnPlayActivity : ComponentActivity() {
             }
             fields.addView(input)
             fields.addView(label(getString(hintId), 14, MUTED))
-            val dialog = AlertDialog.Builder(this).setTitle(title).setView(fields)
+            val dialog = dialogBuilder().setTitle(title).setView(fields)
                 .setPositiveButton(getString(if (reconnects && CarPlayBackgroundSession.hasSession()) R.string.apply_and_reconnect else R.string.save), null)
                 .setNegativeButton(getString(R.string.cancel), null)
                 .setNeutralButton(getString(R.string.resolution_reset_defaults), null).create()
             dialog.setOnShowListener {
+                paintDialog(dialog)
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                     val value = input.text.toString().trim().toIntOrNull()
                     if (value == null || value !in range) {
@@ -2890,11 +3022,12 @@ open class OsnPlayActivity : ComponentActivity() {
             }
             fields.addView(input)
             fields.addView(label(getString(hintId), 14, MUTED))
-            val dialog = AlertDialog.Builder(this).setTitle(title).setView(fields)
+            val dialog = dialogBuilder().setTitle(title).setView(fields)
                 .setPositiveButton(getString(if (reconnects && CarPlayBackgroundSession.hasSession()) R.string.apply_and_reconnect else R.string.save), null)
                 .setNegativeButton(getString(R.string.cancel), null)
                 .setNeutralButton(getString(R.string.ambient_light_reset_defaults), null).create()
             dialog.setOnShowListener {
+                paintDialog(dialog)
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                     val value = input.text.toString().trim().toIntOrNull()
                     if (value == null || value !in range) {
@@ -2939,7 +3072,7 @@ open class OsnPlayActivity : ComponentActivity() {
             }
             fields.addView(input)
             fields.addView(label(getString(R.string.ambient_light_threshold_hint), 14, MUTED))
-            val dialog = AlertDialog.Builder(this)
+            val dialog = dialogBuilder()
                 .setTitle(title)
                 .setView(fields)
                 .setPositiveButton(getString(R.string.save), null)
@@ -2948,6 +3081,7 @@ open class OsnPlayActivity : ComponentActivity() {
                 .create()
 
             dialog.setOnShowListener {
+                paintDialog(dialog)
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener saveThreshold@{
                     val lux = input.text.toString().trim().toIntOrNull()
                     if (lux == null || !AmbientLightThreshold.isValid(lux)) {
@@ -3372,7 +3506,8 @@ open class OsnPlayActivity : ComponentActivity() {
             .setPositiveButton(getString(R.string.close), null).show()
     }
 
-    private fun dialogBuilder(): AlertDialog.Builder = object : AlertDialog.Builder(this) {
+    private fun dialogBuilder(): AlertDialog.Builder = object : AlertDialog.Builder(this,
+        if (!modernUi) 0 else if (palette.dark) R.style.Theme_OsnPlay_Dark_Dialog else R.style.Theme_OsnPlay_Light_Dialog) {
         override fun create(): AlertDialog = super.create().also { dialog ->
             activeDialog = dialog
             dialog.setOnShowListener { paintDialog(dialog) }
