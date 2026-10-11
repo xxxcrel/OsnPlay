@@ -7,7 +7,7 @@ for the instrument-cluster stream. Other firmware has not been vehicle-tested.
 ## Setup
 
 1. Enable the car's native cluster-map/projection mode.
-2. In DiPlay settings, enable **DiLink 4 cluster video via ADB (experimental)**.
+2. In OsnPlay settings, enable **DiLink 4 cluster video via ADB (experimental)**.
 3. Tap **Authorize ADB / retry cluster routing** and approve the car's debugging
    prompt. Local ADB must be available; background retries never request approval.
 4. Connect or reconnect the iPhone and open Apple Maps. The main CarPlay display
@@ -33,7 +33,11 @@ non-focusable Activity leaves factory instruments visible. An inactive stream is
 covered with black so a disconnected phone does not leave a frozen map behind.
 
 **Cluster safe area · edit box** opens a fitted editor. Drag the green edges;
-the outline is mirrored on the cluster during calibration. Save applies the new
+the outline is mirrored on the cluster during calibration, including before a phone
+connects. Opening the editor launches a preview-only window using already authorized
+local ADB; it does not start CarPlay or hold the stock map. Keep the car's native
+cluster casting active. Dismissing the editor closes a preview-only window and
+invalidates pending launches, while an existing CarPlay window remains. Save applies the new
 safe area after reconnecting. Cancel keeps the saved mapping. The outline clears
 on dismissal or leaving settings. The cluster mapping has its own preference and
 does not overwrite the main display's mapping. Reset restores marker-offset-based
@@ -41,7 +45,7 @@ placement. A manual replug may still be needed after changing connection setting
 
 For this mode, an unset dashboard-content choice defaults to **Map with turn card**
 (the phone's built-in card). Saved choices are preserved. **Map with custom turn
-card** uses DiPlay's existing maneuver overlay, with live placement/size controls.
+card** uses OsnPlay's existing maneuver overlay, with live placement/size controls.
 It reuses upstream’s info strip for phone-supplied arrival time, duration and
 remaining distance. Missing totals stay blank. Guidance clears at route end/expiry/disconnect and hides with an inactive
 stream. Map orientation is controlled by the phone's cluster stream.
@@ -50,9 +54,15 @@ stream. Map orientation is controlled by the phone's cluster stream.
 
 DiLink 5/5.1 and public cluster displays take priority even if the ADB switch is
 saved. Until an activity confirms the private display, the original virtual stream
-remains. If confirmation arrives after CarPlay starts, DiPlay reconnects once to
+remains. If confirmation arrives after CarPlay starts, OsnPlay reconnects once to
 request 1920×720 and covers the cluster during that transition. Turning off only
 the ADB option leaves the saved cluster-map enable preference intact.
+When the DiLink 4 ADB option is selected, automatic DiLink 3 cluster-mode
+commands are suppressed. The installed AMap adapter package alone cannot identify
+the generation: those commands can switch a DiLink 4 cluster to half-screen or
+close its native casting. A pending DiLink 3 recovery journal is retained until
+the ADB option is deselected. The user-selected native casting mode is preserved.
+
 USB reconnection and colour controls retain the implementations already on main. Automated tests cannot establish visible placement on other cars.
 
 The direct `am start-activity --display … -f 0x18000000` approach follows the legacy
@@ -61,7 +71,7 @@ https://github.com/Hanxu4131/BYD-CarPlay (LegacyClusterTarget.kt,
 LegacyClusterMap.kt and ClusterMapActivity.kt).
 
 Vehicle testing and feedback: @ojjj13. Implementation and debugging assistance:
-ChatGPT/Codex. DiPlay/xcertplay authors and existing licence notices are retained.
+ChatGPT/Codex. OsnPlay/xcertplay authors and existing licence notices are retained.
 
 ## Optional stock map and HUD text
 
@@ -81,3 +91,8 @@ these PRs. Diagnostic exports include the firmware and installed receiver versio
 certificate and permission metadata needed to review a new profile. Do not add
 one based only on package presence. Fork application-ID/build changes and deleted
 HUD diagnostic tooling from #187 are intentionally excluded.
+
+The separately selected [platform-21 task route](PLATFORM21_CLUSTER.md) reuses this
+Activity and calibration stream, with a smaller transparent default map region,
+AMS placement checks and frame-confirmed retry completion. It does not acquire
+this DiLink 4 stock-map hold. The new upstream wiring still needs vehicle testing.

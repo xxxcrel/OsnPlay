@@ -25,13 +25,13 @@ import org.robolectric.shadows.ShadowAlertDialog
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [32], qualifiers = "en", manifest = Config.NONE)
 class WifiDirectChannelSettingsTest {
-    private lateinit var activity: OsnPlayActivity
+    private lateinit var activity: OsnGenericActivity
     private val prefs get() = RuntimeEnvironment.getApplication()
         .getSharedPreferences("xcertplay_airplay", Context.MODE_PRIVATE)
 
     @Before fun setup() {
         prefs.edit().clear().commit()
-        activity = Robolectric.buildActivity(OsnPlayActivity::class.java).get()
+        activity = Robolectric.buildActivity(OsnGenericActivity::class.java).get()
         activity.setTheme(android.R.style.Theme_Material_NoActionBar)
         AirPlayPersistence.saveWirelessHotspotMode(activity, WirelessHotspotMode.WIFI_P2P)
     }
@@ -72,6 +72,19 @@ class WifiDirectChannelSettingsTest {
         assertEquals(WifiP2pChannels.AUTO, AirPlayPersistence.loadWifiP2pPreferredChannel(activity))
     }
 
+    @Test fun autoBandChoicesAreListedAfterAutoAndPersist() {
+        val control = channelControl(controls())!!
+        control.performClick()
+        val dialog = ShadowAlertDialog.getLatestAlertDialog()
+        assertEquals("Auto · 5 GHz", dialog.listView.adapter.getItem(1).toString())
+        assertEquals("Auto · 2.4 GHz", dialog.listView.adapter.getItem(2).toString())
+        select(dialog, WifiP2pChannels.AUTO_5_GHZ)
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(WifiP2pChannels.AUTO_5_GHZ, AirPlayPersistence.loadWifiP2pPreferredChannel(activity))
+        assertTrue(control.text.toString().endsWith("Auto · 5 GHz"))
+    }
+
     @Test fun invalidOrCorruptSavedChannelsUseAuto() {
         for (channel in listOf(-1, 12, 14, 52, 100, 196)) {
             prefs.edit().putInt("wifi_p2p_preferred_channel", channel).commit()
@@ -91,7 +104,7 @@ class WifiDirectChannelSettingsTest {
         assertEquals(149, config.wifiP2pPreferredChannel)
     }
 
-    private val choices get() = listOf(WifiP2pChannels.AUTO) + WifiP2pChannels.channels
+    private val choices get() = listOf(WifiP2pChannels.AUTO) + WifiP2pChannels.bandChoices + WifiP2pChannels.channels
 
     private fun select(dialog: AlertDialog, channel: Int) {
         val index = choices.indexOf(channel)
@@ -99,7 +112,7 @@ class WifiDirectChannelSettingsTest {
     }
 
     private fun controls() = LinearLayout(activity).also {
-        OsnPlayActivity::class.java.getDeclaredMethod("wirelessLinkControls", LinearLayout::class.java)
+        OsnGenericActivity::class.java.getDeclaredMethod("wirelessLinkControls", LinearLayout::class.java)
             .apply { isAccessible = true }.invoke(activity, it)
     }
 

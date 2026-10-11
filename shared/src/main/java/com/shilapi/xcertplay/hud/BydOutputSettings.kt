@@ -18,7 +18,13 @@ object BydOutputSettings {
     private const val KEY_WHEEL_SPEED_TO_IPHONE = "wheel_speed_to_iphone"
     private const val KEY_VIDEO_WHILE_PARKED = "video_while_parked"
     private const val KEY_CLUSTER_SONG = "cluster_song"
+    private const val KEY_CLUSTER_SONG_ON_CHANGE = "cluster_song_on_change"
     private const val KEY_HUD_SONG = "hud_song"
+    private const val KEY_CARPLAY_CALLS = "carplay_calls"
+    private const val KEY_CARPLAY_CALL_CONTROLS = "carplay_call_controls_experimental"
+    private const val KEY_PHONE_AUDIO_ROUTE = "phone_audio_route_experimental"
+    private const val KEY_PHONE_AUDIO_ROUTE_APPS = "phone_audio_route_apps_experimental"
+    private const val KEY_FCE_CLUSTER = "fce_cluster_guidance_experimental"
     private const val KEY_OEM_CLUSTER_HOLD = "oem_cluster_hold"
     private const val KEY_LEGACY_VEHICLE_PROBE = "legacy_vehicle_probe"
     const val DEFAULT_LOW_CHARGE_PERCENT = 20
@@ -77,6 +83,40 @@ object BydOutputSettings {
     fun setClusterSong(context: Context, enabled: Boolean) =
         prefs(context).edit().putBoolean(KEY_CLUSTER_SONG, enabled).apply()
 
+    /** Show CarPlay calls on the dashboard and HUD like BYD's CarPlay app (needs ADB over network); applies at once. */
+    fun carPlayCalls(context: Context): Boolean = productAvailable(context) && prefs(context).getBoolean(KEY_CARPLAY_CALLS, false)
+
+    fun setCarPlayCalls(context: Context, enabled: Boolean) =
+        prefs(context).edit().putBoolean(KEY_CARPLAY_CALLS, enabled).apply()
+
+    /** Unverified DiLink 3 call/voice/media key handling requires a separate explicit opt-in. */
+    fun carPlayCallControls(context: Context): Boolean =
+        productAvailable(context) && prefs(context).getBoolean(KEY_CARPLAY_CALL_CONTROLS, false)
+
+    fun setCarPlayCallControls(context: Context, enabled: Boolean) =
+        prefs(context).edit().putBoolean(KEY_CARPLAY_CALL_CONTROLS, enabled).apply()
+
+    /**
+     * Hold a Telecom call during CarPlay calls so the car's own phone audio state, and its echo canceller,
+     * handle the call. Replaces OsnPlay's own canceller for those calls; applies at the next call.
+     */
+    fun phoneAudioRoute(context: Context): Boolean = productAvailable(context) && prefs(context).getBoolean(KEY_PHONE_AUDIO_ROUTE, false)
+
+    fun setPhoneAudioRoute(context: Context, enabled: Boolean) =
+        prefs(context).edit().putBoolean(KEY_PHONE_AUDIO_ROUTE, enabled).apply()
+
+    /** The same for voice-over-IP calls in other apps; only calls that record from VOICE_COMMUNICATION qualify. */
+    fun phoneAudioRouteApps(context: Context): Boolean = productAvailable(context) && prefs(context).getBoolean(KEY_PHONE_AUDIO_ROUTE_APPS, false)
+
+    fun setPhoneAudioRouteApps(context: Context, enabled: Boolean) =
+        prefs(context).edit().putBoolean(KEY_PHONE_AUDIO_ROUTE_APPS, enabled).apply()
+
+    /** Show a new song on the dashboard for a few seconds only, then an empty card. */
+    fun clusterSongOnChange(context: Context): Boolean = prefs(context).getBoolean(KEY_CLUSTER_SONG_ON_CHANGE, false)
+
+    fun setClusterSongOnChange(context: Context, enabled: Boolean) =
+        prefs(context).edit().putBoolean(KEY_CLUSTER_SONG_ON_CHANGE, enabled).apply()
+
     fun videoWhileParkedActive(context: Context): Boolean =
         videoWhileParked(context) && supportedInSelectedMode(context) { it.gearSupported }
 
@@ -127,7 +167,21 @@ object BydOutputSettings {
 
     /** Whether the head unit has a BYD navigation receiver. This says nothing about ADB vehicle data. */
     fun navigationAvailable(context: Context): Boolean =
-        productAvailable(context) && (BydStandaloneHudOutput.available(context) || installed(context, "com.byd.amapservice") || installed(context, "com.ts.car.someip.service"))
+        productAvailable(context) && (BydStandaloneHudOutput.available(context) ||
+            BydAmapAdapter.find { installed(context, it) } != null ||
+            installed(context, "com.ts.car.someip.service"))
+
+    /** Whether the head unit has the FCE vehicle-property service that feeds its cluster's navigation view. */
+    fun fceClusterAvailable(): Boolean = FceClusterBridge.available()
+
+    /**
+     * Opt-in for [FceClusterBridge]: it writes vendor vehicle properties whose meaning was confirmed on one
+     * car only, and another head unit with the same service could read them differently.
+     */
+    fun fceCluster(context: Context): Boolean = productAvailable(context) && prefs(context).getBoolean(KEY_FCE_CLUSTER, false)
+
+    fun setFceCluster(context: Context, enabled: Boolean) =
+        prefs(context).edit().putBoolean(KEY_FCE_CLUSTER, enabled).apply()
 
     /** Whether the head unit has a BYD navigation receiver or is a BYD head unit, so settings can show navigation/map options. */
     fun available(context: Context): Boolean =

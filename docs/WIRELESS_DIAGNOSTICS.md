@@ -26,6 +26,15 @@ The report includes:
 - `REQUEST_SENT`, followed by a response timeout: TCP worked, but the control endpoint did not return a usable response in time.
 - Incoming AirPlay TCP, followed by an authentication or SETUP error: use the safe request/response milestones to identify the failing protocol exchange.
 
+After a requested Bluetooth handoff, the 45-second watchdog requires a rendered
+video frame before preserving a session whose tunneled iAP2 channel never became
+ready. Session establishment alone can also occur with a black screen and does
+not prevent timeout recovery. A proven video fallback releases the Bluetooth
+bootstrap and reports `STEP handoff/fallback`, explicitly recording that tunneled
+iAP2 is unavailable; `STEP handoff/complete` remains reserved for the normal
+tunnel-ready path. The fallback does not confirm the connection in saved history
+without the existing authenticated-tunnel proof.
+
 ## Association limits
 
 Wireless CarPlay's local Wi-Fi transport can coexist with cellular internet. A missing Wi-Fi indicator/checkmark is not proof of failed association, and manually joining the hotspot is not required for normal CarPlay.

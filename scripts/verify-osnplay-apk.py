@@ -42,6 +42,8 @@ assert 'geely.oneos.permission.SERVICE' not in manifest
 assert 'android.permission.REQUEST_INSTALL_PACKAGES' in manifest
 assert 'com.shilapi.xcertplay.OsnUpdateProvider' in manifest
 assert 'com.sinyee.babybus.story.updates' in manifest
+assert 'com.shilapi.xcertplay.OsnGenericActivity' not in manifest, 'Generic launcher is exposed in the OSN product'
+assert 'com.shilapi.xcertplay.update.UpdateApkProvider' not in manifest, 'Upstream updater provider is exposed in the OSN product'
 subprocess.run([str(args.build_tools / 'apksigner'), 'verify', '--verbose', str(args.apk)], check=True)
 if args.upgrade_from:
     previous_badging = subprocess.check_output([str(args.build_tools / 'aapt'), 'dump', 'badging', str(args.upgrade_from)], text=True)

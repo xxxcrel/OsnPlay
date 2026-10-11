@@ -14,6 +14,24 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class Iap2WirelessControlClientTest {
+    @Test fun startSessionEventRequiresSuccessfulSendAndFollowsTheWrite() {
+        var sent = false
+        var events = 0
+        sendStartSession(endpoint(), { frame ->
+            assertEquals(0x4301, frame.messageId)
+            sent = true
+        }, { event ->
+            assertTrue(sent)
+            assertTrue(event.sentAtNanos > 0)
+            events++
+        })
+        assertEquals(1, events)
+        org.junit.Assert.assertThrows(java.io.IOException::class.java) {
+            sendStartSession(endpoint(), { throw java.io.IOException("write failed") }, { events++ })
+        }
+        assertEquals(1, events)
+    }
+
     @Test fun availabilityFlagsDoNotExportTransportIdentifiers() {
         val wireless = Iap2ParameterList.of(
             Iap2Parameter(0, byteArrayOf(1)),

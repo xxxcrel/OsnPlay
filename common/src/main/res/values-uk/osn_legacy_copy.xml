@@ -1,0 +1,4 @@
+<resources>
+    <string name="your_drive_your_way">Ваша поїздка, ваші правила.</string>
+    <string name="apply_reconnects_carplay_for_size_resolution_music_buffer">Налаштування, що потребують нового підключення, перезапускають CarPlay після застосування. Інші зміни діятимуть із наступного підключення.</string>
+</resources>

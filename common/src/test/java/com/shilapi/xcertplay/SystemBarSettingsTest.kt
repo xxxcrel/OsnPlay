@@ -19,7 +19,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [29])
 class SystemBarSettingsTest {
     private val context get() = RuntimeEnvironment.getApplication()
-    private var controller: ActivityController<OsnPlayActivity>? = null
+    private var controller: ActivityController<OsnGenericActivity>? = null
     private val activity get() = requireNotNull(controller).get()
 
     @After fun tearDown() {
@@ -86,9 +86,36 @@ class SystemBarSettingsTest {
         assertBars(false, true)
     }
 
+    @Test fun harmanFullscreenIsOptInAndInAdvancedSettings() {
+        AirPlayPersistence.saveHarmanFullscreen(context, false)
+        openSettings()
+        activity.onBackPressedDispatcher.onBackPressed()
+        descendants(activity.window.decorView)
+            .single { it.contentDescription == activity.getString(
+                R.string.settings_open_category,
+                activity.getString(R.string.settings_advanced),
+            ) }
+            .performClick()
+        val harmanSwitch = descendants(activity.window.decorView)
+            .filterIsInstance<Switch>()
+            .single { it.contentDescription == activity.getString(R.string.settings_harman_fullscreen_experimental) }
+
+        assertFalse(harmanSwitch.isChecked)
+        harmanSwitch.performClick()
+
+        assertTrue(harmanSwitch.isChecked)
+        assertTrue(AirPlayPersistence.loadHarmanFullscreen(context))
+    }
+
     private fun openSettings() {
-        controller = Robolectric.buildActivity(OsnPlayActivity::class.java,
-            Intent(context, OsnPlayActivity::class.java).putExtra("page", "settings")).setup()
+        controller = Robolectric.buildActivity(OsnGenericActivity::class.java,
+            Intent(context, OsnGenericActivity::class.java).putExtra("page", "settings")).setup()
+        descendants(activity.window.decorView)
+            .single { it.contentDescription == activity.getString(
+                R.string.settings_open_category,
+                activity.getString(R.string.settings_display),
+            ) }
+            .performClick()
     }
 
     private fun assertBars(hideTop: Boolean, hideBottom: Boolean) {

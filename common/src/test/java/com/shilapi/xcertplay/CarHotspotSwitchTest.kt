@@ -36,7 +36,7 @@ import org.robolectric.shadows.ShadowToast
 @Config(sdk = [29], qualifiers = "en", manifest = Config.NONE, shadows = [CarHotspotSwitchTest.Grant::class,
     CarHotspotAdbGrantTest.WritePermission::class, CarHotspotSwitchTest.StatusCheck::class])
 class CarHotspotSwitchTest {
-    private lateinit var activity: OsnPlayActivity
+    private lateinit var activity: OsnGenericActivity
     private lateinit var controls: LinearLayout
 
     @Before fun setUp() {
@@ -56,12 +56,12 @@ class CarHotspotSwitchTest {
         StatusCheck.workers.clear()
         Grant.allowed = CarHotspotSetup.Permission.entries.toSet()
         Grant.access = LocalAdb.Access.READY
-        activity = Robolectric.buildActivity(OsnPlayActivity::class.java).get()
+        activity = Robolectric.buildActivity(OsnGenericActivity::class.java).get()
         activity.setTheme(android.R.style.Theme_Material_NoActionBar)
         AirPlayPersistence.saveWirelessHotspotMode(activity, WirelessHotspotMode.MANUAL)
         AirPlayPersistence.saveAutoStartOnBoot(activity, false)
         controls = LinearLayout(activity)
-        OsnPlayActivity::class.java.getDeclaredMethod("renderBydAdbControls", LinearLayout::class.java,
+        OsnGenericActivity::class.java.getDeclaredMethod("renderBydAdbControls", LinearLayout::class.java,
             LocalAdb.Access::class.java).apply { isAccessible = true }.invoke(activity, controls, LocalAdb.Access.READY)
         activity.setContentView(controls)
     }
@@ -184,7 +184,7 @@ class CarHotspotSwitchTest {
     }
 
     @Test fun anOutstandingVehicleCheckPreventsASecondAuthorizationFlow() {
-        OsnPlayActivity::class.java.getDeclaredField("adbCheckInProgress").apply {
+        OsnGenericActivity::class.java.getDeclaredField("adbCheckInProgress").apply {
             isAccessible = true
         }.setBoolean(activity, true)
         refreshControls()
@@ -196,7 +196,7 @@ class CarHotspotSwitchTest {
         assertTrue(Grant.requested.isEmpty())
         assertNull(Grant.worker)
 
-        OsnPlayActivity::class.java.getDeclaredField("adbCheckInProgress").apply {
+        OsnGenericActivity::class.java.getDeclaredField("adbCheckInProgress").apply {
             isAccessible = true
         }.setBoolean(activity, false)
         refreshControls()
@@ -244,12 +244,12 @@ class CarHotspotSwitchTest {
     }
 
     private fun lifecycle(name: String) {
-        OsnPlayActivity::class.java.getDeclaredMethod(name).apply { isAccessible = true }.invoke(activity)
+        OsnGenericActivity::class.java.getDeclaredMethod(name).apply { isAccessible = true }.invoke(activity)
     }
 
     private fun prepareResume() {
         for ((name, value) in mapOf("initialLaunch" to false, "page" to "settings")) {
-            OsnPlayActivity::class.java.getDeclaredField(name).apply { isAccessible = true }.set(activity, value)
+            OsnGenericActivity::class.java.getDeclaredField(name).apply { isAccessible = true }.set(activity, value)
         }
     }
 
@@ -278,7 +278,7 @@ class CarHotspotSwitchTest {
     }
 
     private fun refreshControls() {
-        OsnPlayActivity::class.java.getDeclaredMethod("updateAdbSwitches").apply {
+        OsnGenericActivity::class.java.getDeclaredMethod("updateAdbSwitches").apply {
             isAccessible = true
         }.invoke(activity)
     }
@@ -288,7 +288,7 @@ class CarHotspotSwitchTest {
             it.contentDescription == activity.getString(R.string.open_after_the_car_starts)
         }?.let { return it }
         val bootControls = LinearLayout(activity)
-        OsnPlayActivity::class.java.getDeclaredMethod("settings", LinearLayout::class.java).apply {
+        OsnGenericActivity::class.java.getDeclaredMethod("connectionSettings", LinearLayout::class.java).apply {
             isAccessible = true
         }.invoke(activity, bootControls)
         controls.addView(bootControls)

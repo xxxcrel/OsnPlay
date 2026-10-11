@@ -979,7 +979,7 @@ open class OsnPlayActivity : ComponentActivity() {
         right.addView(label(getString(R.string.plug_your_iphone_into_a_usb_data_port_allow_carplay_when_y), 14, MUTED).apply { gravity = Gravity.CENTER; setPadding(dp(8), dp(10), dp(8), dp(24)) })
         right.addView(button(getString(R.string.settings), false) { page = "settings"; render() }, matchButton())
         right.addView(label(getString(R.string.make_osnplay_feel_right_for_your_car), 14, MUTED).apply { gravity = Gravity.CENTER; setPadding(0, dp(10), 0, dp(24)) })
-        right.addView(label("${getString(R.string.home_public_preview)}${version()}", 12, MUTED).apply { letterSpacing = .08f })
+        right.addView(label(getString(R.string.home_public_preview, version()), 12, MUTED).apply { letterSpacing = .08f })
         if (wide) {
             // Both rows share column widths. The USB button starts at the wireless
             // card's top edge, independently of hero wrapping or font scaling.
@@ -1375,7 +1375,7 @@ open class OsnPlayActivity : ComponentActivity() {
     private fun about(content: LinearLayout) {
         content.addView(label(getString(R.string.osnplay), 40, TEXT, true))
         content.addView(label(getString(R.string.carplay_at_home_in_your_car), 20, MUTED).apply { setPadding(0, dp(8), 0, dp(24)) })
-        section(content, "${getString(R.string.about_public_preview_prefix)}${version()}") { card ->
+        section(content, getString(R.string.about_public_preview_prefix, version())) { card ->
             card.addView(label(getString(R.string.an_independent_carplay_receiver_for_android_head_units_wir), 17, TEXT))
         }
         section(content, getString(R.string.made_possible_by_open_source)) { card ->
@@ -3387,7 +3387,7 @@ open class OsnPlayActivity : ComponentActivity() {
                     }
                     appendLine("Saved manual hotspot network: interface=${AirPlayPersistence.loadManualHotspotInterface(appContext) ?: if (appContext.resources.getBoolean(R.bool.config_require_hotspot_interface)) "unselected" else "auto"} addressMode=${AirPlayPersistence.loadManualHotspotAddressMode(appContext)}")
                     appendLine("Authentication: local experimental beta identity; no remote fallback")
-                    appendLine("Audio compatibility: earlyMediaFocus=${AirPlayPersistence.loadEarlyMediaFocus(appContext)} systemMediaSync=${AirPlayPersistence.loadSystemMediaSyncEnabled(appContext)} standardMicrophone=${AirPlayPersistence.loadStandardMicrophoneInput(appContext)} microphonePermission=${appContext.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED} opusInput=${com.shilapi.xcertplay.media.MicrophoneCodecSupport.opusAvailable()}")
+                    appendLine("Audio compatibility: earlyMediaFocus=${AirPlayPersistence.loadEarlyMediaFocus(appContext)} systemMediaSync=${AirPlayPersistence.loadSystemMediaSyncEnabled(appContext)} standardMicrophone=${AirPlayPersistence.loadStandardMicrophoneInput(appContext)} microphonePermission=${appContext.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED} opusInput=${com.shilapi.xcertplay.media.OpusEncoderSupport.isAvailable()}")
                     appendLine("CarPlay setup: ${if (setupError == null) "ready" else "authentication unavailable"}")
                     appendLine("Saved video preference (may differ from active session): ${if (AirPlayPersistence.loadHevcEnabled(appContext)) "HEVC" else "H.264"}; ${AirPlayPersistence.loadFps(appContext)} fps")
                     appendLine("CarPlay size: ${com.shilapi.xcertplay.airplay.CarPlaySize.fromWidthMillimeters(AirPlayPersistence.loadWidthPhysicalMm(appContext)).label}")

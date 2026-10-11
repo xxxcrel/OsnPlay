@@ -22,11 +22,18 @@ class OsnPlaySessionService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
-        val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(NotificationChannel(CHANNEL, "CarPlay connection", NotificationManager.IMPORTANCE_LOW))
+        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(NotificationChannel(CHANNEL, "CarPlay connection", NotificationManager.IMPORTANCE_LOW))
+            Notification.Builder(this, CHANNEL)
+        } else {
+            // Android 7.x has no notification channels; the priority stands in for the channel importance.
+            @Suppress("DEPRECATION")
+            Notification.Builder(this).setPriority(Notification.PRIORITY_LOW)
+        }
         val open = PendingIntent.getActivity(this, 0, Intent(this, CarPlayHostActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val stop = PendingIntent.getService(this, 1, Intent(this, OsnPlaySessionService::class.java).setAction(ACTION_STOP), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        val notification = Notification.Builder(this, CHANNEL)
+        val notification = builder
             .setSmallIcon(R.drawable.ic_osnplay_notification)
             .setContentTitle("OsnPlay")
             .setContentText("CarPlay connection running")

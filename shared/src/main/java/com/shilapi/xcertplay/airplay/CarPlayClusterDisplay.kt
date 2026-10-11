@@ -45,6 +45,10 @@ object CarPlayClusterDisplay {
     val horizontalSteps = -4..4 // negative = left
     val verticalSteps = -3..3 // negative = up
 
+    /** Marker placement on a 1 % grid, used by the full-screen and small-window positions. */
+    val markerXPercents = (5..95 step 1).toList()
+    val markerYPercents = (5..95 step 1).toList()
+
     /** Where the car marker lands, in percent of the panel (x from the left, y from the top). */
     fun markerPercent(
         horizontalStep: Int,
@@ -60,10 +64,14 @@ object CarPlayClusterDisplay {
 
     /**
      * Stream size in percent of the panel. The cluster scales the stream up, so a smaller stream
-     * gives a larger map: 83 % is clearly larger and still sharp; 50 % was visibly blurry.
+     * gives a larger map: 83 % is clearly larger and still sharp.
+     *
+     * Values above 100 ask for a larger stream than the panel: the iPhone renders more map
+     * area and the cluster scales it down, so features are smaller and finer — "smaller"
+     * in the settings means more content, not a magnified view.
      */
     const val STREAM_SCALE_PERCENT = 83
-    val scalePresets = listOf(100, STREAM_SCALE_PERCENT, 67)
+    val scalePresets = listOf(100, STREAM_SCALE_PERCENT, 67, 125)
 
     private const val WIDTH_PHYSICAL_MM = 292 // a 12.3-inch 8:3 cluster panel; Apple Maps ignores it here
     private const val FPS = 30
@@ -75,11 +83,13 @@ object CarPlayClusterDisplay {
         horizontalStep: Int = 0,
         verticalStep: Int = 0,
         content: Content = Content.MAP,
+        markerXPercent: Int? = null,
+        markerYPercent: Int? = null,
         baseSafeArea: AirPlayInsets = SAFE_AREA_PERCENT,
     ): AirPlayDisplayConfig {
         // Height rounds to a multiple of 8 and width follows it, so the panel's aspect is kept
         // (83 % of 1920x720 gives exactly 1600x600). The cluster scales the stream to the panel.
-        val scale = scalePercent.coerceIn(25, 100)
+        val scale = scalePercent.coerceIn(25, 150)
         val height = roundTo8(heightPixels * scale / 100.0)
         val width = roundTo8(height * widthPixels.toDouble() / heightPixels)
         return AirPlayDisplayConfig(
@@ -91,7 +101,7 @@ object CarPlayClusterDisplay {
             primaryInputDevice = 0,
             features = 0,
             initialUrl = content.url,
-            safeArea = safeArea(width, height, horizontalStep, verticalStep, baseSafeArea),
+            safeArea = safeArea(width, height, horizontalStep, verticalStep, markerXPercent, markerYPercent, baseSafeArea),
             safeAreaDrawOutside = true,
         )
     }
@@ -103,10 +113,16 @@ object CarPlayClusterDisplay {
         height: Int,
         horizontalStep: Int,
         verticalStep: Int,
+        markerXPercent: Int? = null,
+        markerYPercent: Int? = null,
         baseSafeArea: AirPlayInsets = SAFE_AREA_PERCENT,
     ): AirPlayInsets {
         val area = baseSafeArea
-        val (x, y) = markerPercent(horizontalStep, verticalStep, area)
+        val (x, y) = if (markerXPercent != null && markerYPercent != null) {
+            markerXPercent.coerceIn(5, 95).toDouble() to markerYPercent.coerceIn(5, 95).toDouble()
+        } else {
+            markerPercent(horizontalStep, verticalStep, area)
+        }
         val halfWidth = minOf((100 - area.left - area.right) / 2.0, x, 100 - x)
         val halfHeight = minOf((100 - area.top - area.bottom) / 2.0, y, 100 - y)
         return AirPlayInsets(

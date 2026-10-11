@@ -23,6 +23,7 @@ class MediaFocusStartupTest {
 
     @Before fun resetPreferences() {
         context.getSharedPreferences("xcertplay_airplay", android.content.Context.MODE_PRIVATE).edit().clear().commit()
+        `when`(controller.nowPlayingSnapshot()).thenReturn(com.shilapi.xcertplay.media.CarPlayNowPlaying())
     }
 
     @Test fun compatibilityModeHasNoSystemTransportSessionAndDoesNotRetakeFocusMidTrack() {

@@ -8,6 +8,30 @@ release key, without debug-only HUD components. Version 1.5.2 (versionCode 13)
 fixes numeric-dialog readability and keeps manual-only GitHub Release checks. No legacy preference,
 class-name or storage migration is included.
 
+## Upstream 0.2.18 integration
+
+The source integration targets upstream commit
+`24ae1fa52edbe27392a668d4c9e71a32d5691986` (0.2.18). The OSN launcher still
+inherits `OsnPlayActivity`, preserving its native home screen, categorized
+settings, day/night dialogs, interface sizing and background device sampler.
+The upstream settings screen is retained as `OsnGenericActivity` for generic
+builds; the OSN manifest removes its launcher entry.
+
+Connection, USB, decoder, buffered-audio, software Opus and echo-cancellation
+updates are integrated underneath the existing UI. Newly added experimental
+options keep their persisted upstream defaults until explicitly exposed by
+the OSN settings. The OSN standard-microphone option still selects MIC without
+forcing communication mode. Hand-selected hotspot interfaces remain authoritative:
+a missing saved interface does not fall back to another network, and an explicit
+IPv4/IPv6 choice is retained across upstream startup recovery.
+
+The OSN product gates the imported automatic-update scheduler and worker checks.
+Only its existing manual `OsnUpdateManager` contacts the fork's release channel.
+BYD call, phone-audio, FCE and ambient-light outputs also obey the product exclusion,
+including when their saved preferences are enabled. Instrument-map support remains
+disabled. The integration itself does not change the configured release version.
+See [the integration and verification record](UPSTREAM-INTEGRATION-2026-10-11.md).
+
 ## 1.5.2 dialog themes and release automation
 
 Resolution, ambient-light threshold and night-mode delay dialogs now use the

@@ -1,16 +1,34 @@
 # OsnPlay
 
-**OsnPlay for the 2023 Lynk & Co 03 / OSN 2.0 head unit.** Native system-aware themes, wireless/USB CarPlay, and one-finger settings access. The local product package is `com.sinyee.babybus.story`; see `docs/OSNPLAY.md` for the current build and on-car checks.
+## Lynk & Co OSN product
+
+This fork builds OsnPlay for the 2023 Lynk & Co 03 / OSN 2.0 (Android 9).
+The OSN product uses `com.sinyee.babybus.story`, its existing native home/settings
+UI, manually selected hotspot interfaces and manual-only GitHub Release updates
+from [`xxxcrel/OsnPlay`](https://github.com/xxxcrel/OsnPlay).
+BYD vehicle outputs and instrument-map projection are disabled for this product.
+The configured OSN release remains 1.5.2 / versionCode 13.
+
+- [OSN features, defaults and build instructions](docs/OSNPLAY.md)
+- [Signed release automation](docs/ACTIONS_RELEASE.md)
+- [Manual update protocol](docs/GITHUB_UPDATES.md)
+
+## Upstream reference notes — 0.2.18
+
+The following describes the imported upstream feature set and its generic build.
+OSN-specific availability and vehicle validation are documented above.
+
+**CarPlay for compatible BYD Android head units.** Wired and wireless, with the familiar DiAuto interface. Independent app: `com.shihab.osnplay`.
 
 > **BYD support scope:** These projects focus on BYD cars. They may work on other brands, but other brands are unsupported and there are no plans to add support or fix brand-specific incompatibilities.
 
-[Download & website](https://shihabal3amri.github.io/DiPlay/) · [Release](https://github.com/shihabal3amri/DiPlay/releases/tag/v0.2.11) · [Report a problem](https://github.com/shihabal3amri/DiPlay/issues/new/choose)
+[Download & website](https://shihabal3amri.github.io/DiPlay/) · [Release](https://github.com/shihabal3amri/DiPlay/releases/tag/v0.2.18) · [Report a problem](https://github.com/shihabal3amri/DiPlay/issues/new/choose)
 
 ![OsnPlay home](site/assets/home.png)
 
-## 0.2.11 — public preview
+## 0.2.18 — public preview
 
-Install on the **car**, not the iPhone. No jailbreak, dongle, Mac, account or authentication server is required for use. Core CarPlay does not require ADB; optional dashboard, battery, wheel-speed and parked-video features do. Your head unit must permit APK installation. Wireless supports Wi-Fi Direct or the car’s existing hotspot; Wi-Fi Direct requires Android 10+; the APK supports Android 9+ for wired use.
+Install on the **car**, not the iPhone. No jailbreak, dongle, Mac, account or authentication server is required for use. Core CarPlay does not require ADB; optional dashboard, battery, wheel-speed and parked-video features do. Your head unit must permit APK installation. The APK supports Android 7.1+ (API 25); Android 7.1–8.1 support is not yet confirmed on a vehicle. Wireless supports Wi-Fi Direct, the car’s existing hotspot or Existing Wi-Fi / Same LAN. Android 7.1–9 Wi-Fi Direct uses a firmware-dependent legacy path with generated group credentials and unverified requested frequency; see [Android 9 Wi-Fi Direct](docs/ANDROID9_WIFI_DIRECT.md). Android 10+ verifies its negotiated group frequency.
 
 - Wired USB and wireless CarPlay with local authentication.
 - BYD HUD navigation with arrows, distance and street names on verified firmware.
@@ -22,23 +40,20 @@ Install on the **car**, not the iPhone. No jailbreak, dongle, Mac, account or au
 
 This is **not an Apple-certified product**. The APK bundles an experimental accessory identity recovered from public Carlinkit firmware, not a newly provisioned MFi identity for OsnPlay. A bundled private key is extractable. Acceptance after future iOS updates, reliability across head units and suitability of that identity for general distribution are unresolved. This release invites community testing; it is not a guarantee of universal compatibility.
 
-Earlier releases were tested on the development DiLink5.1 car: live windshield guidance and street names work, Car hotspot now starts CarPlay, and Wi-Fi Direct performance is substantially improved. Occasional audio cutouts remain and are deferred to a later update. The floating-map test build was installed on the development DiLink 5.1 car; feedback led to the pinch corrections in 0.2.9. Earlier wheel-speed and video contributions were tested on a BYD Tang with DiLink 5.0 and an iPhone 15 Pro on iOS 27; wheel-speed dead reckoning in tunnels remains unverified. Broader head-unit and iOS compatibility is not guaranteed. The HUD firmware scope and cleanup limits are documented in [BYD navigation](docs/BYD_NAVIGATION.md).
+Earlier releases were tested on the development DiLink5.1 car: live windshield guidance and street names work, Car hotspot now starts CarPlay, and Wi-Fi Direct performance is substantially improved. Audio underrun recovery is improved in 0.2.15; remaining cutouts need current diagnostic reports. The 0.2.16 software Opus microphone fallback was accepted on a BOS Mini A1 head unit (Android 9) with an iPhone 12 on iOS 27. The floating-map test build was installed on the development DiLink 5.1 car; feedback led to the pinch corrections in 0.2.9. Earlier wheel-speed and video contributions were tested on a BYD Tang with DiLink 5.0 and an iPhone 15 Pro on iOS 27; wheel-speed dead reckoning in tunnels remains unverified. Broader head-unit and iOS compatibility is not guaranteed. The HUD firmware scope and cleanup limits are documented in [BYD navigation](docs/BYD_NAVIGATION.md).
 
-## What’s new in 0.2.11
+## What’s new in 0.2.18
 
-- **Preferred Wi-Fi Direct channel**: Auto remains the default; save a supported 2.4/5 GHz channel for the next connection. Rejected or mismatched manual channels report an error. Channel choice is not a confirmed stutter fix.
-- A custom dashboard turn card with size choices and position changes in 2% steps. Unknown maneuvers show no guessed arrow; expired guidance clears.
-- Two-, three- or four-finger settings swipes, keeping three as the default, plus Android TV/remote controls that preserve ordinary touch and knob behavior.
-- Opt-in read-only legacy vehicle-data detection under Location → Advanced vehicle data. Default DiLink 5.0 mode remains the default; only accepted fields/readings become runtime data. Stale-probe and battery-publication concurrency corrections are included.
-- Optional automatic startup of the existing car hotspot, off by default, with verified permissions limited to OsnPlay's own package.
-- Wireless location/vehicle data on the runtime Wi-Fi link and parked-video availability delivered after SETUP/event-channel readiness. Non-P or unreadable gear still closes video.
-- Retain artists across partial song updates and publish media-session metadata/artwork only when changed; position/play state keep updating.
-- Android 9 audio API compatibility, failed-codec cleanup, settled-size/readiness checks after reconnect, an exact-error Android 10 P2P compatibility path in Auto mode, and a wired VPN restricted to OsnPlay.
-- Bounded wireless/media/theme and own-app exit diagnostics, without audio/video/packet payload recording or automatic uploads.
+- Wired CarPlay no longer drops every few minutes when a USB read finishes just as OsnPlay stops waiting for it, and it now starts on Android 7.1 head units, on head units whose USB audio driver held the iPhone, and without a VPN dialog when network ADB is approved.
+- Fewer short music dropouts, and the connection screen shows the real stage and failure in every app language.
+- On head units whose Android Bluetooth cannot reach the iPhone, wireless CarPlay stops with a clear message and suggests USB.
+- The wheel's next and previous keys change CarPlay tracks on the CarPlay screen without the wheel-key service, Geely/Lynk `geely_fx11` head units get wheel media keys and Siri, and wheel keys stuck on "Allowed, starting…" recover by themselves.
+- Back up and restore settings from a phone through a QR code in **Settings → About**, and pick another installer, such as MT Manager, for updates.
+- New experimental, off-by-default options: Harman full screen, square corners, clearer navigation voice over USB, MediaTek low-latency decoding, a media-key audio focus opt-out, car phone audio for calls, a cluster speedometer and FCE cluster guidance.
 
-Optional legacy vehicle data, battery, wheel speed and parked video require authorized network ADB and supported readings. Dashboard, hotspot and audio effects depend on firmware and Android support. See [0.2.11 release notes](docs/RELEASE-NOTES-0.2.11.md) and [validation](docs/VALIDATION.md) for review corrections and device-test limits. Qin Plus startup, Wi-Fi Direct stutter, Siri/microphone quality, iOS 15 connection and day/night firmware reports still need fresh hardware evidence.
+See [0.2.18 release notes](docs/RELEASE-NOTES-0.2.18.md) and [validation](docs/VALIDATION.md) for contribution links and remaining physical tests. General stutter, calls/Siri, decoder and model-specific reports still need current-device evidence. [0.2.17 notes](docs/RELEASE-NOTES-0.2.17.md) remain available as historical guidance.
 
-If a problem remains, reproduce it on **0.2.11**, then use **Settings → Diagnostics → Save diagnostic report**. Android 10+ saves to **Downloads/OsnPlay**; Android 9 uses the document picker. If the picker or Downloads storage is unavailable, the report saves to **Android/data/<applicationId>/files/diagnostic-reports/** and the confirmation shows the full `.txt` path. If that storage is also unavailable, the report saves privately in OsnPlay. You can view or share either fallback report from the confirmation. Review the `.txt` file and attach it to your existing [issue](https://github.com/shihabal3amri/DiPlay/issues), including vehicle/firmware, phone/iOS, connection mode, steps and failure time. Reports are shared only when you choose; never post your hotspot password.
+If a problem remains, reproduce it on **0.2.18**, then use **Settings → Diagnostics → Save diagnostic report**. Android 10+ normally saves to **Downloads/OsnPlay**; Android 7.1–9 asks for storage access and saves there too. If unavailable, use **View report** or **Share** from the confirmation, which identifies external/private fallback storage. Review the `.txt` and add it to a matching [existing issue](https://github.com/shihabal3amri/DiPlay/issues), or [create one](https://github.com/shihabal3amri/DiPlay/issues/new/choose). Include vehicle/head-unit model, exact firmware and Android/DiLink, phone/iOS, connection backend, relevant settings, steps and failure time. Reports are shared only when you choose; never post your hotspot password.
 
 ## Documentation
 
@@ -48,13 +63,14 @@ BYD DiLink 4.0 / Android 10 clean-install validation result.
 
 - [Install and connect](docs/INSTALL.md)
 - [Compatibility and troubleshooting](docs/COMPATIBILITY.md)
+- [Smooth wireless CarPlay](docs/SMOOTH_WIRELESS.md)
 - [Privacy and diagnostic reports](docs/PRIVACY.md)
-- [Build from source](docs/BUILD.md)
+- [Build from source](docs/BUILD.md) — select `mobile` for the main OsnPlay app; `maphost` is a map sample.
 - [Validation](docs/VALIDATION.md)
 - [Release notes](CHANGELOG.md)
 - [Credits and licenses](docs/THIRD_PARTY_NOTICES.md)
 
-The website is available in English, Arabic, Russian, Ukrainian, Spanish and Simplified Chinese. The app interface supports those same six languages. Choose the app language in Settings; on Android 13+, it stays synchronized with Android’s per-app language setting.
+The app and release website are available in English, Arabic, Russian, Ukrainian, Spanish, Simplified Chinese and Traditional Chinese (Taiwan). Traditional Chinese uses Taiwan wording; the app also recognizes Hong Kong/Macao and explicit Hant selections without claiming separate regional translations. Choose the app language in Settings; on Android 13+, it stays synchronized with Android’s per-app language setting.
 
 ## Source and credits
 

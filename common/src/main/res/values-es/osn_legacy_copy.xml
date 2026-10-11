@@ -1,0 +1,4 @@
+<resources>
+    <string name="your_drive_your_way">Tu viaje, a tu manera.</string>
+    <string name="apply_reconnects_carplay_for_size_resolution_music_buffer">Los ajustes que requieren una nueva conexión reinician CarPlay al aplicarlos. Los demás cambios se aplican en la próxima conexión.</string>
+</resources>

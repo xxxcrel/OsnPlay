@@ -8,7 +8,7 @@ SITE = ROOT / 'site'
 data = json.loads((SITE / 'content.json').read_text())
 BASE = 'https://shihabal3amri.github.io/DiPlay/'
 REPO = 'https://github.com/shihabal3amri/DiPlay'
-VERSION = '0.2.11'
+VERSION = '0.2.18'
 RELEASE = REPO + f'/releases/tag/v{VERSION}'
 DOWNLOAD = REPO + f'/releases/download/v{VERSION}/OsnPlay-{VERSION}.apk'
 for lang, d in data.items():
@@ -32,7 +32,7 @@ for lang, d in data.items():
 <section class="card"><span class="eyebrow">02</span><h2>{e(d['whats'])}</h2><ul>{''.join('<li>'+e(x)+'</li>' for x in d['features'])}</ul><a href="{RELEASE}">{e(d['notes'])} ↗</a><h3>{e(d['compat'])}</h3><p>{e(d['compatText'])}</p></section></div>
 <section class="card updates"><div><h2>{e(d['follow'])}</h2><p>{e(d['followText'])}</p></div><a class="button secondary" href="https://t.me/byd_localized">{e(d['telegram'])} ↗</a></section>
 <section class="signing"><h2>{e(d['update'])}</h2><p>{e(d['updateText'])}</p></section>
-<section class="card"><h2>{e(d['diagnosticsTitle'])}</h2><p>{e(d['diagnosticsText'])}</p><a href="{REPO}/issues">{e(d['feedback'])} ↗</a></section>
+<section class="card"><h2>{e(d['diagnosticsTitle'])}</h2><p>{e(d['diagnosticsText'])}</p><a href="{REPO}/issues">{e(d['feedback'])} ↗</a> · <a href="{REPO}/issues/new/choose">{e(d['newIssue'])} ↗</a></section>
 <footer><nav><a href="{REPO}/blob/main/docs/PRIVACY.md">{e(d["privacy"])}</a><a href="{REPO}">{e(d['source'])}</a><a href="{RELEASE}">{e(d['notes'])}</a><a href="{REPO}/issues">{e(d['feedback'])}</a></nav><p>{e(d['footer'])}</p></footer>
 </main></body></html>''')
 print('Generated', len(data), 'language pages')

@@ -1,17 +1,20 @@
-name: Connection, display or audio problem
-description: Help us reproduce an issue on your head unit.
+name: Other bug (display, audio, installation or controls)
+description: Report a problem other than a connection failure or disconnection.
 title: '[Bug] '
 body:
   - type: markdown
     attributes:
-      value: 'Test while parked. Reports are public: review diagnostic files and remove personal information before attaching them. Never post credentials.'
+      value: |
+        For USB/Bluetooth/Wi-Fi connection failures, getting stuck opening CarPlay, reconnect loops, disconnects or connection-dependent stutter, use the [Connection problem form](https://github.com/shihabal3amri/DiPlay/issues/new?template=connection.yml). Connection reports require diagnostic logs.
+
+        Test while parked. Reports are public: review diagnostic files and remove personal information before attaching them. Never post credentials.
   - type: input
     id: version
-    attributes: {label: OsnPlay version, placeholder: '0.1.0'}
+    attributes: {label: OsnPlay version, placeholder: 'Exact version from Settings → About'}
     validations: {required: true}
   - type: input
     id: car
-    attributes: {label: Car and head-unit model, placeholder: 'Car model/year, DiLink version, Android version'}
+    attributes: {label: Car and head-unit model, placeholder: 'Car model/year, head unit, DiLink/Android version and exact firmware'}
     validations: {required: true}
   - type: input
     id: phone
@@ -21,16 +24,16 @@ body:
     id: transport
     attributes:
       label: Connection
-      options: [Wireless, USB, Both]
+      options: ['Wireless: built-in car hotspot', 'Wireless: Wi-Fi Direct', 'Wireless: Existing Wi-Fi / Same LAN', USB, Both, 'Other / unsure']
     validations: {required: true}
   - type: textarea
     id: reproduce
     attributes:
       label: What happened and how to reproduce it
-      description: 'Include expected behavior, steps, display settings and whether the car is also connected to a Wi-Fi network. For wireless, include the band/channel if the report shows it.'
+      description: 'Include expected behavior, steps, relevant settings and the approximate failure time. For wireless, include the backend, band/channel if shown, and whether the car is also connected to another Wi-Fi network. For Same LAN, include the router model and whether client isolation is enabled.'
     validations: {required: true}
   - type: textarea
     id: diagnostics
     attributes:
       label: Diagnostic report or recording
-      description: 'Settings → Save diagnostic report; Android 10+ saves to Downloads/OsnPlay. Attach the reviewed file here. If export fails, describe exactly when.'
+      description: 'Reproduce on the latest official release, then Settings → Diagnostics → Save diagnostic report. Android 10+ normally saves to Downloads/OsnPlay; Android 7.1–9 uses a document picker. If saving is unavailable, use View report or Share in the confirmation. Review the text before attaching it and never include your hotspot password. Include the approximate failure time. For installation failures, attach the installer error and Android/API version; an in-app report may not be available.'

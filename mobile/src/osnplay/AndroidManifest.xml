@@ -7,6 +7,8 @@
         android:label="@string/app_name"
         android:banner="@drawable/osnplay_banner"
         tools:replace="android:icon,android:roundIcon">
+        <activity android:name="com.shilapi.xcertplay.OsnGenericActivity" tools:node="remove" />
+        <provider android:name="com.shilapi.xcertplay.update.UpdateApkProvider" tools:node="remove" />
         <provider android:name="com.shilapi.xcertplay.OsnUpdateProvider"
             android:authorities="${applicationId}.updates"
             android:exported="false" android:grantUriPermissions="true">
@@ -18,8 +20,7 @@
             android:exported="true" android:launchMode="singleTask"
             android:screenOrientation="landscape"
             android:configChanges="density|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
-            android:theme="@style/Theme.OsnPlay.Startup"
-            tools:node="replace" />
+            android:theme="@style/Theme.OsnPlay.Startup" />
         <activity android:name="com.osnplay.app.MainActivity"
             android:enabled="true" android:exported="true"
             android:launchMode="singleTask" android:screenOrientation="landscape"

@@ -43,6 +43,9 @@ interface WirelessHotspotManager : Closeable {
      */
     fun start(timeoutMillis: Long): WirelessHotspotInfo
 
+    /** 发布之前确认本轮选定的接口和地址仍可用。 */
+    fun validateReady() {}
+
     /** The authenticated wireless session has rendered CarPlay; AP creation alone is insufficient. */
     fun onCarPlayConfirmed() {}
 

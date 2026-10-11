@@ -1,0 +1,4 @@
+<resources>
+    <string name="your_drive_your_way">Your drive, your way.</string>
+    <string name="apply_reconnects_carplay_for_size_resolution_music_buffer">Settings that require a new connection restart CarPlay when applied. Other changes apply to your next connection.</string>
+</resources>

@@ -1,0 +1,4 @@
+<resources>
+    <string name="your_drive_your_way">你的旅程，由你做主。</string>
+    <string name="apply_reconnects_carplay_for_size_resolution_music_buffer">需要重新连接的设置会在应用时重启 CarPlay。其他更改会在下次连接时生效。</string>
+</resources>

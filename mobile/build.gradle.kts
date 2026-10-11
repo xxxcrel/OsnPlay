@@ -28,10 +28,10 @@ android {
 
     defaultConfig {
         applicationId = if (osnPlay) "com.sinyee.babybus.story" else "com.shihab.osnplay"
-        minSdk = 28
+        minSdk = if (osnPlay) 28 else 25
         targetSdk = if (osnPlay) 28 else 37
-        versionCode = if (osnPlay) osnVersionCode else 30
-        versionName = if (osnPlay) osnVersionName else "0.2.11"
+        versionCode = if (osnPlay) osnVersionCode else 37
+        versionName = if (osnPlay) osnVersionName else "0.2.18"
 
     }
 

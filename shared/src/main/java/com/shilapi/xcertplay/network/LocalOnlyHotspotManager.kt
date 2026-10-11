@@ -2,7 +2,6 @@ package com.shilapi.xcertplay.network
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.net.MacAddress
 import android.net.wifi.SoftApConfiguration
 import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiManager
@@ -17,7 +16,6 @@ import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.NetworkInterface
 import java.net.SocketException
-import java.net.UnknownHostException
 import java.util.Collections
 import java.util.UUID
 import java.util.concurrent.Executor
@@ -30,6 +28,7 @@ import java.util.concurrent.TimeUnit
  * the AP interface is usable. The reservation and multicast lock stay owned by this instance
  * until [close].
  */
+@RequiresApi(Build.VERSION_CODES.O)
 class LocalOnlyHotspotManager(context: Context, private val onDiagnostic: (String) -> Unit = {}) : WirelessHotspotManager {
     private val connectivityManager =
         context.applicationContext.getSystemService(ConnectivityManager::class.java)
@@ -445,11 +444,7 @@ class LocalOnlyHotspotManager(context: Context, private val onDiagnostic: (Strin
         val security = mapWifiConfigurationSecurity(configuration)
         val passphrase = validatePassphrase(security, unquote(configuration.preSharedKey))
         val bssid = configuration.BSSID?.let {
-            try {
-                MacAddress.fromString(it)
-            } catch (failure: IllegalArgumentException) {
-                throw IOException("LocalOnlyHotspot reported an invalid BSSID: $it", failure)
-            }
+            parseMacAddress(it) ?: throw IOException("LocalOnlyHotspot reported an invalid BSSID: $it")
         }
         val channel = readWifiConfigurationChannel(configuration)
 
@@ -458,8 +453,8 @@ class LocalOnlyHotspotManager(context: Context, private val onDiagnostic: (Strin
             passphrase = passphrase,
             security = security,
             channel = channel,
-            bssid = bssid?.toString(),
-            bssidBytes = bssid?.toByteArray(),
+            bssid = bssid?.toMacAddressString(),
+            bssidBytes = bssid,
             bandLabel = readWifiConfigurationBandLabel(configuration, channel),
         )
     }
@@ -620,21 +615,10 @@ class LocalOnlyHotspotManager(context: Context, private val onDiagnostic: (Strin
                 .firstNotNullOfOrNull { it.toEui64MacAddress() }
 
     private fun NetworkInterface.hotspotAddress(): InetAddress? {
-        var ipv4: InetAddress? = null
-        for (address in Collections.list(inetAddresses)) {
-            if (address is Inet6Address && address.isLinkLocalAddress) {
-                if (address.scopeId == index) return address
-                try {
-                    return Inet6Address.getByAddress(null, address.address, this)
-                } catch (_: UnknownHostException) {
-                    continue
-                }
-            }
-            if (address is Inet4Address && !address.isLoopbackAddress && ipv4 == null) {
-                ipv4 = address
-            }
-        }
-        return ipv4
+        val address = HotspotAddressPolicy.select(Collections.list(inetAddresses)) ?: return null
+        if (address !is Inet6Address || address.scopeId == index) return address
+        return runCatching { Inet6Address.getByAddress(null, address.address, this) }
+            .getOrDefault(address)
     }
 
     private fun ensureStartActive(attempt: StartAttempt) {
@@ -754,6 +738,13 @@ class LocalOnlyHotspotManager(context: Context, private val onDiagnostic: (Strin
 
     private fun ByteArray.toMacAddressString(): String =
         joinToString(":") { "%02x".format(it.toInt() and 0xff) }
+
+    /** Parses `aa:bb:cc:dd:ee:ff` as `MacAddress.fromString` does; that call needs API 28. */
+    private fun parseMacAddress(value: String): ByteArray? {
+        val parts = value.split(':')
+        if (parts.size != 6 || parts.any { it.isEmpty() || it.length > 2 }) return null
+        return ByteArray(6) { index -> (parts[index].toIntOrNull(16) ?: return null).toByte() }
+    }
 
     private fun Inet6Address.toEui64MacAddress(): String? {
         val bytes = address

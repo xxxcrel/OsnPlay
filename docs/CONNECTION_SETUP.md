@@ -13,7 +13,7 @@ default; Wi-Fi Direct and USB remain available. Previous Local hotspot
 selections switch to built-in hotspot. Check and save the car's real hotspot
 details before connecting.
 
-IN-SESSION SETTINGS AND AUTHENTICATION — DIPLAY
+IN-SESSION SETTINGS AND AUTHENTICATION — OSNPLAY
 In CarPlay, swipe down with the configured number of fingers (2, 3 or 4;
 default 3) to open the hidden settings menu. Opening or cancelling the menu
 keeps a healthy session connected. Save and reconnect applies the edits;
@@ -95,9 +95,16 @@ The switch is off by default. Turning it on automatically requests missing
 WRITE_SETTINGS through ADB, without a separate setup button or OsnPlay confirmation.
 Approve the car's system ADB prompt if needed. The switch is enabled only after
 the required permissions are verified; a failed grant leaves it off and shows a message.
-Once granted, startup and built-in-hotspot connections can turn on the car's
-saved hotspot without keeping ADB enabled. Turning ADB off hides this setting
-but preserves the choice; enable ADB again to change it. USB, Wi-Fi Direct,
+After the grant, firmware that allows the app's direct hotspot request can turn
+on the saved hotspot without ADB. Firmware that blocks that request needs an
+already-authorized, reachable traditional network ADB connection at each startup
+or connection attempt. The fallback uses only a saved-hotspot start command
+advertised by that firmware's service help, checks its result, and waits for an
+observed AP enabled state. These commands are not standard Android commands;
+this does not establish support for every DiLink version. If neither path is
+supported, use the car's own hotspot settings.
+Turning ADB off hides this setting but preserves the choice; enable ADB again
+to change it. USB, Wi-Fi Direct,
 disconnecting, exiting, and turning this option off do not stop the hotspot.
 Unsupported firmware, missing permission, and startup failures are reported;
 the car's own hotspot settings remain available for manual setup.

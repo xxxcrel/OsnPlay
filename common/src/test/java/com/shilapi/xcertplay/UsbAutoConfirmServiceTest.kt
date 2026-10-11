@@ -2,6 +2,7 @@ package com.shilapi.xcertplay
 
 import android.content.Context
 import android.provider.Settings
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -42,6 +43,13 @@ class UsbAutoConfirmServiceTest {
         )
         assertTrue(UsbAutoConfirmService.isEnabled(context))
     }
+    @Test fun missingAccessibilitySettingsDoesNotCrash() {
+        val unavailable = org.mockito.Mockito.mock(Context::class.java)
+        org.mockito.Mockito.doThrow(android.content.ActivityNotFoundException())
+            .`when`(unavailable).startActivity(org.mockito.ArgumentMatchers.any(android.content.Intent::class.java))
+        assertFalse(UsbAutoConfirmService.openSettings(unavailable))
+    }
+
     @Test fun onlySystemUsbActivitiesAreAccepted() {
         assertTrue(UsbAutoConfirmService.isSystemUsbWindow("com.android.systemui", "com.android.systemui.usb.UsbPermissionActivity"))
         assertFalse(UsbAutoConfirmService.isSystemUsbWindow("evil.app", "com.android.systemui.usb.UsbPermissionActivity"))
@@ -49,14 +57,35 @@ class UsbAutoConfirmServiceTest {
         assertFalse(UsbAutoConfirmService.isSystemUsbWindow("com.android.systemui", "com.android.systemui.media.MediaProjectionPermissionActivity"))
     }
 
-    @Test fun promptMustNameOsnPlayAndUsbExplicitly() {
-        assertTrue(UsbAutoConfirmService.isTargetPrompt("Allow OsnPlay to access this USB device?", "OsnPlay"))
-        assertTrue(UsbAutoConfirmService.isTargetPrompt("允许 OsnPlay 访问 USB 设备？", "OsnPlay"))
+    @Test fun promptMustNameOsnPlayInEveryAndroidWording() {
+        // Android 7.1 and 10+ wording, in English and Chinese (#409, #521).
+        assertTrue(UsbAutoConfirmService.isTargetPrompt("Allow the app OsnPlay to access the USB device?", "OsnPlay"))
+        assertTrue(UsbAutoConfirmService.isTargetPrompt("允许应用“OsnPlay”访问该USB设备吗？", "OsnPlay"))
+        assertTrue(UsbAutoConfirmService.isTargetPrompt("Allow OsnPlay to access iPhone?", "OsnPlay"))
+        assertTrue(UsbAutoConfirmService.isTargetPrompt("要允许OsnPlay访问iPhone吗？", "OsnPlay"))
+        assertTrue(UsbAutoConfirmService.isTargetPrompt("Always open OsnPlay when iPhone is connected", "OsnPlay"))
         assertFalse(UsbAutoConfirmService.isTargetPrompt("Allow CarPlay access to iPhone?", "OsnPlay"))
-        assertFalse(UsbAutoConfirmService.isTargetPrompt("Allow OsnPlay to access your contacts?", "OsnPlay"))
-        assertFalse(UsbAutoConfirmService.isTargetPrompt("Allow FakeOsnPlay USB access?", "OsnPlay"))
+        assertFalse(UsbAutoConfirmService.isTargetPrompt("Allow FakeOsnPlay to access iPhone?", "OsnPlay"))
+        assertFalse(UsbAutoConfirmService.isTargetPrompt("要允许OsnPlayer访问iPhone吗？", "OsnPlay"))
         assertFalse(UsbAutoConfirmService.isTargetPrompt("Allow USB access?", ""))
     }
+
+    @Test fun bydAccessibilityScreenIsUsedWhenTheStandardActionIsMissing() {
+        val context = org.mockito.Mockito.mock(Context::class.java)
+        val opened = mutableListOf<android.content.Intent>()
+        org.mockito.Mockito.doAnswer { call ->
+            val intent = call.getArgument<android.content.Intent>(0)
+            if (intent.action == Settings.ACTION_ACCESSIBILITY_SETTINGS) throw android.content.ActivityNotFoundException()
+            opened += intent
+            null
+        }.`when`(context).startActivity(org.mockito.ArgumentMatchers.any(android.content.Intent::class.java))
+        assertTrue(UsbAutoConfirmService.openSettings(context))
+        assertEquals(
+            listOf("com.byd.systemsettings/com.byd.systemsettings.accessibility.AccessibilityMainActivity"),
+            opened.map { it.component!!.flattenToString() },
+        )
+    }
+
     @Test fun systemUsbPromptClicksOnlyWhenTheNamedAppMatches() {
         val service = org.mockito.Mockito.spy(org.robolectric.Robolectric.buildService(UsbAutoConfirmService::class.java).create().get())
         val root = org.mockito.Mockito.mock(android.view.accessibility.AccessibilityNodeInfo::class.java)
